@@ -89,8 +89,8 @@ void net::server::on_read( uv_poll_t *handle, int status, int events ) {
 
     if ( events & UV_DISCONNECT ) {
         ctx->log->warn( "session disconnected, {}", s->sock.fd );
-        s->close( );
         ctx->sessions.erase( s->sock.fd );
+        s->close( );
         return;
     }
 

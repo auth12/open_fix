@@ -99,6 +99,10 @@ namespace net {
 
             session_t( ) { mbedtls_net_init( &sock ); }
 
+            int write( const std::string_view buf ) {
+                return mbedtls_net_send( &sock, ( const unsigned char * )buf.data( ), buf.size( ) );
+            }
+
             void close( ) {
                 uv_poll_stop( &handle );
                 mbedtls_net_close( &sock );
@@ -170,6 +174,17 @@ namespace net {
                 uv_poll_start( &handle, UV_READABLE, on_connect );
 
                 return 0;
+            }
+
+            template< typename Fn >
+            void register_loop_timer( uv_timer_t *handle, const Fn &&cb, const int interval_s  ) {
+                uv_timer_init( &loop, handle );
+                handle->data = ctx.get( );
+                uv_timer_start( handle, cb, 0, interval_s * 1000 );
+            }
+
+            void stop_timer( uv_timer_t *handle ) {
+                uv_timer_stop( handle );
             }
 
             int run( ) { return uv_run( &loop, UV_RUN_DEFAULT ); }
