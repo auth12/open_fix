@@ -36,7 +36,7 @@ void net::on_poll( uv_poll_t *handle, int status, int flags ) {
         return;
     }
 
-    cli->log->debug( "received {} bytes", ret );
+    // cli->log->debug( "received {} bytes", ret );
 
     msg_t m;
     m.buf.ptr = buf;
@@ -114,7 +114,7 @@ void net::server::on_read( uv_poll_t *handle, int status, int events ) {
 
         std::string_view str{ buf, ( size_t )nread };
 
-        ctx->log->debug( "received {} bytes from {}, {}", nread, s->sock.fd, str );
+        // ctx->log->debug( "received {} bytes from {}, {}", nread, s->sock.fd, str );
 
         session_message_t msg;
         msg.sock = s->sock.fd;

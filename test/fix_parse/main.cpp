@@ -5,29 +5,49 @@
 #include <details.h>
 
 #include <fix_parse.h>
-#include <fix_spec.h>
 
+constexpr char fix_buf[] = "8=FIX.4.4\0019=178\00135=W\00149=SENDER\00156=RECEIVER\00134=123\00152=20230517-09:30:00."
+                           "000\00155=EUR/USD\001262=1\001268=2\001269=0\001270=1.2345\001271=100000\00110=080\001";
 
 int main( ) {
-    std::string s{
-        "8=FIX.4.2\0019=186\00135=D\00149=CLIENT1\00156=EXCHANGE1\00134=1\00152=20230514-10:00:00\00111=ORDER123456\001"
-        "22=1\00148=XYZ\00155=ABC\00154=1\00160=20230514-10:00:00\00110=178\001"
-    };
+    if ( !fix::is_valid_fix( fix_buf ) ) {
+        spdlog::error( "invalid fix msg" );
+        return 0;
+    }
 
-    fix::fix_message_t m{ s };
+    fix::fix_message_t m{ fix_buf };
 
-    m.for_each_field( [ = ]( const fix::fix_field_t f ) {
-        spdlog::info( "{}:{}", f.tag, f.val.as_str( ) );
-    } );
+    for ( const auto &it : m ) {
+        if ( it.tag == fix_spec::tag::MDEntryPx ) {
+            spdlog::info( "price entry: {}", it.val.as_float( ) );
+        }
+        spdlog::info( "{}:{}", it.tag, it.val.as_str( ) );
+    }
 
-    char buf[ 32 ] = { 0 };
-    std::string_view val = "SELL";
-    
-    fix::fix_writer_t wr( &buf[ 0 ], sizeof( buf ) );
-    wr.push_field( fix_spec::tag::AllocPrice, 11 );
-    wr.push_field( fix_spec::tag::AllocID, 98100 );
-    wr.push_field( fix_spec::tag::AdvSide, val );
-    
+    auto it = m.find( 8 );
+    if ( it != m.end( ) ) {
+        spdlog::info( "found {}, {}", it->tag, it->val.as_str( ) );
+    }
+
+    hffix::message_reader rd{ fix_buf };
+    if ( !rd.is_valid( ) ) {
+        return 0;
+    }
+
+    for ( ; rd.is_complete( ); rd = rd.next_message_reader( ) ) {
+        if ( rd.is_valid( ) ) {
+            auto begin = rd.begin( );
+            if ( rd.find_with_hint( fix_spec::tag::MDEntryPx, begin ) ) {
+                spdlog::info( "got px update: {}", begin->value( ).as_string( ) );
+            }
+        }
+    }
+
+    char buf[ 2048 ];
+    memset( buf, 0, 2048 );
+    fix::fix_writer_t wr( buf, 2048 );
+    wr.push( 8, "FIX.4.4" ).push( 270, "1.897" );
+
     spdlog::info( "{}", buf );
 
     return 0;

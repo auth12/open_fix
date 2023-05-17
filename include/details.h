@@ -22,14 +22,16 @@ namespace details {
                                                              spdlog::async_overflow_policy::block );
         }
 
-        inline log_ptr_t make_sync( std::string_view name ) {
+        inline log_ptr_t make_sync( const std::string_view &name, bool file = false ) {
             std::string logfile_name{ name };
             logfile_name.append( ".log" );
 
             std::vector< spdlog::sink_ptr > sinks;
             sinks.emplace_back( std::make_shared< spdlog::sinks::stdout_color_sink_mt >( ) );
-            sinks.emplace_back(
-                std::make_shared< spdlog::sinks::rotating_file_sink_mt >( logfile_name, 1024 * 1024 * 5, 10 ) );
+            if ( file ) {
+                sinks.emplace_back(
+                    std::make_shared< spdlog::sinks::rotating_file_sink_mt >( logfile_name, 1024 * 1024 * 5, 10 ) );
+            }
 
             return std::make_shared< spdlog::logger >( name.data( ), sinks.begin( ), sinks.end( ) );
         }
@@ -64,7 +66,7 @@ namespace details {
             num = -num;
         }
 
-        if( len < sizeof( num ) + 1 ) {
+        if ( len < sizeof( num ) + 1 ) {
             return -1;
         }
 

@@ -10,3 +10,6 @@
 [submodule "hffix"]
 	path = hffix
 	url = https://github.com/jamesdbrock/hffix.git
+[submodule "CppBenchmark"]
+	path = CppBenchmark
+	url = https://github.com/chronoxor/CppBenchmark.git

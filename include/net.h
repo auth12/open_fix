@@ -56,7 +56,7 @@ namespace net {
 
         tbb::flow::function_node< msg_t > on_msg_node;
 
-        tcp_client_t( std::string_view _host, std::string_view _port )
+        tcp_client_t( const std::string_view _host, const std::string_view _port )
             : ctx{ std::make_shared< client_context_t >( _host ) }, host{ _host }, port{ _port },
               on_msg_node{ ctx->g, tbb::flow::unlimited, OnMsg( ctx ) } {
             uv_loop_init( &loop );
@@ -89,14 +89,14 @@ namespace net {
     namespace server {
         struct session_message_t {
             char *buf = nullptr;
-            int sock;
             size_t len;
+            int sock;
         };
 
         struct session_t {
             uv_poll_t handle;
             mbedtls_net_context sock;
-
+            
             session_t( ) { mbedtls_net_init( &sock ); }
 
             int write( const std::string_view buf ) {
@@ -177,10 +177,10 @@ namespace net {
             }
 
             template< typename Fn >
-            void register_loop_timer( uv_timer_t *handle, const Fn &&cb, const int interval_s  ) {
+            void register_loop_timer( uv_timer_t *handle, const Fn &&cb, const int interval_ms  ) {
                 uv_timer_init( &loop, handle );
                 handle->data = ctx.get( );
-                uv_timer_start( handle, cb, 0, interval_s * 1000 );
+                uv_timer_start( handle, cb, 0, interval_ms );
             }
 
             void stop_timer( uv_timer_t *handle ) {

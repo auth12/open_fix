@@ -21,8 +21,13 @@ add_subdirectory(onetbb)
 
 project(fix_lib CXX)
 
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
 file(GLOB_RECURSE lib_src "${PROJECT_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE hdr "${PROJECT_SOURCE_DIR}/include/*.h")
+
+option(CPPBENCHMARK_MODULE TRUE)
+add_subdirectory(cppbenchmark)
 
 add_library(
 	fix STATIC
