@@ -40,6 +40,7 @@ set(include_dirs "${PROJECT_SOURCE_DIR}/spdlog/include/"
 "${PROJECT_SOURCE_DIR}/mbedtls/include/"
 "${PROJECT_SOURCE_DIR}/onetbb/include/"
 "${PROJECT_SOURCE_DIR}/hffix/include/"
+"${PROJECT_SOURCE_DIR}/atomic_queue/include/"
 "${PROJECT_SOURCE_DIR}/include/")
 
 target_include_directories(fix PUBLIC ${include_dirs})

@@ -2,8 +2,8 @@
 
 #include <net.h>
 
-void net::on_poll( uv_poll_t *handle, int status, int flags ) {
-    auto cli = ( client_context_t * )handle->loop->data;
+void net::cli::on_poll( uv_poll_t *handle, int status, int flags ) {
+    auto cli = ( cli_context_t * )handle->loop->data;
     if ( !cli ) {
         spdlog::critical( "missing client context, exiting..." );
         uv_poll_stop( handle );
@@ -33,16 +33,11 @@ void net::on_poll( uv_poll_t *handle, int status, int flags ) {
         cli->log->error( "failed to read from socket, {}", ret );
         cli->bufpool.release( buf ); // release
         cli->close( );
+        uv_stop( handle->loop );
         return;
     }
 
-    // cli->log->debug( "received {} bytes", ret );
-
-    msg_t m;
-    m.buf.ptr = buf;
-    m.buf.len = ret;
-
-    cli->queue.try_put( std::move( m ) );
+    cli->queue.try_put( msg_t{ buf, ( size_t )ret } );
 }
 
 void net::server::on_connect( uv_poll_t *handle, int status, int events ) {

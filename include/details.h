@@ -2,6 +2,8 @@
 
 #include "include.h"
 
+#include <atomic_queue/atomic_queue.h>
+
 namespace details {
     using log_ptr_t = std::shared_ptr< spdlog::logger >;
 
@@ -93,32 +95,26 @@ namespace details {
         return ret;
     }
 
-    struct buf_t {
-        char *ptr;
-        size_t len;
-
-        buf_t( ) : ptr{ nullptr }, len{ 0 } {}
-    };
-
-    template < typename T > using lockless_queue_t = tbb::concurrent_queue< T >;
+    template < typename T, const size_t N > using lockless_queue_t = atomic_queue::AtomicQueue2< T, N >;
     // basically a buffer ring
     template < int S, int N > struct bufpool_t {
         tbb::scalable_allocator< char > allocator;
-        lockless_queue_t< char * > q;
+        lockless_queue_t< char *, N > q;
 
         static const int buf_size = S;
 
         bufpool_t( ) {
-
             for ( int i = 0; i < N; ++i ) {
-                q.push( allocator.allocate( S ) );
+                const auto ptr = allocator.allocate( S );
+                memset( ptr, 0, S );
+                q.push( ptr );
             }
         }
 
         char *get( ) {
             char *ret = nullptr;
             if ( !q.try_pop( ret ) ) {
-                return { };
+                return ret;
             }
 
             return ret;

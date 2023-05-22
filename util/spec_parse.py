@@ -55,7 +55,7 @@ def parse_fix_spec():
             for v in f.iter('value'):
                 desc = v.get('description')
                 ret = v.get('enum')
-                if field_type == 'INT':
+                if field_type == 'INT' or field_type == 'QTY':
                     header.write(f'\t\tstatic int {desc} = {ret};\n')
                 if field_type == 'CHAR' or field_type == 'STRING':
                     header.write(f'\t\tstatic const char {desc}[] = "{ret}";\n')
