@@ -8,7 +8,8 @@
 
 constexpr char fix_buf[] = "8=FIX.4.4\0019=178\00135=W\00149=SENDER\00156=RECEIVER\00134=123\00152=20230517-09:30:00."
                            "000\00155=EUR/"
-                           "USD\001262=1\001268=2\001269=0\001270=1.2345\001271=100000\00110=080\0018=FIX.4.4\0019=178\00135=W\00149=SENDER\00156=RECEIVER\00134=123\00152=20230517-09:30:00."
+                           "USD\001262=1\001268=2\001269=0\001270=1.2345\001271=100000\00110=080\0018=FIX.4.4\0019="
+                           "178\00135=W\00149=SENDER\00156=RECEIVER\00134=123\00152=20230517-09:30:00."
                            "000\00155=EUR/"
                            "USD\001262=1\001268=2\001269=0\001270=1.2345\001271=89\00110=080\001";
 
@@ -32,9 +33,15 @@ int main( ) {
     char buf[ 2048 ];
     memset( buf, 0, 2048 );
     fix::fix_writer_t wr( buf, 2048 );
-    wr.push( 8, "FIX.4.4" ).push( 270, "1.897" );
+    wr.push_header( "FIX.4.4" )
+        .push_field( fix_spec::tag::BidPx, "100" )
+        .push_field( fix_spec::tag::BidPx, "100" )
+        .push_field( fix_spec::tag::BidPx, "100" )
+        .push_field( fix_spec::tag::BidPx, "100" )
+        .push_field( fix_spec::tag::BidPx, "100" )
+        .push_trailer( );
 
-    spdlog::info( "{}", buf );
+    spdlog::info( "{}, {}", buf, wr.cur_pos - wr.body_len_pos - 7 );
 
     return 0;
 }

@@ -4,6 +4,8 @@
 
 #include <atomic_queue/atomic_queue.h>
 
+#include <tbb/cache_aligned_allocator.h>
+
 namespace details {
     using log_ptr_t = std::shared_ptr< spdlog::logger >;
 
@@ -97,30 +99,30 @@ namespace details {
 
     template < typename T, const size_t N > using lockless_queue_t = atomic_queue::AtomicQueue2< T, N >;
     // basically a buffer ring
-    template < int S, int N > struct bufpool_t {
-        tbb::scalable_allocator< char > allocator;
-        lockless_queue_t< char *, N > q;
+    template < int BufSize, int Elements > struct bufpool_t {
+        tbb::cache_aligned_allocator< char > allocator;
+        lockless_queue_t< char *, Elements > queue;
 
-        static const int buf_size = S;
+        static const int buf_size = BufSize;
 
         bufpool_t( ) {
-            for ( int i = 0; i < N; ++i ) {
-                const auto ptr = allocator.allocate( S );
-                memset( ptr, 0, S );
-                q.push( ptr );
+            for ( int i = 0; i < Elements; ++i ) {
+                const auto ptr = allocator.allocate( BufSize );
+                memset( ptr, 0, BufSize );
+                queue.push( ptr );
             }
         }
 
         char *get( ) {
             char *ret = nullptr;
-            if ( !q.try_pop( ret ) ) {
+            if ( !queue.try_pop( ret ) ) {
                 return ret;
             }
 
             return ret;
         }
 
-        void release( char *buf ) { q.push( buf ); }
+        void release( char *buf ) { queue.push( buf ); }
     };
 
     static const unsigned char base64_table[ 65 ] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -165,4 +167,5 @@ namespace details {
 
         return outStr;
     }
+
 }; // namespace details

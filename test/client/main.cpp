@@ -4,7 +4,7 @@
 
 #include <fix_parse.h>
 
-#include <hffix.hpp>
+#include <config.h>
 
 struct on_msg_node_t {
     std::shared_ptr< net::cli::cli_context_t > ctx;
@@ -17,17 +17,17 @@ struct on_msg_node_t {
 
         if ( fix::is_valid_fix( buf ) ) {
             fix::fix_message_t m{ buf };
-            auto it = m.find( fix_spec::tag::MDEntryPx );
+            /*auto it = m.find( fix_spec::tag::MDEntryPx );
             if ( it != m.end( ) ) {
                 ctx->log->info( "got px update: {}", it->val.as_float( ) );
-            }
+            }*/
         }
 
         ctx->bufpool.release( msg.buf );
     }
 };
 
-constexpr char fix_buf[] = "8=FIX.4.4\0019=178\00135=W\00149=SENDER\00156=RECEIVER\00134=123\00152=20230517-09:30:00."
+constexpr char fix_buf[] = "8=FIX.4.4\0019=178\00135=A\00149=SENDER\00156=RECEIVER\00134=123\00152=20230517-09:30:00."
                            "000\00155=EUR/USD\001262=1\001268=2\001269=0\001270=1.2345\001271=100000\00110=080\001";
 
 void on_timer_cb( uv_timer_t *handle ) {
@@ -36,7 +36,16 @@ void on_timer_cb( uv_timer_t *handle ) {
 }
 
 int main( ) {
-    net::cli::tcp_cli_t< on_msg_node_t > cli( "127.0.0.1", "1515" );
+    config::cli_fix_cfg_t cfg;
+
+    if( !config::get_cli_config( "fix.config", cfg ) ) {
+        spdlog::error( "failed to parse client config file" );
+        return 0;
+    }
+
+    spdlog::info( "{},{},{},{}", cfg.ip, cfg.port, cfg.sender_id, cfg.target_id );
+
+    net::cli::tcp_cli_t< on_msg_node_t > cli( cfg.ip, cfg.port );
     auto &ctx = cli.ctx;
 
     int ret = cli.connect( );

@@ -21,6 +21,8 @@ namespace fix {
         const std::string_view as_str( ) const { return std::string_view{ begin, ( size_t )( end - begin ) }; }
 
         const float as_float( ) const { return atof( begin ); }
+
+        const char as_char( ) const { return begin[ 0 ]; };
     };
 
     struct fix_field_t {
@@ -43,21 +45,10 @@ namespace fix {
         using reference = value_type const &;
 
         value_type cur;
-        const char *ptr;
+        const char *ptr = nullptr;
 
         fix_field_iterator_t( ) = default;
-        fix_field_iterator_t( const char *p_ ) : ptr{ p_ } {
-            cur.begin = p_;
-            ptr = p_;
-            auto end = strchr( cur.begin, '\001' );
-            if ( !end ) {
-                return;
-            }
-
-            cur.val.begin = strchr( cur.begin, '=' ) + 1;
-            cur.tag = atoi( cur.begin );
-            cur.val.end = end;
-        }
+        fix_field_iterator_t( const char *p_ ) : ptr{ p_ } { next( ); }
 
         reference operator*( ) const { return cur; }
         pointer operator->( ) const { return &cur; }
@@ -68,19 +59,31 @@ namespace fix {
         }
 
         void next( ) {
-            ptr = cur.val.end + 1;
-            cur.begin = ptr;
-            cur.tag = 0;
+            bool found = false;
+            for ( const char *i = ptr; *i; ++i ) {
+                if ( *i == '=' ) {
+                    cur.val.begin = i + 1;
+                    continue;
+                }
 
-            auto end = strchr( cur.begin, '\001' );
-            if ( !end ) {
-                ptr = cur.begin + 1;
+                if ( *i == '\001' ) {
+                    cur.val.end = i;
+                    found = true;
+                    break;
+                }
+            }
+
+            if ( !found or !cur.val.begin ) {
+                ptr = nullptr;
                 return;
             }
 
-            cur.val.begin = strchr( cur.begin, '=' ) + 1;
+            cur.tag = 0;
+            cur.begin = ptr;
+
             cur.tag = details::atoi( cur.begin, cur.val.begin - 1 );
-            cur.val.end = end;
+
+            ptr = cur.val.end + 1;
         }
 
         bool operator!=( const fix_field_iterator_t &o ) { return o.ptr != ptr; };
@@ -103,7 +106,6 @@ namespace fix {
         using iterator = fix_field_iterator_t;
         const char *start, *last = nullptr;
 
-
         fix_message_t( ) = default;
         fix_message_t( const std::string_view &buf ) : start{ buf.data( ) }, last{ buf.data( ) + buf.size( ) } {}
 
@@ -113,7 +115,6 @@ namespace fix {
 
         const iterator begin( ) const { return iterator{ start }; }
         const iterator end( ) const { return iterator{ last }; }
-
         const iterator find( const int &tag ) const { return std::find_if( begin( ), end( ), tag_equal( tag ) ); }
     };
 
@@ -143,23 +144,14 @@ namespace fix {
                 ptr = cur.last;
 
             if ( ptr + 1 > end_ ) {
-                ptr = end_ + 1;
+                ptr = nullptr;
                 return;
             }
 
-            cur.start = ptr;
+            const char *end = strstr( ptr + 5, "8=FIX" );
 
-            const char *b = cur.start + 5;
-            while ( b < end_ - 5 ) {
-                if ( memcmp( b, "8=FIX", 5 ) == 0 ) {
-                    cur.last = b;
-                    break;
-                }
-                b++;
-            }
-            
-            if ( cur.last != b )
-                cur.last = end_;
+            cur.start = ptr;
+            cur.last = end ? end : end_;
         }
 
         bool operator!=( const fix_message_iterator_t &o ) { return ptr != o.ptr; };
@@ -173,31 +165,79 @@ namespace fix {
 
         fix_reader_t( const char *b_, const char *e_ ) : begin_{ b_ }, end_{ e_ } {}
 
+        fix_reader_t( const std::string_view &buf ) : begin_{ buf.data( ) }, end_{ buf.data( ) + buf.size( ) } {}
+
+        template < size_t N > fix_reader_t( const char ( &buf )[ N ] ) : begin_{ buf }, end_{ buf + N } {}
+
         const iterator begin( ) const { return iterator{ begin_, end_ }; }
         const iterator end( ) const { return iterator{ end_, end_ }; }
     };
 
+    // no message order checking
     struct fix_writer_t {
         char *begin = nullptr;
-        size_t len = 0;
-
-        size_t cur_pos = 0;
+        size_t len = 0, cur_pos = 0, body_len_pos = 0;
 
         fix_writer_t( char *ptr, const size_t len_ ) : begin{ ptr }, len( len_ ) {}
 
-        fix_writer_t &write_header( const std::string_view fix_v ) {
+        fix_writer_t &push_header( const std::string_view fix_v ) {
+            body_len_pos = push_field( fix_spec::tag::BeginString, fix_v )
+                               .push_field( fix_spec::tag::BodyLength, "00000" )
+                               .cur_pos;
             return *this;
         }
 
-        fix_writer_t &push( const int &tag, const std::string_view val ) {
+        fix_writer_t &push_trailer( ) {
             if ( cur_pos >= len ) {
                 return *this;
             }
-            int ret = details::itoa( tag, &begin[ cur_pos ], len - cur_pos );
-            cur_pos += ret;
+
+            auto len = cur_pos - body_len_pos;
+            char *b = begin + body_len_pos - 6;
+            b[ 0 ] = '0' + ( len / 10000 ) % 10;
+            b[ 1 ] = '0' + ( len / 1000 ) % 10;
+            b[ 2 ] = '0' + ( len / 100 ) % 10;
+            b[ 3 ] = '0' + ( len / 10 ) % 10;
+            b[ 4 ] = '0' + len % 10;
+
+            uint8_t checksum = std::accumulate( begin, begin + cur_pos, uint8_t{ 0 } );
+
+            memcpy( begin + cur_pos, "10=", 3 );
+            cur_pos += 3;
+            char *cur = begin + cur_pos;
+
+            cur[ 0 ] = '0' + ( ( checksum / 100 ) % 10 );
+            cur[ 1 ] = '0' + ( ( checksum / 10 ) % 10 );
+            cur[ 2 ] = '0' + ( checksum % 10 );
+
+            cur[ 3 ] = '\001';
+
+            cur_pos += 4;
+
+            return *this;
+        }
+
+        fix_writer_t &push_field( const int &tag, const std::string_view val ) {
+            if ( cur_pos >= len ) {
+                return *this;
+            }
+            cur_pos += details::itoa( tag, &begin[ cur_pos ], len - cur_pos );
             begin[ cur_pos++ ] = '=';
             memcpy( begin + cur_pos, val.data( ), val.size( ) );
             cur_pos += val.size( );
+
+            begin[ cur_pos++ ] = '\x01';
+
+            return *this;
+        }
+
+        fix_writer_t &push_int( const int &tag, const int val ) {
+            if ( cur_pos >= len ) {
+                return *this;
+            }
+            cur_pos += details::itoa( tag, &begin[ cur_pos ], len - cur_pos );
+            begin[ cur_pos++ ] = '=';
+            cur_pos += details::itoa( tag, &begin[ cur_pos ], len - cur_pos );
 
             begin[ cur_pos++ ] = '\x01';
 

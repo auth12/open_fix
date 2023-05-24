@@ -27,8 +27,7 @@ void net::cli::on_poll( uv_poll_t *handle, int status, int flags ) {
         return;
     }
 
-    int ret = mbedtls_net_recv( &cli->sock, ( unsigned char * )buf, BUF_LEN );
-
+    int ret = cli->read( buf );
     if ( ret <= 0 ) {
         cli->log->error( "failed to read from socket, {}", ret );
         cli->bufpool.release( buf ); // release
@@ -90,7 +89,6 @@ void net::server::on_read( uv_poll_t *handle, int status, int events ) {
     }
 
     if ( events & UV_READABLE ) {
-        // grab a buffer from the buffer pool
         auto buf = ctx->bufpool.get( );
         if ( !buf ) {
             ctx->log->warn( "no available buffers." );
@@ -106,8 +104,6 @@ void net::server::on_read( uv_poll_t *handle, int status, int events ) {
             ctx->bufpool.release( buf );
             return;
         }
-
-        std::string_view str{ buf, ( size_t )nread };
 
         // ctx->log->debug( "received {} bytes from {}, {}", nread, s->sock.fd, str );
 

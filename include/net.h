@@ -1,8 +1,12 @@
 #include "include.h"
 
-#include <details.h>
+#include "details.h"
+
+#include <tbb/tbb.h>
+#include <tbb/flow_graph.h>
 
 #define BUF_LEN 1024
+#define BUF_POOL_ELEMENTS 512
 
 namespace net {
     namespace cli {
@@ -23,7 +27,7 @@ namespace net {
 
             uv_poll_t poll_handle;
 
-            details::bufpool_t< BUF_LEN, 1024 > bufpool;
+            details::bufpool_t< BUF_LEN, BUF_POOL_ELEMENTS > bufpool;
 
             tbb::flow::graph g;
             tbb::flow::queue_node< msg_t > queue;
@@ -93,9 +97,18 @@ namespace net {
     }; // namespace cli
 
     namespace server {
+        enum fix_state: int {
+            LogOn = ( 1 << 1 ),
+            
+        };
+        
         struct fix_session_t {
             int seq = 0;
             std::string senderid, targetid;
+
+            std::chrono::time_point< std::chrono::steady_clock > last_msg;
+
+            std::atomic< int > state = 0;
         };
 
         struct session_message_t {
@@ -125,7 +138,7 @@ namespace net {
         };
 
         struct server_context_t {
-            details::bufpool_t< BUF_LEN, 1024 > bufpool;
+            details::bufpool_t< BUF_LEN, BUF_POOL_ELEMENTS > bufpool;
 
             details::log_ptr_t log;
 
