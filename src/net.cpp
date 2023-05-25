@@ -10,9 +10,11 @@ void net::cli::on_poll( uv_poll_t *handle, int status, int flags ) {
         return;
     }
 
+    auto srv = ( net::cli::server_descriptor_t * )handle->data;
+
     if ( status < 0 ) {
         cli->log->error( "poll error, {}", uv_strerror( status ) );
-        cli->close( );
+        srv->close( );
         return;
     }
 
@@ -27,12 +29,14 @@ void net::cli::on_poll( uv_poll_t *handle, int status, int flags ) {
         return;
     }
 
-    int ret = cli->read( buf );
+    int ret = srv->read( buf );
     if ( ret <= 0 ) {
         cli->log->error( "failed to read from socket, {}", ret );
         cli->bufpool.release( buf ); // release
-        cli->close( );
-        uv_stop( handle->loop );
+        srv->close( );
+
+        cli->remove_target( srv->sock.fd );
+        
         return;
     }
 

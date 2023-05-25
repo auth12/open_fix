@@ -13,7 +13,9 @@ struct on_read_node_t {
 
     net::server::session_message_t operator( )( net::server::session_message_t msg ) {
         std::string_view buf( msg.buf, msg.len - 1 );
-        ctx->log->info( "ptr: {:x}, size: {}", uintptr_t( msg.buf ), buf.size( ) );
+        ctx->log->debug( "ptr: {:x}, size: {}", uintptr_t( msg.buf ), buf.size( ) );
+
+        return msg;
 
         if ( !fix::is_valid_fix( buf ) ) {
             ctx->log->warn( "invalid FIX message, dropping..." );
@@ -37,7 +39,7 @@ struct on_read_node_t {
         if ( memcmp( val.data( ), fix_spec::MsgType_val::LOGON, sizeof( fix_spec::MsgType_val::LOGON ) ) == 1 ) {
             if ( session->fix_session.state & net::server::LogOn ) {
                 ctx->log->warn( "got logon request on logged in session, dropping..." );
-                msg.status = net::server::drop;
+                //msg.status = net::server::drop;
                 return msg;
             }
 
@@ -64,7 +66,7 @@ struct on_read_node_t {
 
         if( !( session->fix_session.state & net::server::LogOn ) ) {
             ctx->log->info( "got FIX msg from unknown client, dropping..." );
-            msg.status = net::server::drop;
+            //msg.status = net::server::drop;
             return msg;
         }
 
@@ -82,6 +84,7 @@ struct post_read_node_t {
     post_read_node_t( net::server::ctx_ptr &c ) : ctx( c ) {}
 
     void operator( )( net::server::session_message_t msg ) {
+        ctx->log->debug( "releasing {:x}", uintptr_t( msg.buf ) );
         ctx->bufpool.release( msg.buf );
         switch ( msg.status ) {
             case net::server::drop: {
@@ -124,8 +127,8 @@ int main( ) {
 
     srv.ctx->log->info( "serving on {}:{}", HOST, PORT );
 
-    // uv_timer_t timer;
-    // srv.register_loop_timer( &timer, on_timer_cb, 10 );
+    uv_timer_t timer;
+    srv.register_loop_timer( &timer, on_timer_cb, 10 );
 
     srv.ctx->log->info( "listening..." );
 

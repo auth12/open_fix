@@ -97,11 +97,11 @@ namespace details {
         return ret;
     }
 
-    template < typename T, const size_t N > using lockless_queue_t = atomic_queue::AtomicQueue2< T, N >;
+    template < typename T, const size_t N > using lockless_queue_t = atomic_queue::AtomicQueue< T, N >;
     // basically a buffer ring
     template < int BufSize, int Elements > struct bufpool_t {
         tbb::cache_aligned_allocator< char > allocator;
-        lockless_queue_t< char *, Elements > queue;
+        lockless_queue_t< uintptr_t, Elements > queue;
 
         static const int buf_size = BufSize;
 
@@ -109,20 +109,20 @@ namespace details {
             for ( int i = 0; i < Elements; ++i ) {
                 const auto ptr = allocator.allocate( BufSize );
                 memset( ptr, 0, BufSize );
-                queue.push( ptr );
+                queue.push( uintptr_t( ptr ) );
             }
         }
 
         char *get( ) {
-            char *ret = nullptr;
+            uintptr_t ret = 0;
             if ( !queue.try_pop( ret ) ) {
-                return ret;
+                return nullptr;
             }
 
-            return ret;
+            return ( char * )ret;
         }
 
-        void release( char *buf ) { queue.push( buf ); }
+        void release( char *buf ) { queue.push( uintptr_t( buf ) ); }
     };
 
     static const unsigned char base64_table[ 65 ] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

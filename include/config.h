@@ -7,10 +7,12 @@
 
 namespace config {
     struct cli_fix_cfg_t {
-        std::string ip, port, target_id, sender_id;
+        std::vector< std::string > targets;
+
+        std::string target_id, sender_id;
     };
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( cli_fix_cfg_t, ip, port, target_id, sender_id )
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( cli_fix_cfg_t, targets, target_id, sender_id )
 
     static bool get_cli_config( const std::string_view cfg_name, cli_fix_cfg_t &out ) {
         std::ifstream f( cfg_name.data( ) );
