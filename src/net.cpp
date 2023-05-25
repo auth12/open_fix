@@ -40,7 +40,7 @@ void net::cli::on_poll( uv_poll_t *handle, int status, int flags ) {
         return;
     }
 
-    cli->queue.try_put( msg_t{ buf, ( size_t )ret } );
+    cli->queue.try_put( msg_t{ buf, ( size_t )ret , srv->sock.fd } );
 }
 
 void net::server::on_connect( uv_poll_t *handle, int status, int events ) {

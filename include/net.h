@@ -13,10 +13,10 @@ namespace net {
         struct msg_t {
             char *buf = nullptr;
             size_t len = 0;
-            int sock;
+            int sock = 0;
 
             msg_t( ) = default;
-            msg_t( char *ptr, size_t l ) : buf{ ptr }, len{ l } {}
+            msg_t( char *ptr, size_t l, const int &s_ ) : buf{ ptr }, len{ l }, sock{ s_ } {}
         };
 
         void on_poll( uv_poll_t *handle, int status, int flags );

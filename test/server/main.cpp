@@ -128,7 +128,7 @@ int main( ) {
     srv.ctx->log->info( "serving on {}:{}", HOST, PORT );
 
     uv_timer_t timer;
-    srv.register_loop_timer( &timer, on_timer_cb, 10 );
+    srv.register_loop_timer( &timer, on_timer_cb, 5 );
 
     srv.ctx->log->info( "listening..." );
 
