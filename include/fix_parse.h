@@ -181,9 +181,7 @@ namespace fix {
         fix_writer_t( char *ptr, const size_t len_ ) : begin{ ptr }, len( len_ ) {}
 
         fix_writer_t &push_header( const std::string_view fix_v ) {
-            body_len_pos = push_field( fix_spec::tag::BeginString, fix_v )
-                               .push_field( fix_spec::tag::BodyLength, "00000" )
-                               .cur_pos;
+            body_len_pos = push_field( fix_spec::tag::BeginString, fix_v ).cur_pos;
             return *this;
         }
 
@@ -193,12 +191,14 @@ namespace fix {
             }
 
             auto len = cur_pos - body_len_pos;
-            char *b = begin + body_len_pos - 6;
-            b[ 0 ] = '0' + ( len / 10000 ) % 10;
-            b[ 1 ] = '0' + ( len / 1000 ) % 10;
-            b[ 2 ] = '0' + ( len / 100 ) % 10;
-            b[ 3 ] = '0' + ( len / 10 ) % 10;
-            b[ 4 ] = '0' + len % 10;
+            
+            auto len_field = fmt::format( "9={}\001", len );
+            
+            // shift the buffer
+            memmove( begin + body_len_pos + len_field.size( ), begin + body_len_pos, len );
+            memcpy( begin + body_len_pos, len_field.data( ), len_field.size( ) );
+
+            cur_pos += len_field.size( );
 
             uint8_t checksum = std::accumulate( begin, begin + cur_pos, uint8_t{ 0 } );
 

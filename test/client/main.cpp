@@ -13,7 +13,7 @@ struct on_msg_node_t {
     void operator( )( net::cli::msg_t msg ) {
         std::string_view buf{ msg.buf, msg.len };
         ctx->log->debug( "ptr: {:x}, size: {}", uintptr_t( msg.buf ), buf.size( ) );
-
+        ctx->log->info( buf );
 
         if ( fix::is_valid_fix( buf ) ) {
             fix::fix_message_t m{ buf };
@@ -67,6 +67,38 @@ int main( ) {
     if ( ctx->targets.empty( ) ) {
         return 0;
     }
+
+    char nonce[ 32 ];
+
+    for ( int i = 0; i < sizeof( nonce ); i++ ) {
+        nonce[ i ] = rand( ) % 256;
+    }
+
+    const auto nonce_64 = details::base64_encode( ( unsigned char * )nonce, sizeof( nonce ) );
+
+    auto timestamp =
+        std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::system_clock::now( ).time_since_epoch( ) )
+            .count( );
+
+    auto raw_data = fmt::format( "{}.{}", timestamp, nonce_64 );
+
+    spdlog::info( "{}", raw_data );
+
+    char buf[ 2048 ];
+    fix::fix_writer_t wr( buf, sizeof( buf ) );
+    wr.push_header( "FIX.4.4" );
+    wr.push_field( fix_spec::tag::MsgType, "A" );
+    wr.push_field( fix_spec::tag::SenderCompID, "ASHIMKTUAT001" );
+    wr.push_field( fix_spec::tag::TargetCompID, "GEMINIKTUAT" );
+    wr.push_int( fix_spec::tag::MsgSeqNum, 1 );
+    // wr.push_field( fix_spec::tag::Username, "FnVfw2NS" );
+    //wr.push_field( fix_spec::tag::Password, "42fSsqVo1ZDgL5PWXSvcCTZH7D0pCqxpML-mKGSarGY" );
+    // wr.push_field( fix_spec::tag::RawData, raw_data );
+    wr.push_trailer( );
+
+    spdlog::info( buf );
+
+    ctx->targets.begin( )->second->write( buf, wr.cur_pos ); 
 
     /*uv_timer_t t;
     t.data = ctx.get( );
