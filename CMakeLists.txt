@@ -26,7 +26,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 file(GLOB_RECURSE lib_src "${PROJECT_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE hdr "${PROJECT_SOURCE_DIR}/include/*.h")
 
-option(CPPBENCHMARK_MODULE TRUE)
+set(CPPBENCHMARK_MODULE TRUE)
 add_subdirectory(modules/CppBenchmark)
 
 add_library(
@@ -38,7 +38,7 @@ add_library(
 set(include_dirs "${PROJECT_SOURCE_DIR}/modules/spdlog/include/"
 "${PROJECT_SOURCE_DIR}/modules/libuv/include/"
 "${PROJECT_SOURCE_DIR}/modules/mbedtls/include/"
-"${PROJECT_SOURCE_DIR}/oneTBB/include/"
+"${PROJECT_SOURCE_DIR}/modules/oneTBB/include/"
 "${PROJECT_SOURCE_DIR}/modules/hffix/include/"
 "${PROJECT_SOURCE_DIR}/modules/atomic_queue/include/"
 "${PROJECT_SOURCE_DIR}/include/")

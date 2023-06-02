@@ -3,5 +3,5 @@ bin/*
 .cache/*
 .DS_Store
 modules/*
-.idea
+.idea/*
 cmake-build-*

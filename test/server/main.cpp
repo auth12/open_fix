@@ -52,10 +52,9 @@ struct on_read_node_t {
         }
 
         int cur_seq = seq->val.as_int( );
-        
-        int srv_seq = session->fix.next_in.load( );
-        if( srv_seq != cur_seq ) {
-            ctx->log->warn( "fix message sequence mismatch, dropping, got {}, expected {}", cur_seq, srv_seq );
+
+        if( session->fix.next_in.load( ) != cur_seq ) {
+            ctx->log->warn( "fix message sequence mismatch, dropping, got {}, expected {}", cur_seq, session->fix.next_in.load( ) );
             msg.session->close( );
 
             ctx->log->debug( "releasing session {:x}", uintptr_t( msg.session ) );
