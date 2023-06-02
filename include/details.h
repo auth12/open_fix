@@ -125,6 +125,32 @@ namespace details {
         void release( char *buf ) { queue.push( uintptr_t( buf ) ); }
     };
 
+    template < typename T, int Elements > struct obj_pool_t {
+        tbb::cache_aligned_allocator< T > allocator;
+        lockless_queue_t< uintptr_t, Elements > queue;
+
+        static const int obj_size = sizeof( T );
+
+        obj_pool_t( ) {
+            for ( int i = 0; i < Elements; ++i ) {
+                const auto ptr = allocator.allocate( obj_size );
+                memset( ptr, 0, obj_size );
+                queue.push( uintptr_t( ptr ) );
+            }
+        }
+
+        T *get( ) {
+            uintptr_t ret = 0;
+            if ( !queue.try_pop( ret ) ) {
+                return nullptr;
+            }
+
+            return ( T * )ret;
+        }
+
+        void release( T *ptr ) { queue.push( uintptr_t( ptr ) ); }
+    };
+
     static const unsigned char base64_table[ 65 ] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     static std::string base64_encode( const unsigned char *src, size_t len ) {

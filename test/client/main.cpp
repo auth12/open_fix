@@ -22,14 +22,15 @@ struct on_msg_node_t {
 void on_timer_cb( uv_timer_t *handle ) {
     auto ctx = ( net::cli::cli_context_t * )handle->data;
 
-    if( ctx->targets.empty( ) ) {
+    if( ctx->active_targets.empty( ) ) {
         uv_timer_stop( handle );
         return;
     }
 
     static char buf[ 2048 ];
 
-    for ( auto &[ sock, srv ] : ctx->targets ) {
+    std::lock_guard< std::mutex > lk( ctx->vec_mutex );
+    for ( auto &srv : ctx->active_targets ) {
         fix::fix_writer_t wr{ buf, sizeof( buf ) };
         wr.push_header( fmt::format( "FIX.{}.{}", srv->FIX_major, srv->FIX_minor ) );
         wr.push_int( fix_spec::MsgSeqNum, srv->fix.next_out++ );
@@ -73,7 +74,7 @@ int main( int argc, char **argv ) {
         }
     };
 
-    if ( ctx->targets.empty( ) ) {
+    if ( ctx->active_targets.empty( ) ) {
         return 0;
     }
 

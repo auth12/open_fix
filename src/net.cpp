@@ -32,10 +32,10 @@ void net::cli::on_poll( uv_poll_t *handle, int status, int flags ) {
     int ret = srv->read( buf );
     if ( ret <= 0 ) {
         cli->log->error( "failed to read from socket, {}", ret );
-        cli->bufpool.release( buf ); // release
+        cli->bufpool.release( buf );
 
         cli->remove_target( srv->sock.fd );
-
+        cli->server_pool.release( srv );
         srv->close( );
 
         return;
@@ -56,12 +56,18 @@ void net::server::on_connect( uv_poll_t *handle, int status, int events ) {
         return;
     }
 
-    auto session = ctx->alloc_session( );
+    auto session = ctx->sessions.get( );
+    if ( !session ) {
+        ctx->log->warn( "no available sessions" );
+        return;
+    }
+
+    session->reset( );
 
     int ret = mbedtls_net_accept( &ctx->sock, &session->sock, nullptr, 0, nullptr );
     if ( ret != 0 ) {
         ctx->log->warn( "failed to accept new session, {}", ret );
-        ctx->dealloc_session( session );
+        ctx->sessions.release( session );
         return;
     }
 
@@ -91,7 +97,7 @@ void net::server::on_read( uv_poll_t *handle, int status, int events ) {
         ctx->log->warn( "session disconnected, {}", s->sock.fd );
 
         s->close( );
-        ctx->dealloc_session( s );
+        ctx->sessions.release( s );
         return;
     }
 
@@ -108,13 +114,13 @@ void net::server::on_read( uv_poll_t *handle, int status, int events ) {
             ctx->log->warn( "error reading from session, {}", nread );
 
             s->close( );
-            ctx->dealloc_session( s );
+            ctx->sessions.release( s );
             ctx->bufpool.release( buf );
             return;
         }
 
         // ctx->log->debug( "received {} bytes from {}, {}", nread, s->sock.fd, str );
 
-        ctx->in_q.try_put( session_message_t{ buf, s, static_cast< size_t >( nread ), message_state::Ok } );
+        ctx->in_q.try_put( session_message_t{ buf, s, static_cast< size_t >( nread ) } );
     }
 }
