@@ -12,12 +12,6 @@ struct on_read_node_t {
     on_read_node_t( net::server::ctx_ptr &c ) : ctx( c ) {}
 
     void operator( )( net::server::session_message_t msg ) {
-        if( !msg.session ) {
-            ctx->log->critical( "invalid session pointer" );
-
-            return;
-        }
-
         std::string_view buf( msg.buf, msg.len );
         auto session = msg.session;
 
@@ -36,6 +30,8 @@ struct on_read_node_t {
             ctx->log->debug( "releasing session {:x}", uintptr_t( msg.session ) );
             ctx->sessions.release( msg.session );
 
+            ctx->bufpool.release( msg.buf );
+
             return;
         }
 
@@ -50,6 +46,8 @@ struct on_read_node_t {
             ctx->log->debug( "releasing session {:x}", uintptr_t( msg.session ) );
             ctx->sessions.release( msg.session );
 
+            ctx->bufpool.release( msg.buf );
+
             return;
         }
 
@@ -63,10 +61,14 @@ struct on_read_node_t {
             ctx->log->debug( "releasing session {:x}", uintptr_t( msg.session ) );
             ctx->sessions.release( msg.session );
 
+            ctx->bufpool.release( msg.buf );
+
             return;
         }
 
         session->fix.next_in.fetch_add( 1 );
+
+        ctx->bufpool.release( msg.buf );
     }
 };
 
