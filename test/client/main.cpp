@@ -7,34 +7,31 @@
 #include <config.h>
 
 struct on_msg_node_t {
-    std::shared_ptr< net::cli::cli_context_t > ctx;
+    std::shared_ptr< net::cli::cli_context_t > &ctx;
     on_msg_node_t( std::shared_ptr< net::cli::cli_context_t > &_c ) : ctx{ _c } {}
 
-    void operator( )( net::cli::msg_t msg ) {
-        std::string_view buf{ msg.buf, msg.len };
-        ctx->log->debug( "ptr: {:x}, size: {}", uintptr_t( msg.buf ), buf.size( ) );
-        ctx->log->info( buf );
+    void operator( )( net::msg_t msg ) {
+        ctx->log->info( "got msg tag {}", msg.tag( ) );
+        auto buf = msg.cast_to< std::span< char > >( );
+        ctx->log->debug( buf.data( ) );
 
-        ctx->bufpool.release( msg.buf );
+        ctx->bufpool.release( buf.data( ) );
     }
 };
 
 void on_timer_cb( uv_timer_t *handle ) {
     auto ctx = ( net::cli::cli_context_t * )handle->data;
 
-    if( ctx->active_targets.empty( ) ) {
-        uv_timer_stop( handle );
-        return;
-    }
-
     static char buf[ 2048 ];
 
-    std::lock_guard< std::mutex > lk( ctx->vec_mutex );
-    for ( auto &srv : ctx->active_targets ) {
+    for ( auto &[ sock, srv ] : ctx->targets ) {
+        if ( srv->fix.state != net::Idle )
+            continue;
+
         fix::fix_writer_t wr{ buf, sizeof( buf ) };
         wr.push_header( fmt::format( "FIX.{}.{}", srv->FIX_major, srv->FIX_minor ) );
         wr.push_int( fix_spec::MsgSeqNum, srv->fix.next_out++ );
-        
+
         wr.push_trailer( );
 
         srv->write( buf, wr.cur_pos );
@@ -74,7 +71,7 @@ int main( int argc, char **argv ) {
         }
     };
 
-    if ( ctx->active_targets.empty( ) ) {
+    if ( ctx->targets.empty( ) ) {
         return 0;
     }
 

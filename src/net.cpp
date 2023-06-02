@@ -34,14 +34,12 @@ void net::cli::on_poll( uv_poll_t *handle, int status, int flags ) {
         cli->log->error( "failed to read from socket, {}", ret );
         cli->bufpool.release( buf );
 
-        cli->remove_target( srv->sock.fd );
-        cli->server_pool.release( srv );
         srv->close( );
 
         return;
     }
 
-    cli->queue.try_put( msg_t{ buf, ( size_t )ret, srv->sock.fd } );
+    cli->queue.try_put( { srv->sock.fd, std::span{ buf, ( size_t )ret } } );
 }
 
 void net::server::on_connect( uv_poll_t *handle, int status, int events ) {
@@ -56,18 +54,11 @@ void net::server::on_connect( uv_poll_t *handle, int status, int events ) {
         return;
     }
 
-    auto session = ctx->sessions.get( );
-    if ( !session ) {
-        ctx->log->warn( "no available sessions" );
-        return;
-    }
-
-    session->reset( );
+    auto session = std::make_shared< session_t >( );
 
     int ret = mbedtls_net_accept( &ctx->sock, &session->sock, nullptr, 0, nullptr );
     if ( ret != 0 ) {
         ctx->log->warn( "failed to accept new session, {}", ret );
-        ctx->sessions.release( session );
         return;
     }
 
@@ -75,14 +66,16 @@ void net::server::on_connect( uv_poll_t *handle, int status, int events ) {
 
     uv_poll_init_socket( handle->loop, &session->handle, session->sock.fd );
 
-    session->handle.data = session;
+    session->handle.data = session.get( );
 
-    uv_poll_start( &session->handle, UV_READABLE | UV_DISCONNECT, on_read );
+    uv_poll_start( &session->handle, UV_READABLE | UV_DISCONNECT, on_poll );
 
     session->fix.state = Idle;
+
+    ctx->sessions[ session->sock.fd ].swap( session );
 }
 
-void net::server::on_read( uv_poll_t *handle, int status, int events ) {
+void net::server::on_poll( uv_poll_t *handle, int status, int events ) {
     auto ctx = ( server_context_t * )handle->loop->data;
 
     if ( status < 0 ) {
@@ -97,30 +90,31 @@ void net::server::on_read( uv_poll_t *handle, int status, int events ) {
         ctx->log->warn( "session disconnected, {}", s->sock.fd );
 
         s->close( );
-        ctx->sessions.release( s );
+
         return;
     }
 
-    if ( events & UV_READABLE ) {
-        auto buf = ctx->bufpool.get( );
-        if ( !buf ) {
-            ctx->log->warn( "no available buffers." );
-            return;
-        }
+    if ( !( events & UV_READABLE ) )
+        return;
 
-        int nread = mbedtls_net_recv( &s->sock, ( unsigned char * )buf, ctx->bufpool.buf_size );
-
-        if ( nread <= 0 ) {
-            ctx->log->warn( "error reading from session, {}", nread );
-
-            s->close( );
-            ctx->sessions.release( s );
-            ctx->bufpool.release( buf );
-            return;
-        }
-
-        // ctx->log->debug( "received {} bytes from {}, {}", nread, s->sock.fd, str );
-
-        ctx->in_q.try_put( session_message_t{ buf, s, static_cast< size_t >( nread ) } );
+    auto buf = ctx->bufpool.get( );
+    if ( !buf ) {
+        ctx->log->warn( "no available buffers." );
+        return;
     }
+
+    // ctx->log->debug( "popped buffer {:x}", uintptr_t( buf ) );
+
+    int nread = mbedtls_net_recv( &s->sock, ( unsigned char * )buf, ctx->bufpool.buf_size );
+    if ( nread <= 0 ) {
+        ctx->log->warn( "error reading from session, {}", nread );
+
+        s->close( );
+
+        ctx->bufpool.release( buf );
+        return;
+    }
+
+    // ctx->log->debug( "received {} bytes from {}, {}", nread, s->sock.fd, str );
+    ctx->in_q.try_put( { s->sock.fd, std::span{ buf, ( size_t )nread } } );
 }

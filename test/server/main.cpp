@@ -8,16 +8,28 @@
 #define PORT "1515"
 
 struct on_read_node_t {
-    net::server::ctx_ptr ctx;
+    net::server::ctx_ptr &ctx;
     on_read_node_t( net::server::ctx_ptr &c ) : ctx( c ) {}
 
-    void operator( )( net::server::session_message_t msg ) {
-        std::string_view buf( msg.buf, msg.len );
-        auto session = msg.session;
+    void operator( )( net::msg_t msg ) {
+        const auto buf = msg.cast_to< std::span< char > >( );
+        const int fd = msg.tag( );
+
+        if ( ctx->sessions[ fd ]->fix.state < net::Idle ) {
+            ctx->bufpool.release( buf.data( ) );
+            return;
+        }
+
+        ctx->log->debug( "got msg from fd {}", fd );
 
         auto tp = std::chrono::duration_cast< std::chrono::microseconds >(
             std::chrono::steady_clock::now( ).time_since_epoch( ) );
-        ctx->log->info( "time received: {}", tp.count( ) );
+        ctx->log->debug( "time received: {}", tp.count( ) );
+
+        // ctx->log->debug( "pushed buffer {:x}", uintptr_t( buf.data( ) ) );
+
+        /*std::string_view buf( msg.buf, msg.len );
+        auto session = msg.session;
 
         ctx->log->debug( "ptr: {:x}, size: {}", uintptr_t( msg.buf ), buf.size( ) );
 
@@ -54,8 +66,8 @@ struct on_read_node_t {
         int cur_seq = seq->val.as_int( );
 
         if( session->fix.next_in.load( ) != cur_seq ) {
-            ctx->log->warn( "fix message sequence mismatch, dropping, got {}, expected {}", cur_seq, session->fix.next_in.load( ) );
-            msg.session->close( );
+            ctx->log->warn( "fix message sequence mismatch, dropping, got {}, expected {}", cur_seq,
+        session->fix.next_in.load( ) ); msg.session->close( );
 
             ctx->log->debug( "releasing session {:x}", uintptr_t( msg.session ) );
             ctx->sessions.release( msg.session );
@@ -65,9 +77,9 @@ struct on_read_node_t {
             return;
         }
 
-        session->fix.next_in.fetch_add( 1 );
+        session->fix.next_in.fetch_add( 1 );*/
 
-        ctx->bufpool.release( msg.buf );
+        ctx->bufpool.release( buf.data( ) );
     }
 };
 
