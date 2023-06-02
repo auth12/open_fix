@@ -3,3 +3,5 @@ bin/*
 .cache/*
 .DS_Store
 libuv/*
+.idea
+cmake-build-*
