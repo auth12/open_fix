@@ -12,68 +12,47 @@ struct on_read_node_t {
     on_read_node_t( net::server::ctx_ptr &c ) : ctx( c ) {}
 
     net::server::session_message_t operator( )( net::server::session_message_t msg ) {
-        std::string_view buf( msg.buf, msg.len - 1 );
-        ctx->log->debug( "ptr: {:x}, size: {}", uintptr_t( msg.buf ), buf.size( ) );
+        if( !msg.session ) {
+            ctx->log->critical( "invalid session pointer" );
 
-        return msg;
-
-        if ( !fix::is_valid_fix( buf ) ) {
-            ctx->log->warn( "invalid FIX message, dropping..." );
-            msg.status = net::server::drop;
             return msg;
         }
 
-        auto session = ctx->sessions.at( msg.sock );
+        std::string_view buf( msg.buf, msg.len );
+
+        auto tp = std::chrono::duration_cast< std::chrono::microseconds >(
+            std::chrono::steady_clock::now( ).time_since_epoch( ) );
+        ctx->log->info( "time received: {}", tp.count( ) );
+
+        ctx->log->debug( "ptr: {:x}, size: {}", uintptr_t( msg.buf ), buf.size( ) );
+
+        // pre parser validation
+        if ( !fix::is_valid_fix( buf ) ) {
+            ctx->log->warn( "invalid FIX message, dropping" );
+            msg.state = net::server::InvalidFix;
+            return msg;
+        }
 
         const fix::fix_message_t rd{ buf };
 
-        const auto it = rd.find( fix_spec::tag::MsgType );
-        if ( !it->tag ) {
-            ctx->log->warn( "missing fix message type." );
-            msg.status = net::server::drop;
-
+        // validate seq num
+        auto seq = rd.find( fix_spec::MsgSeqNum );
+        if( seq == rd.end( ) ) {
+            ctx->log->warn( "missing seq_num, dropping" );
+            msg.state = net::server::InvalidSeq;
             return msg;
         }
 
-        const auto val = it->val.as_str( );
-        if ( memcmp( val.data( ), fix_spec::MsgType_val::LOGON, sizeof( fix_spec::MsgType_val::LOGON ) ) == 1 ) {
-            if ( session->fix_session.state & net::server::LogOn ) {
-                ctx->log->warn( "got logon request on logged in session, dropping..." );
-                //msg.status = net::server::drop;
-                return msg;
-            }
-
-            // set heartbeat, senderid, targetid
-            for ( auto &f : rd ) {
-                if ( f.tag == fix_spec::tag::TargetCompID ) { // check if valid against local compid
-                    session->fix_session.targetid = f.val.as_str( );
-                    continue;
-                }
-
-                if ( f.tag == fix_spec::tag::SenderCompID ) {
-                    session->fix_session.senderid = f.val.as_str( );
-                    continue;
-                }
-            }
-
-            session->fix_session.state |= net::server::LogOn;
-            ctx->log->info( "client {} logged in to FIX session, senderid {}", msg.sock, session->fix_session.senderid );
-
-            // send confirmation
-
+        /*int cur_seq = seq->val.as_int( );
+        
+        int srv_seq = session->fix.next_in.load( std::memory_order_acquire );
+        if( srv_seq != cur_seq ) {
+            ctx->log->warn( "fix message sequence mismatch, dropping, got {}, expected {}", cur_seq, srv_seq );
+            msg.state = net::server::InvalidSeq;
             return msg;
         }
 
-        if( !( session->fix_session.state & net::server::LogOn ) ) {
-            ctx->log->info( "got FIX msg from unknown client, dropping..." );
-            //msg.status = net::server::drop;
-            return msg;
-        }
-
-        if ( memcmp( val.data( ), fix_spec::MsgType_val::SEQUENCE_RESET,
-                     sizeof( fix_spec::MsgType_val::SEQUENCE_RESET ) ) ) {
-            session->fix_session.seq = 0;
-        }
+        session->fix.next_in.fetch_add( 1, std::memory_order_release );*/
 
         return msg;
     }
@@ -84,38 +63,21 @@ struct post_read_node_t {
     post_read_node_t( net::server::ctx_ptr &c ) : ctx( c ) {}
 
     void operator( )( net::server::session_message_t msg ) {
+        if( !msg.session ) {
+            ctx->log->critical( "invalid session pointer" );
+            return;
+        }
+
         ctx->log->debug( "releasing {:x}", uintptr_t( msg.buf ) );
         ctx->bufpool.release( msg.buf );
-        switch ( msg.status ) {
-            case net::server::drop: {
-                auto it = ctx->sessions.find( msg.sock );
-                if ( it != ctx->sessions.end( ) ) {
-                    ctx->log->warn( "dropping {}", msg.sock );
-                    it->second->close( );
-                    ctx->sessions.erase( it );
-                }
-            } break;
-            default:
-                break;
+
+        // check session status
+        if( msg.state == net::server::InvalidSeq or msg.state == net::server::InvalidFix ) {
+            msg.session->close( );
+            ctx->dealloc_session( msg.session );
         }
     }
 };
-
-constexpr char fix_buf[] = "8=FIX.4.4\0019=178\00135=W\00149=SENDER\00156=RECEIVER\00134=123\00152=20230517-09:30:00."
-                           "000\00155=EUR/USD\001262=1\001268=2\001269=0\001270=1.2345\001271=100000\00110=080\001";
-
-void on_timer_cb( uv_timer_t *handle ) {
-    auto ctx = ( net::server::server_context_t * )handle->data;
-    if ( ctx->sessions.empty( ) ) {
-        return;
-    }
-
-    for ( auto &[ sock, session ] : ctx->sessions ) {
-        int ret = session->write( fix_buf );
-
-        // ctx->log->debug( "sent {} bytes to {}", ret, sock );
-    }
-}
 
 int main( ) {
     net::server::tcp_server_t< on_read_node_t, post_read_node_t > srv( HOST, PORT );
@@ -126,9 +88,6 @@ int main( ) {
     }
 
     srv.ctx->log->info( "serving on {}:{}", HOST, PORT );
-
-    uv_timer_t timer;
-    srv.register_loop_timer( &timer, on_timer_cb, 5 );
 
     srv.ctx->log->info( "listening..." );
 

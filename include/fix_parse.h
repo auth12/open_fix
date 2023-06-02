@@ -7,14 +7,11 @@
 
 namespace fix {
     struct field_val_t {
-        const char *begin, *end;
+        const char *begin, *end = nullptr;
 
-        field_val_t( ) : begin{ nullptr }, end{ nullptr } {}
+        field_val_t( ) = default;
 
-        field_val_t( const char *b, const char *e ) {
-            begin = b;
-            end = e;
-        }
+        field_val_t( const char *b, const char *e ) : begin{ b }, end{ e } {}
 
         const int as_int( ) const { return details::atoi( begin, end ); }
 
@@ -33,8 +30,7 @@ namespace fix {
         fix_field_t( ) = default;
         fix_field_t( const char *b_ ) : begin{ b_ } {}
 
-        bool operator!=( const fix_field_t &o ) { return o.begin != begin; };
-        bool operator==( const fix_field_t &o ) { return o.begin == begin; };
+        bool operator==( const int &t_ ) const { return tag == t_; }
     };
 
     struct fix_field_iterator_t {
@@ -45,10 +41,9 @@ namespace fix {
         using reference = value_type const &;
 
         value_type cur;
-        const char *ptr = nullptr;
 
         fix_field_iterator_t( ) = default;
-        fix_field_iterator_t( const char *p_ ) : ptr{ p_ } { next( ); }
+        fix_field_iterator_t( const char *p_ ) : cur{ p_ } { next( ); }
 
         reference operator*( ) const { return cur; }
         pointer operator->( ) const { return &cur; }
@@ -58,9 +53,17 @@ namespace fix {
             return *this;
         }
 
+        const fix_field_iterator_t &operator+( const int &o ) {
+            for ( int i = 0; i < o; ++i )
+                next( );
+            return *this;
+        }
+
         void next( ) {
-            bool found = false;
-            for ( const char *i = ptr; *i; ++i ) {
+            cur.val.begin = nullptr;
+            cur.val.end = nullptr;
+
+            for ( const char *i = cur.begin; *i; ++i ) {
                 if ( *i == '=' ) {
                     cur.val.begin = i + 1;
                     continue;
@@ -68,56 +71,47 @@ namespace fix {
 
                 if ( *i == '\001' ) {
                     cur.val.end = i;
-                    found = true;
                     break;
                 }
             }
 
-            if ( !found or !cur.val.begin ) {
-                ptr = nullptr;
+            if ( !cur.val.end or !cur.val.begin ) {
+                cur.begin = nullptr;
                 return;
             }
 
-            cur.tag = 0;
-            cur.begin = ptr;
-
             cur.tag = details::atoi( cur.begin, cur.val.begin - 1 );
-
-            ptr = cur.val.end + 1;
+            cur.begin = cur.val.end + 1;
         }
 
-        bool operator!=( const fix_field_iterator_t &o ) { return o.ptr != ptr; };
-        bool operator<( const fix_field_iterator_t &o ) { return o.ptr < ptr; };
-        bool operator>( const fix_field_iterator_t &o ) { return o.ptr > ptr; };
-    };
-
-    struct tag_equal {
-        int tag;
-        tag_equal( const int &tag ) : tag( tag ) {}
-
-        bool operator( )( const fix_field_t &v ) const { return v.tag == tag; }
+        bool operator!=( const fix_field_iterator_t &o ) const { return o.cur.begin != cur.begin; };
+        bool operator==( const fix_field_iterator_t &o ) const { return o.cur.begin == cur.begin; };
+        bool operator<( const fix_field_iterator_t &o ) const { return o.cur.begin < cur.begin; };
+        bool operator>( const fix_field_iterator_t &o ) const { return o.cur.begin > cur.begin; };
     };
 
     static bool is_valid_fix( const std::string_view &buf ) {
         return buf.starts_with( "8=" ) && buf.ends_with( '\001' );
     };
 
+    // single FIX msg
     struct fix_message_t {
         using iterator = fix_field_iterator_t;
-        const char *start, *last = nullptr;
+        const char *begin_, *end_ = nullptr;
 
         fix_message_t( ) = default;
-        fix_message_t( const std::string_view &buf ) : start{ buf.data( ) }, last{ buf.data( ) + buf.size( ) } {}
+        fix_message_t( const std::string_view &buf ) : begin_{ buf.data( ) }, end_{ buf.data( ) + buf.size( ) } {}
 
-        template < size_t N > fix_message_t( const char ( &buf )[ N ] ) : start{ buf }, last{ buf + N } {}
+        template < size_t N > fix_message_t( const char ( &buf )[ N ] ) : begin_{ buf }, end_{ buf + N } {}
 
-        fix_message_t( const char *b_, const char *e_ ) : start{ b_ }, last{ e_ } {}
+        fix_message_t( const char *b_, const char *e_ ) : begin_{ b_ }, end_{ e_ } {}
 
-        const iterator begin( ) const { return iterator{ start }; }
-        const iterator end( ) const { return iterator{ last }; }
-        const iterator find( const int &tag ) const { return std::find_if( begin( ), end( ), tag_equal( tag ) ); }
+        iterator begin( ) const { return iterator{ begin_ }; }
+        iterator end( ) const { return iterator{ end_ }; }
+        iterator find( const int &tag ) const { return std::find( begin( ), end( ), tag ); }
     };
 
+    // multiple msg iterator
     struct fix_message_iterator_t {
         using iterator_category = std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
@@ -126,10 +120,9 @@ namespace fix {
         using reference = value_type const &;
 
         value_type cur;
-        const char *ptr;
         const char *end_;
 
-        fix_message_iterator_t( const char *p_, const char *e_ ) : ptr{ p_ }, end_{ e_ } { next( ); }
+        fix_message_iterator_t( const char *p_, const char *e_ ) : cur{ p_, nullptr }, end_{ e_ } { next( ); }
 
         reference operator*( ) const { return cur; }
         pointer operator->( ) const { return &cur; }
@@ -140,23 +133,22 @@ namespace fix {
         }
 
         void next( ) {
-            if ( cur.last )
-                ptr = cur.last;
+            if ( cur.end_ )
+                cur.begin_ = cur.end_;
 
-            if ( ptr + 1 > end_ ) {
-                ptr = nullptr;
+            if ( cur.begin_ + 1 > end_ ) {
+                cur.end_ = nullptr;
                 return;
             }
 
-            const char *end = strstr( ptr + 5, "8=FIX" );
+            const char *end = strstr( cur.begin_ + 5, "8=FIX" );
 
-            cur.start = ptr;
-            cur.last = end ? end : end_;
+            cur.end_ = end ? end : end_;
         }
 
-        bool operator!=( const fix_message_iterator_t &o ) { return ptr != o.ptr; };
-        bool operator<( const fix_message_iterator_t &o ) { return ptr < o.ptr; };
-        bool operator>( const fix_message_iterator_t &o ) { return ptr > o.ptr; };
+        bool operator!=( const fix_message_iterator_t &o ) { return cur.begin_ != o.cur.begin_; };
+        bool operator<( const fix_message_iterator_t &o ) { return cur.begin_ < o.cur.begin_; };
+        bool operator>( const fix_message_iterator_t &o ) { return cur.begin_ > o.cur.begin_; };
     };
 
     struct fix_reader_t {
@@ -170,7 +162,7 @@ namespace fix {
         template < size_t N > fix_reader_t( const char ( &buf )[ N ] ) : begin_{ buf }, end_{ buf + N } {}
 
         const iterator begin( ) const { return iterator{ begin_, end_ }; }
-        const iterator end( ) const { return iterator{ end_, end_ }; }
+        const iterator end( ) const { return iterator{ end_, nullptr }; }
     };
 
     // no message order checking
@@ -191,9 +183,9 @@ namespace fix {
             }
 
             auto len = cur_pos - body_len_pos;
-            
+
             auto len_field = fmt::format( "9={}\001", len );
-            
+
             // shift the buffer
             memmove( begin + body_len_pos + len_field.size( ), begin + body_len_pos, len );
             memcpy( begin + body_len_pos, len_field.data( ), len_field.size( ) );
@@ -201,6 +193,8 @@ namespace fix {
             cur_pos += len_field.size( );
 
             uint8_t checksum = std::accumulate( begin, begin + cur_pos, uint8_t{ 0 } );
+
+            checksum %= 256;
 
             memcpy( begin + cur_pos, "10=", 3 );
             cur_pos += 3;
@@ -235,9 +229,10 @@ namespace fix {
             if ( cur_pos >= len ) {
                 return *this;
             }
+
             cur_pos += details::itoa( tag, &begin[ cur_pos ], len - cur_pos );
             begin[ cur_pos++ ] = '=';
-            cur_pos += details::itoa( tag, &begin[ cur_pos ], len - cur_pos );
+            cur_pos += details::itoa( val, &begin[ cur_pos ], len - cur_pos );
 
             begin[ cur_pos++ ] = '\x01';
 

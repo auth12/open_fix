@@ -21,12 +21,18 @@ namespace net {
 
         void on_poll( uv_poll_t *handle, int status, int flags );
 
+        struct fix_session_t {
+            std::atomic< int > next_in = 1, next_out = 1, state = 0;
+        };
+
         struct server_descriptor_t {
             mbedtls_net_context sock;
             uv_poll_t handle;
 
             int FIX_minor;
             int FIX_major;
+
+            fix_session_t fix;
 
             server_descriptor_t( ) { mbedtls_net_init( &sock ); }
 
@@ -66,7 +72,6 @@ namespace net {
                 auto it = targets.find( sock );
                 if ( it != targets.end( ) ) {
                     targets.erase( it );
-
                     return true;
                 }
 
@@ -93,11 +98,14 @@ namespace net {
                 loop.data = ctx.get( );
             }
 
-            int connect( const std::string_view host, const std::string_view port ) {
+            int connect( const std::string_view host, const std::string_view port, const int fix_maj = 4,
+                         const int fix_min = 4 ) {
                 ctx->log->info( "attempting to connect to {}:{}", host, port );
 
                 // register new target
                 auto desc = std::make_shared< server_descriptor_t >( );
+                desc->FIX_major = fix_maj;
+                desc->FIX_minor = fix_min;
 
                 int ret = mbedtls_net_connect( &desc->sock, host.data( ), port.data( ), MBEDTLS_NET_PROTO_TCP );
                 if ( ret != 0 ) {
@@ -122,32 +130,23 @@ namespace net {
     } // namespace cli
 
     namespace server {
-        enum fix_state : int {
-            LogOn = ( 1 << 1 ),
-
+        enum message_state : int {
+            Ok = 1,
+            InvalidFix,
+            InvalidSeq,
         };
+
+        enum fix_session_state : int { Idle = 1, LoggedIn };
 
         struct fix_session_t {
-            int seq = 0;
-            std::string senderid, targetid;
-
-            std::chrono::time_point< std::chrono::steady_clock > last_msg;
-
-            std::atomic< int > state = 0;
-        };
-
-        struct session_message_t {
-            char *buf = nullptr;
-            size_t len;
-            int sock;
-            int status = 0;
+            std::atomic< int > next_in = 1, next_out = 1, state = 0;
         };
 
         struct session_t {
             uv_poll_t handle;
             mbedtls_net_context sock;
 
-            fix_session_t fix_session;
+            fix_session_t fix;
 
             session_t( ) { mbedtls_net_init( &sock ); }
 
@@ -162,17 +161,22 @@ namespace net {
             }
         };
 
+        struct session_message_t {
+            char *buf = nullptr;
+            session_t *session = nullptr;
+            size_t len = 0;
+            int state = 0;
+        };
+
         struct server_context_t {
-            details::bufpool_t< BUF_LEN, BUF_POOL_ELEMENTS > bufpool;
-
-            details::log_ptr_t log;
-
             mbedtls_net_context sock;
+
+            details::bufpool_t< BUF_LEN, BUF_POOL_ELEMENTS > bufpool;
+            details::log_ptr_t log;
 
             tbb::flow::graph g;
             tbb::flow::queue_node< session_message_t > in_q;
-
-            std::unordered_map< int, std::shared_ptr< session_t > > sessions;
+            tbb::cache_aligned_allocator< session_t > session_allocator;
 
             server_context_t( const std::string_view log_name )
                 : log{ details::log::make_sync( log_name.data( ) ) }, in_q{ g } {
@@ -183,6 +187,12 @@ namespace net {
                 log->set_pattern( "[%t]%+" );
             }
 
+            session_t *alloc_session( ) { return session_allocator.allocate( sizeof( session_t ) ); }
+            void dealloc_session( session_t *s ) {
+                log->debug( "deallocating session {:x}", uintptr_t( s ) );
+                session_allocator.deallocate( s, sizeof( session_t ) );
+            }
+
             template < typename T > void add_queue_edge( T &node ) { tbb::flow::make_edge( in_q, node ); }
         };
 
@@ -190,8 +200,6 @@ namespace net {
 
         void on_connect( uv_poll_t *handle, int status, int events );
         void on_read( uv_poll_t *handle, int status, int events );
-
-        enum on_read_ret : int { ok = 0, invalid_msg, drop };
 
         template < typename OnRead, typename PostRead > struct tcp_server_t {
             ctx_ptr ctx;
@@ -209,7 +217,7 @@ namespace net {
             tcp_server_t( const std::string_view h_, const std::string_view p_ )
                 : ctx{ std::make_unique< server_context_t >( h_ ) }, host{ h_ }, port{ p_ },
                   on_msg_node{ ctx->g, tbb::flow::unlimited, OnRead( ctx ) },
-                  post_msg_node{ ctx->g, tbb::flow::unlimited, PostRead( ctx ) } {
+                  post_msg_node{ ctx->g, 1, PostRead( ctx ) } {
                 uv_loop_init( &loop );
                 uv_loop_configure( &loop, UV_LOOP_BLOCK_SIGNAL );
 
