@@ -5,19 +5,19 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(spdlog)
+add_subdirectory(modules/spdlog)
 
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_TESTS OFF)
-add_subdirectory(libuv)
+add_subdirectory(modules/libuv)
 
 set(ENABLE_PROGRAMS OFF)
 set(ENABLE_TESTING OFF)
-add_subdirectory(mbedtls)
+add_subdirectory(modules/mbedtls)
 
 set(TBB_TEST OFF)
 set(BUILD_SHARED_LIBS OFF)
-add_subdirectory(onetbb)
+add_subdirectory(modules/oneTBB)
 
 project(fix_lib CXX)
 
@@ -27,7 +27,7 @@ file(GLOB_RECURSE lib_src "${PROJECT_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE hdr "${PROJECT_SOURCE_DIR}/include/*.h")
 
 option(CPPBENCHMARK_MODULE TRUE)
-add_subdirectory(cppbenchmark)
+add_subdirectory(modules/CppBenchmark)
 
 add_library(
 	fix STATIC
@@ -35,17 +35,17 @@ add_library(
     ${hdr}
 )
 
-set(include_dirs "${PROJECT_SOURCE_DIR}/spdlog/include/"
-"${PROJECT_SOURCE_DIR}/libuv/include/"
-"${PROJECT_SOURCE_DIR}/mbedtls/include/"
-"${PROJECT_SOURCE_DIR}/onetbb/include/"
-"${PROJECT_SOURCE_DIR}/hffix/include/"
-"${PROJECT_SOURCE_DIR}/atomic_queue/include/"
+set(include_dirs "${PROJECT_SOURCE_DIR}/modules/spdlog/include/"
+"${PROJECT_SOURCE_DIR}/modules/libuv/include/"
+"${PROJECT_SOURCE_DIR}/modules/mbedtls/include/"
+"${PROJECT_SOURCE_DIR}/oneTBB/include/"
+"${PROJECT_SOURCE_DIR}/modules/hffix/include/"
+"${PROJECT_SOURCE_DIR}/modules/atomic_queue/include/"
 "${PROJECT_SOURCE_DIR}/include/")
 
 target_include_directories(fix PUBLIC ${include_dirs})
 
-target_precompile_headers(fix PUBLIC "${PROJECT_SOURCE_DIR}/hffix/include/hffix.hpp" "${PROJECT_SOURCE_DIR}/hffix/include/hffix_fields.hpp" "${PROJECT_SOURCE_DIR}/hffix/include/hffix.hpp" "${PROJECT_SOURCE_DIR}/include/fix_spec.h" )
+target_precompile_headers(fix PUBLIC "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix.hpp" "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix_fields.hpp" "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix.hpp" "${PROJECT_SOURCE_DIR}/include/fix_spec.h" )
 
 target_link_libraries(fix PUBLIC uv_a spdlog mbedtls mbedcrypto mbedx509 tbb tbbmalloc)
 
