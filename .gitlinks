@@ -1,1 +1,2 @@
 libuv libuv git@github.com:libuv/libuv.git master
+spdlog spdlog https://github.com/gabime/spdlog.git v1.x
