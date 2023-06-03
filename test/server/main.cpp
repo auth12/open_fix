@@ -2,20 +2,22 @@
 
 #include <net.h>
 
+#include <server.h>
+
 #include <fix_parse.h>
 
 #define HOST "127.0.0.1"
 #define PORT "1515"
 
 struct on_read_node_t {
-    net::server::ctx_ptr &ctx;
-    on_read_node_t( net::server::ctx_ptr &c ) : ctx( c ) {}
+    std::shared_ptr< net::tcp_server_context_t > &ctx;
+    on_read_node_t( std::shared_ptr< net::tcp_server_context_t > &c ) : ctx( c ) {}
 
-    void operator( )( net::msg_t msg ) {
+    void operator( )( net::net_msg_t msg ) {
         const auto buf = msg.cast_to< std::span< char > >( );
         const int fd = msg.tag( );
 
-        if ( ctx->sessions[ fd ]->fix.state < net::Idle ) {
+        if ( ctx->sessions[ fd ]->state( ) < net::Idle ) {
             ctx->bufpool.release( buf.data( ) );
             return;
         }
@@ -26,74 +28,23 @@ struct on_read_node_t {
             std::chrono::steady_clock::now( ).time_since_epoch( ) );
         ctx->log->debug( "time received: {}", tp.count( ) );
 
-        // ctx->log->debug( "pushed buffer {:x}", uintptr_t( buf.data( ) ) );
-
-        /*std::string_view buf( msg.buf, msg.len );
-        auto session = msg.session;
-
-        ctx->log->debug( "ptr: {:x}, size: {}", uintptr_t( msg.buf ), buf.size( ) );
-
-        // pre parser validation
-        if ( !fix::is_valid_fix( buf ) ) {
-            ctx->log->warn( "invalid FIX message, dropping" );
-
-            msg.session->close( );
-
-            ctx->log->debug( "releasing session {:x}", uintptr_t( msg.session ) );
-            ctx->sessions.release( msg.session );
-
-            ctx->bufpool.release( msg.buf );
-
-            return;
-        }
-
-        const fix::fix_message_t rd{ buf };
-
-        // validate seq num
-        auto seq = rd.find( fix_spec::MsgSeqNum );
-        if( seq == rd.end( ) ) {
-            ctx->log->warn( "missing seq_num, dropping" );
-            msg.session->close( );
-
-            ctx->log->debug( "releasing session {:x}", uintptr_t( msg.session ) );
-            ctx->sessions.release( msg.session );
-
-            ctx->bufpool.release( msg.buf );
-
-            return;
-        }
-
-        int cur_seq = seq->val.as_int( );
-
-        if( session->fix.next_in.load( ) != cur_seq ) {
-            ctx->log->warn( "fix message sequence mismatch, dropping, got {}, expected {}", cur_seq,
-        session->fix.next_in.load( ) ); msg.session->close( );
-
-            ctx->log->debug( "releasing session {:x}", uintptr_t( msg.session ) );
-            ctx->sessions.release( msg.session );
-
-            ctx->bufpool.release( msg.buf );
-
-            return;
-        }
-
-        session->fix.next_in.fetch_add( 1 );*/
-
         ctx->bufpool.release( buf.data( ) );
     }
 };
 
 int main( ) {
-    net::server::tcp_server_t< on_read_node_t > srv( HOST, PORT );
+    net::tcp_server srv( "tcp_server", false );
+    auto &ctx = srv.ctx( );
 
-    if ( srv.bind( ) != 0 ) {
-        srv.ctx->log->error( "failed to bind" );
+    if( srv.bind( HOST , PORT ) != 0 ) {
+        ctx->log->error( "failed to bind" );
         return 0;
     }
 
-    srv.ctx->log->info( "serving on {}:{}", HOST, PORT );
+    ctx->log->info( "listening on {}:{}", HOST, PORT );
 
-    srv.ctx->log->info( "listening..." );
+    tbb::flow::function_node< net::net_msg_t > on_read{ srv.graph( ), tbb::flow::serial, on_read_node_t( ctx ) };
+    tbb::flow::make_edge( srv.queue_node( ), on_read );
 
     return srv.run( );
 };

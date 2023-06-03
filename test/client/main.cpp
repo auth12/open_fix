@@ -23,9 +23,9 @@ void on_timer_cb( uv_timer_t *handle ) {
     auto ctx = ( net::cli::cli_context_t * )handle->data;
 
     static char buf[ 2048 ];
-
+    
     for ( auto &[ sock, srv ] : ctx->targets ) {
-        if ( srv->fix.state != net::Idle )
+        if ( srv->fix.state != 1 )
             continue;
 
         fix::fix_writer_t wr{ buf, sizeof( buf ) };
