@@ -8,4 +8,9 @@
 
 namespace message {
     using net_msg_t = tbb::flow::tagged_msg< int, std::span< char > >;
+
+    class fix_rule {};
+    class fix_message {
+        
+    };
 };

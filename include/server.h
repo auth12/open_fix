@@ -29,31 +29,9 @@ namespace net {
 
     class tcp_server {
       public:
-        tcp_server( const std::string_view log_name, const bool to_file )
-            : m_ctx{ std::make_shared< tcp_server_context_t >( ) }, m_log{ details::log::make_sync( log_name, to_file ) },
-              m_message_queue{ m_message_graph } {
-                m_log->flush_on( spdlog::level::n_levels );
-            m_log->set_level( spdlog::level::debug );
-            m_log->set_pattern( "[%t]%+" );
+        tcp_server( const std::string_view log_name, const bool to_file );
 
-            uv_loop_init( &m_loop );
-            m_loop.data = this;
-        }
-
-        int bind( const std::string_view host, const std::string_view port ) {
-            int ret =
-                mbedtls_net_bind( m_ctx->server_session.net_ctx( ), host.data( ), port.data( ), MBEDTLS_NET_PROTO_TCP );
-            if ( ret != 0 ) {
-                return ret;
-            }
-
-            ret = m_ctx->server_session.poll_init( &m_loop );
-            if ( ret != 0 ) {
-                return ret;
-            }
-
-            return m_ctx->server_session.poll_start( on_server_poll, UV_READABLE );
-        }
+        int bind( const std::string_view host, const std::string_view port );
 
         int run( const uv_run_mode run_mode = UV_RUN_DEFAULT ) { return uv_run( &m_loop, run_mode ); }
 

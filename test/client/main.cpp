@@ -6,9 +6,9 @@
 
 #include <config.h>
 
-struct on_msg_node_t {
+struct on_read_node_t {
     net::tcp_client &client;
-    on_msg_node_t( net::tcp_client &p_client ) : client{ p_client } {}
+    on_read_node_t( net::tcp_client &p_client ) : client{ p_client } {}
 
     void operator( )( message::net_msg_t msg ) {
         const auto buf = msg.cast_to< std::span< char > >( );
@@ -24,14 +24,16 @@ struct on_msg_node_t {
             return;
         }
 
+        log->info( "ptr use count: {}", ctx.use_count( ) );
+
         ctx->bufpool.release( buf.data( ) );
     }
 };
 
 void on_timer_cb( uv_timer_t *handle ) {
     auto cli = ( net::tcp_client * )handle->loop->data;
-    auto ctx = cli->ctx( );
-    auto log = cli->log( );
+    auto &ctx = cli->ctx( );
+    auto &log = cli->log( );
 
     static char buf[ 2048 ];
 
@@ -97,6 +99,9 @@ int main( ) {
     if ( ctx->targets.empty( ) ) {
         return 0;
     }
+
+    tbb::flow::function_node< message::net_msg_t > on_read{ cli.graph( ), tbb::flow::unlimited, on_read_node_t( cli ) };
+    tbb::flow::make_edge( cli.queue_node( ), on_read );
 
     uv_timer_t t;
     uv_timer_init( cli.loop( ), &t );

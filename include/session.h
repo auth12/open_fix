@@ -23,7 +23,7 @@ namespace net {
         }
 
         int write( const std::string_view buf ) {
-            return mbedtls_net_send( &m_net_ctx, ( unsigned char * )buf.data( ), buf.size( ) );
+            return write( buf.data( ), buf.size( ) );
         }
 
         int read( void *dst, const size_t len ) {
