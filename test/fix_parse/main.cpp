@@ -1,7 +1,5 @@
 #include "include.h"
 
-#include <net.h>
-
 #include <details.h>
 
 #include <fix_parse.h>
@@ -28,15 +26,6 @@ int main( ) {
         }
         spdlog::info( "----" );
     }
-
-    tbb::task_arena ar{ };
-    ar.enqueue( [] { spdlog::info( "hello" ); } );
-    ar.enqueue( [] { spdlog::info( "hello" ); } );
-    ar.enqueue( [] { spdlog::info( "hello" ); } );
-    ar.enqueue( [] { spdlog::info( "hello" ); } );
-    ar.enqueue( [] { spdlog::info( "hello" ); } );
-    
-    spdlog::info( "{}", ar.max_concurrency( ) );
 
     return 0;
 }
