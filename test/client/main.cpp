@@ -11,7 +11,7 @@ struct on_read_node_t {
     on_read_node_t( net::tcp_client &p_client ) : client{ p_client } {}
 
     void operator( )( message::net_msg_t msg ) {
-        const auto buf = msg.cast_to< std::span< char > >( );
+        const auto buf = msg.cast_to< message::message_buf_t >( );
         const int fd = msg.tag( );
 
         auto &ctx = client.ctx( );

@@ -3,7 +3,7 @@
 #include "include.h"
 
 namespace net {
-    enum session_state : int { Offline = 0, Idle };
+    enum session_state : int { Offline = 0, Idle, MaxNetstate };
 
     class tcp_session {
       public:

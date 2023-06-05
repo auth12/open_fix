@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(fix_cli)
+project(tcp_client)
 
 file(GLOB_RECURSE src "${PROJECT_SOURCE_DIR}/*.cpp")
 
 add_executable(
-	fix_cli
+	tcp_client
 	${src}
 )
 
-target_include_directories(fix_cli PUBLIC ${include_dirs})
+target_include_directories(tcp_client PUBLIC ${include_dirs})
 
-target_link_libraries(fix_cli PUBLIC fix)
+target_link_libraries(tcp_client PUBLIC fix)

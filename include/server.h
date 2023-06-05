@@ -39,6 +39,7 @@ namespace net {
         auto &log( ) { return m_log; }
         auto &queue_node( ) { return m_message_queue; }
         auto &graph( ) { return m_message_graph; }
+        auto *loop( ) { return &m_loop; }
 
       private:
         uv_loop_t m_loop;
