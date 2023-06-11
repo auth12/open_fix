@@ -13,7 +13,7 @@ SpacesInParentheses: 'true'
 SpacesInSquareBrackets: 'true'
 Standard: Auto
 TabWidth: '4'
-UseTab: Never
+UseTab: Always
 ColumnLimit: 120
 SpaceInEmptyParentheses: true
 NamespaceIndentation: All

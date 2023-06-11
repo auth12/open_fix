@@ -41,12 +41,13 @@ set(include_dirs "${PROJECT_SOURCE_DIR}/modules/spdlog/include/"
 "${PROJECT_SOURCE_DIR}/modules/oneTBB/include/"
 "${PROJECT_SOURCE_DIR}/modules/hffix/include/"
 "${PROJECT_SOURCE_DIR}/modules/atomic_queue/include/"
+"${PROJECT_SOURCE_DIR}/modules/cppbenchmark/include/"
 "${PROJECT_SOURCE_DIR}/include/")
 
 target_include_directories(fix PUBLIC ${include_dirs})
 
 target_precompile_headers(fix PUBLIC "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix.hpp" "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix_fields.hpp" "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix.hpp" "${PROJECT_SOURCE_DIR}/include/fix_spec.h" )
 
-target_link_libraries(fix PUBLIC uv_a spdlog mbedtls mbedcrypto mbedx509 tbb tbbmalloc)
+target_link_libraries(fix PUBLIC uv_a spdlog mbedtls mbedcrypto mbedx509 tbb tbbmalloc cppbenchmark) 
 
 add_subdirectory(test)

@@ -7,122 +7,103 @@
 #include <tbb/cache_aligned_allocator.h>
 
 namespace details {
-    using log_ptr_t = std::shared_ptr< spdlog::logger >;
+	using log_ptr_t = std::shared_ptr< spdlog::logger >;
 
-    namespace log {
-        inline log_ptr_t make_async( std::string_view name, std::shared_ptr< spdlog::details::thread_pool > &tp,
-                                     int threads = 1, int buflen = 1024 ) {
-            tp = std::make_shared< spdlog::details::thread_pool >( buflen, threads );
+	namespace log {
 
-            std::string logfile_name{ name };
-            logfile_name.append( ".log" );
+		inline log_ptr_t make_sync( const std::string_view &name, bool file = false ) {
+			std::vector< spdlog::sink_ptr > sinks;
+			sinks.emplace_back( std::make_shared< spdlog::sinks::stdout_color_sink_mt >( ) );
+			if ( file ) {
+				sinks.emplace_back(
+					std::make_shared< spdlog::sinks::rotating_file_sink_mt >( name.data( ), 1024 * 1024 * 5, 10 ) );
+			}
 
-            std::vector< spdlog::sink_ptr > sinks;
-            sinks.emplace_back( std::make_shared< spdlog::sinks::stdout_color_sink_mt >( ) );
-            sinks.emplace_back(
-                std::make_shared< spdlog::sinks::rotating_file_sink_mt >( logfile_name, 1024 * 1024 * 5, 10 ) );
+			return std::make_shared< spdlog::logger >( name.data( ), sinks.begin( ), sinks.end( ) );
+		}
+	}; // namespace log
 
-            return std::make_shared< spdlog::async_logger >( name.data( ), sinks.begin( ), sinks.end( ), tp,
-                                                             spdlog::async_overflow_policy::block );
-        }
+	inline int atoi( const char *begin, const char *end, const int base = 10 ) {
+		int ret = 0;
+		bool negative = false;
+		if ( !begin or !end ) {
+			return std::numeric_limits< int >::max( );
+		}
 
-        inline log_ptr_t make_sync( const std::string_view &name, bool file = false ) {
-            std::string logfile_name{ name };
-            logfile_name.append( ".log" );
+		if ( *begin == '-' ) {
+			negative = true;
+			++begin;
+		}
 
-            std::vector< spdlog::sink_ptr > sinks;
-            sinks.emplace_back( std::make_shared< spdlog::sinks::stdout_color_sink_mt >( ) );
-            if ( file ) {
-                sinks.emplace_back(
-                    std::make_shared< spdlog::sinks::rotating_file_sink_mt >( logfile_name, 1024 * 1024 * 5, 10 ) );
-            }
+		for ( ; begin < end; ++begin ) {
+			ret *= base;
+			ret += static_cast< int >( *begin - '0' );
+		}
 
-            return std::make_shared< spdlog::logger >( name.data( ), sinks.begin( ), sinks.end( ) );
-        }
-    }; // namespace log
+		return negative ? -ret : ret;
+	}
 
-    inline int atoi( const char *begin, const char *end, const int base = 10 ) {
-        int ret = 0;
-        bool negative = false;
-        if ( !begin or !end ) {
-            return std::numeric_limits< int >::max( );
-        }
+	// returns bytes written
+	// -1 when the buffer is not enough
+	template < typename Num_t > int itoa( Num_t num, char *buf, const size_t len ) {
+		bool negative = false;
+		if ( num < 0 ) {
+			negative = true;
+			num = -num;
+		}
 
-        if ( *begin == '-' ) {
-            negative = true;
-            ++begin;
-        }
+		if ( len < sizeof( num ) + 1 ) {
+			return -1;
+		}
 
-        for ( ; begin < end; ++begin ) {
-            ret *= base;
-            ret += static_cast< int >( *begin - '0' );
-        }
+		int ret = 0;
+		auto ptr = buf;
+		for ( ; num; num /= 10 ) {
+			if ( ptr >= buf + len ) {
+				return -1;
+			}
+			*ptr++ = '0' + ( num % 10 );
+			++ret;
+		}
 
-        return negative ? -ret : ret;
-    }
+		if ( negative ) {
+			if ( ptr >= buf + len ) {
+				return -1;
+			}
+			*ptr++ = '-';
+			ret++;
+		}
 
-    // returns bytes written
-    // -1 when the buffer is not enough
-    template < typename Num_t > int itoa( Num_t num, char *buf, const size_t len ) {
-        bool negative = false;
-        if ( num < 0 ) {
-            negative = true;
-            num = -num;
-        }
+		std::reverse( buf, ptr );
 
-        if ( len < sizeof( num ) + 1 ) {
-            return -1;
-        }
+		return ret;
+	}
 
-        int ret = 0;
-        auto ptr = buf;
-        for ( ; num; num /= 10 ) {
-            if ( ptr >= buf + len ) {
-                return -1;
-            }
-            *ptr++ = '0' + ( num % 10 );
-            ++ret;
-        }
-
-        if ( negative ) {
-            if ( ptr >= buf + len ) {
-                return -1;
-            }
-            *ptr++ = '-';
-            ret++;
-        }
-
-        std::reverse( buf, ptr );
-
-        return ret;
-    }
-
-    template < typename T, const size_t N > using lockless_queue_t = atomic_queue::AtomicQueue< T, N >;
-
-    
-    template < int BufSize, int Elements > struct bufpool_t {
-        tbb::cache_aligned_allocator< char > allocator;
-        lockless_queue_t< uintptr_t, Elements > queue;
-
-        static const int buf_size = BufSize;
-
-        bufpool_t( ) {
-            for ( int i = 0; i < Elements; ++i ) {
-                const auto ptr = allocator.allocate( BufSize );
-                memset( ptr, 0, BufSize );
-                queue.push( uintptr_t( ptr ) );
+	template < typename T, size_t Size, int N > class object_pool {
+	  public:
+        object_pool( ) {
+            for( int i = 0; i < N; ++i ) {
+                m_pool.try_push( ( uintptr_t )m_allocator.allocate( Size ) );
             }
         }
 
-        char *get( ) {
-            uintptr_t ret = 0;
-            if ( !queue.try_pop( ret ) ) {
-                return nullptr;
-            }
+		T *get( ) {
+			uintptr_t ret = 0;
+			if ( !m_pool.try_pop( ret ) ) {
+				return ( T * )ret;
+			}
 
-            return ( char * )ret;
+			return ( T * )ret;
+		}
+
+		void release( T *obj ) { m_pool.try_push( uintptr_t( obj ) ); }
+
+        constexpr size_t obj_size( ) {
+            return Size;
         }
 
-        void release( char *buf ) { queue.push( uintptr_t( buf ) ); }
-    };
+	  private:
+		atomic_queue::AtomicQueue< uintptr_t, N > m_pool;
+        tbb::cache_aligned_allocator< T > m_allocator;
+	};
 }; // namespace details

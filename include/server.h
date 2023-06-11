@@ -12,43 +12,50 @@
 #include <tbb/flow_graph.h>
 
 namespace net {
-    static constexpr int server_bufpool_elements = 256;
-    static constexpr int server_buf_size = 1024;
+	static constexpr int server_bufpool_elements = 256;
+	static constexpr int server_buf_size = 1024;
+	static constexpr int max_clients = 64;
 
-    void on_server_poll( uv_poll_t *handle, int status, int events );
-    void on_session_poll( uv_poll_t *handle, int status, int events );
+	namespace server_cb {
+		void on_session_connect( uv_stream_t *server, int status );
+		void on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t *buf );
+		void on_buf_alloc( uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf );
+	} // namespace server_cb
 
-    struct tcp_server_context_t {
-        tcp_session server_session;
+	struct tcp_server_context_t {
+		tcp_session server_session;
 
-        details::bufpool_t< server_buf_size, server_bufpool_elements > bufpool;
-        tbb::concurrent_unordered_map< int, std::shared_ptr< tcp_session > > sessions;
+		details::object_pool< char, server_buf_size, server_bufpool_elements > bufpool;
+		details::object_pool< tcp_session, sizeof( tcp_session ), max_clients > sessions;
 
-        tcp_server_context_t( ) = default;
-    };
+		std::vector< tcp_session * > active_sessions;
 
-    class tcp_server {
-      public:
-        tcp_server( const std::string_view log_name, const bool to_file );
+		tcp_server_context_t( ) = default;
+	};
 
-        int bind( const std::string_view host, const std::string_view port );
+	class tcp_server {
+	  public:
+		tcp_server( const std::string_view log_name, const bool to_file, const unsigned int msg_queue_elements = 1024 );
 
-        int run( const uv_run_mode run_mode = UV_RUN_DEFAULT ) { return uv_run( &m_loop, run_mode ); }
+		int bind( const std::string_view host, const uint16_t port );
 
-        auto &ctx( ) { return m_ctx; }
-        auto &log( ) { return m_log; }
-        auto &queue_node( ) { return m_message_queue; }
-        auto &graph( ) { return m_message_graph; }
-        auto *loop( ) { return &m_loop; }
+		int run( const uv_run_mode run_mode = UV_RUN_DEFAULT ) { return uv_run( &m_loop, run_mode ); }
 
-      private:
-        uv_loop_t m_loop;
+		auto &ctx( ) { return m_ctx; }
+		auto &log( ) { return m_log; }
+		auto *loop( ) { return &m_loop; }
+		auto &msg_queue( ) { return m_queue; }
 
-        details::log_ptr_t m_log;
+		auto get_sem( ) { return &m_sem; }
 
-        tbb::flow::graph m_message_graph;
-        tbb::flow::queue_node< message::net_msg_t > m_message_queue;
+	  private:
+		uv_loop_t m_loop;
 
-        std::shared_ptr< tcp_server_context_t > m_ctx;
-    };
+		details::log_ptr_t m_log;
+
+		uv_sem_t m_sem;
+		atomic_queue::AtomicQueueB2< std::unique_ptr< message::net_msg_t > > m_queue;
+
+		std::shared_ptr< tcp_server_context_t > m_ctx;
+	};
 }; // namespace net

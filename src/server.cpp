@@ -1,120 +1,123 @@
 #include "server.h"
 
-net::tcp_server::tcp_server( const std::string_view log_name, const bool to_file )
-    : m_ctx{ std::make_shared< tcp_server_context_t >( ) }, m_log{ details::log::make_sync( log_name, to_file ) },
-      m_message_queue{ m_message_graph } {
-    m_log->flush_on( spdlog::level::n_levels );
-    m_log->set_level( spdlog::level::debug );
-    m_log->set_pattern( "[%t]%+" );
+net::tcp_server::tcp_server( const std::string_view log_name, const bool to_file,
+							 const unsigned int msg_queue_elements )
+	: m_ctx{ std::make_shared< tcp_server_context_t >( ) }, m_log{ details::log::make_sync( log_name, to_file ) },
+	  m_queue{ msg_queue_elements } {
+	m_log->flush_on( spdlog::level::n_levels );
+	m_log->set_level( spdlog::level::debug );
+	m_log->set_pattern( "[%t]%+" );
 
-    uv_loop_init( &m_loop );
-    m_loop.data = this;
+	uv_loop_init( &m_loop );
+	m_loop.data = this;
+
+	m_ctx->server_session.init_handle( &m_loop );
+
+	uv_sem_init( &m_sem, 0 ); // add back server busy wait later
 }
 
-int net::tcp_server::bind( const std::string_view host, const std::string_view port ) {
-    int ret = mbedtls_net_bind( m_ctx->server_session.net_ctx( ), host.data( ), port.data( ), MBEDTLS_NET_PROTO_TCP );
-    if ( ret != 0 ) {
-        return ret;
-    }
+int net::tcp_server::bind( const std::string_view host, const uint16_t port ) {
+	struct sockaddr_in dest;
 
-    ret = m_ctx->server_session.poll_init( &m_loop );
-    if ( ret != 0 ) {
-        return ret;
-    }
+	int ret = uv_ip4_addr( host.data( ), port, &dest );
+	if ( ret != 0 ) {
+		return ret;
+	}
 
-    return m_ctx->server_session.poll_start( on_server_poll, UV_READABLE );
+	ret = uv_tcp_bind( m_ctx->server_session.tcp_handle( ), ( struct sockaddr * )&dest, 0 );
+	if ( ret != 0 ) {
+		return ret;
+	}
+
+	return uv_listen( ( uv_stream_t * )m_ctx->server_session.tcp_handle( ), 0, server_cb::on_session_connect );
 }
 
-void net::on_server_poll( uv_poll_t *handle, int status, int events ) {
-    auto *srv = ( tcp_server * )handle->loop->data;
-    auto &log = srv->log( );
-    auto &ctx = srv->ctx( );
+void net::server_cb::on_buf_alloc( uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf ) {
+	auto cli = ( tcp_server * )handle->loop->data;
+	auto &ctx = cli->ctx( );
 
-    if ( status < 0 ) {
-        log->error( "server poll error, {}", uv_strerror( status ) );
-        return;
-    }
-
-    if ( !( events & UV_READABLE ) )
-        return;
-
-    auto session = std::make_shared< net::tcp_session >( );
-
-    uint8_t ip[ 4 ];
-    size_t ip_len = 0;
-    int ret = mbedtls_net_accept( ctx->server_session.net_ctx( ), session->net_ctx( ), ip, sizeof( ip ), &ip_len );
-    if ( ret != 0 ) {
-        log->error( "failed to accept new session, {}", ret );
-        return;
-    }
-
-    // ipv4 only
-    session->set_ip( fmt::format( "{}.{}.{}.{}", ip[ 0 ], ip[ 1 ], ip[ 2 ], ip[ 3 ] ) );
-
-    log->info( "new session, fd: {}, ip: {}", session->fd( ), session->ip( ) );
-
-    if ( session->poll_init( handle->loop ) != 0 ) {
-        log->error( "failed to initialize session poll handle." );
-        session->close( );
-        return;
-    }
-
-    session->poll_handle( )->data = session.get( );
-
-    if ( session->poll_start( on_session_poll, UV_READABLE | UV_DISCONNECT ) != 0 ) {
-        log->error( "failed to initialize session poll handle." );
-        session->close( );
-        return;
-    }
-
-    session->set_state( Idle );
-
-    ctx->sessions[ session->fd( ) ].swap( session );
+	buf->base = ctx->bufpool.get( );
+	buf->len = ctx->bufpool.obj_size( );
 }
 
-void net::on_session_poll( uv_poll_t *handle, int status, int events ) {
-    auto srv = ( tcp_server * )handle->loop->data;
-    auto &ctx = srv->ctx( );
-    auto &log = srv->log( );
+void net::server_cb::on_session_connect( uv_stream_t *server_handle, int status ) {
+	auto server = ( tcp_server * )server_handle->loop->data;
+	auto &log = server->log( );
+	auto &ctx = server->ctx( );
 
-    auto session = ( tcp_session * )handle->data;
+	if ( status < 0 ) {
+		log->warn( "on connect error, {}", uv_strerror( status ) );
+		return;
+	}
 
-    if ( status < 0 ) {
-        log->error( "session poll error, {}", uv_strerror( status ) );
+	auto session = ctx->sessions.get( );
+	if ( !session ) {
+		log->warn( "max clients connected." );
 
-        session->close( );
-        session->poll_stop( );
-        return;
-    }
+		return;
+	}
 
-    if ( events & UV_DISCONNECT ) {
-        log->warn( "session fd: {}, ip: {} disconnected", session->fd( ), session->ip( ) );
-        session->close( );
-        session->poll_stop( );
-        return;
-    }
+	session->init_handle( server_handle->loop );
 
-    if ( !( events & UV_READABLE ) ) {
-        return;
-    }
+	int ret = uv_accept( server_handle, ( uv_stream_t * )session->tcp_handle( ) );
+	if ( ret != 0 ) {
+		log->error( "failed to accept new session, {}", uv_strerror( ret ) );
 
-    auto buf = ctx->bufpool.get( );
-    if ( !buf ) {
-        log->warn( "no available buffer in the buffer pool, waiting..." );
-        return;
-    }
+		session->close( );
+		ctx->sessions.release( session );
+		return;
+	}
 
-    int nread = session->read( buf, ctx->bufpool.buf_size );
-    if ( nread <= 0 ) {
-        log->error( "read from session returned {}, dropping", nread );
+	int fd = -1;
+	ret = uv_fileno( ( uv_handle_t * )session->tcp_handle( ), &fd );
+	if ( ret != 0 ) {
+		log->error( "failed to grab session file descriptor {}", fd );
 
-        session->close( );
-        session->poll_stop( );
+		session->close( );
+		ctx->sessions.release( session );
+		return;
+	}
 
-        ctx->bufpool.release( buf );
-        return;
-    }
+	log->info( "new session connected, fd {}", fd );
 
-    log->debug( "read {} bytes from {}, fd: {}", nread, session->ip( ), session->fd( ) );
-    srv->queue_node( ).try_put( { session->fd( ), std::span{ buf, ( size_t )nread } } );
+	session->tcp_handle( )->data = session;
+	session->set_fd( fd );
+
+	ret = uv_read_start( ( uv_stream_t * )session->tcp_handle( ), server_cb::on_buf_alloc, server_cb::on_read );
+	if ( ret != 0 ) {
+		log->error( "failed to start reading, {}", uv_strerror( ret ) );
+
+		session->close( );
+		ctx->sessions.release( session );
+	}
+	ctx->active_sessions.emplace_back( session );
+	session->set_state( Idle );
+}
+
+void net::server_cb::on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t *buf ) {
+	auto srv = ( tcp_server * )handle->loop->data;
+	auto &ctx = srv->ctx( );
+	auto &log = srv->log( );
+
+	auto session = ( tcp_session * )handle->data;
+
+	if ( nread <= 0 ) {
+		log->error( "read from session returned {}, dropping", uv_strerror( nread ) );
+
+		session->close( );
+		// session->poll_stop( );
+		ctx->sessions.release( session );
+		ctx->bufpool.release( buf->base );
+		return;
+	}
+
+	log->debug( "read {} bytes, fd: {}", nread, session->fd( ) );
+
+	auto msg = std::make_unique< message::net_msg_t >( );
+	msg->buf = buf->base;
+	msg->len = nread;
+	msg->session = session;
+
+	srv->msg_queue( ).push( std::move( msg ) );
+	uv_sem_post( srv->get_sem( ) );
 }

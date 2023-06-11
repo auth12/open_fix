@@ -11,7 +11,7 @@ constexpr char fix_buf[] = "8=FIX.4.4\0019=178\00135=W\00149=SENDER\00156=RECEIV
 int main( ) {
     spdlog::set_pattern( "[%t]%+" );
 
-    if ( !fix::is_valid_fix( fix_buf ) ) {
+    /*if ( !fix::is_valid_fix( fix_buf ) ) {
         spdlog::error( "invalid fix msg" );
         return 0;
     }
@@ -22,7 +22,9 @@ int main( ) {
             spdlog::info( "{}:{}", it.tag, it.val.as_str( ) );
         }
         spdlog::info( "----" );
-    }
+    }*/
+
+    spdlog::info( "{}", std::thread::hardware_concurrency( ) );
 
     return 0;
 }
