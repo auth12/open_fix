@@ -97,8 +97,8 @@ void con_cb( net::tcp_session *session ) {
 
 	char out_buf[ 1024 ];
 	hffix::message_writer wr{ out_buf, sizeof( out_buf ) };
-
 	wr.push_back_header( "FIX.4.4" );
+    wr.push_back_int(fix_spec::EncryptMethod, 0);
     wr.push_back_string( fix_spec::SenderCompID, user );
     wr.push_back_string( fix_spec::TargetCompID, "DERIBITSERVER" );
 	wr.push_back_string( fix_spec::MsgType, "A" );
