@@ -38,8 +38,8 @@ void on_timer_cb( uv_timer_t *timer ) {
 
 	auto &ctx = srv->ctx( );
 	auto &log = srv->log( );
-	for( auto &s : ctx->active_sessions ) {
-		s->write( fix_buf );
+	for( auto &[ fd, session ] : ctx->sessions ) {
+		session->write( fix_buf );
 	}
 }
 

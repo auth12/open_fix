@@ -26,9 +26,8 @@ namespace net {
 		tcp_session server_session;
 
 		details::object_pool< char, server_buf_size, server_bufpool_elements > bufpool;
-		details::object_pool< tcp_session, sizeof( tcp_session ), max_clients > sessions;
-
-		std::vector< tcp_session * > active_sessions;
+		
+		tbb::concurrent_unordered_map< int, std::shared_ptr< tcp_session > > sessions;
 
 		tcp_server_context_t( ) = default;
 	};

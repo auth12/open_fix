@@ -50,12 +50,7 @@ void net::server_cb::on_session_connect( uv_stream_t *server_handle, int status 
 		return;
 	}
 
-	auto session = ctx->sessions.get( );
-	if ( !session ) {
-		log->warn( "max clients connected." );
-
-		return;
-	}
+	auto session = std::make_shared< tcp_session >( );
 
 	session->init_handle( server_handle->loop );
 
@@ -64,7 +59,6 @@ void net::server_cb::on_session_connect( uv_stream_t *server_handle, int status 
 		log->error( "failed to accept new session, {}", uv_strerror( ret ) );
 
 		session->close( );
-		ctx->sessions.release( session );
 		return;
 	}
 
@@ -74,13 +68,12 @@ void net::server_cb::on_session_connect( uv_stream_t *server_handle, int status 
 		log->error( "failed to grab session file descriptor {}", fd );
 
 		session->close( );
-		ctx->sessions.release( session );
 		return;
 	}
 
 	log->info( "new session connected, fd {}", fd );
 
-	session->tcp_handle( )->data = session;
+	session->tcp_handle( )->data = session.get( );
 	session->set_fd( fd );
 
 	ret = uv_read_start( ( uv_stream_t * )session->tcp_handle( ), server_cb::on_buf_alloc, server_cb::on_read );
@@ -88,10 +81,11 @@ void net::server_cb::on_session_connect( uv_stream_t *server_handle, int status 
 		log->error( "failed to start reading, {}", uv_strerror( ret ) );
 
 		session->close( );
-		ctx->sessions.release( session );
 	}
-	ctx->active_sessions.emplace_back( session );
+	
 	session->set_state( Idle );
+
+	ctx->sessions[ fd ].swap( session );
 }
 
 void net::server_cb::on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t *buf ) {
@@ -105,8 +99,6 @@ void net::server_cb::on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t
 		log->error( "read from session returned {}, dropping", uv_strerror( nread ) );
 
 		session->close( );
-		// session->poll_stop( );
-		ctx->sessions.release( session );
 		ctx->bufpool.release( buf->base );
 		return;
 	}

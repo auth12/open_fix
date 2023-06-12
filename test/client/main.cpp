@@ -60,6 +60,8 @@ int main( ) {
 
 		log->info( "attempting to connect to {}:{}", ip, port );
 
+		
+
 		int ret = cli.connect( ip, atoi( port.data( ) ) );
 		if ( ret != 0 ) {
 			log->error( "failed to connect to {}:{}.", ip, port );

@@ -9,9 +9,8 @@
 #include "message.h"
 
 namespace net {
-	static constexpr int cli_bufpool_elements = 2048;
+	static constexpr int cli_bufpool_elements = 512;
 	static constexpr int cli_buf_size = 1024;
-	static constexpr int max_targets = 32;
 
 	namespace client_cb {
 		void on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t *buf );
@@ -22,7 +21,7 @@ namespace net {
 	struct tcp_client_context_t {
 		details::object_pool< char, cli_buf_size, cli_bufpool_elements > bufpool;
 
-		details::object_pool< tcp_session, sizeof( tcp_session ), max_targets > targets;
+		tbb::concurrent_vector< std::shared_ptr< tcp_session > > targets;
 
 		tcp_client_context_t( ) = default;
 	};
@@ -40,12 +39,18 @@ namespace net {
 		auto &msg_queue( ) { return m_queue; }
 		auto *loop( ) { return &m_loop; }
 
+		void set_on_connect( std::function< void( tcp_session * ) > &&fn ) { m_on_connect.swap( fn ); }
+
+		auto &con_fn( ) { return m_on_connect; }
+
 	  private:
 		uv_loop_t m_loop;
 
 		atomic_queue::AtomicQueueB2< std::unique_ptr< message::net_msg_t > > m_queue;
 
 		std::shared_ptr< tcp_client_context_t > m_ctx;
+
+		std::function< void( tcp_session * ) > m_on_connect;
 
 		details::log_ptr_t m_log;
 	};

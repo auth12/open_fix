@@ -46,15 +46,13 @@ void net::client_cb::on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t
 
 void net::client_cb::on_connect( uv_connect_t *req, int status ) {
 	auto session = ( tcp_session * )req->handle->data;
-	auto cli = ( tcp_client * )session->tcp_handle( )->loop->data;
+	auto cli = ( tcp_client * )req->handle->loop->data;
 
 	auto &ctx = cli->ctx( );
 	auto &log = cli->log( );
 
 	if ( status < 0 ) {
 		log->error( "failed to connect, {}", uv_strerror( status ) );
-
-		ctx->targets.release( session );
 		return;
 	}
 
@@ -64,7 +62,6 @@ void net::client_cb::on_connect( uv_connect_t *req, int status ) {
 		log->error( "failed to grab session file descriptor {}", fd );
 
 		session->close( );
-		ctx->targets.release( session );
 		return;
 	}
 
@@ -73,20 +70,20 @@ void net::client_cb::on_connect( uv_connect_t *req, int status ) {
 
 	log->info( "connected." );
 
-	ret = uv_read_start( ( uv_stream_t * )session->tcp_handle( ), on_buf_alloc, on_read );
+	if ( cli->con_fn( ) ) {
+		cli->con_fn( )( session );
+	}
+
+	ret = uv_read_start( ( uv_stream_t * )req->handle, on_buf_alloc, on_read );
 	if ( ret != 0 ) {
 		log->error( "failed to start reading {}", uv_strerror( ret ) );
 
 		session->close( );
-		ctx->targets.release( session );
 	}
 }
 
 int net::tcp_client::connect( const std::string_view host, const uint16_t port ) {
-	auto session = m_ctx->targets.get( );
-	if ( !session ) {
-		return 1;
-	}
+	auto session = *( m_ctx->targets.emplace_back( std::make_shared< tcp_session >( ) ) );
 
 	struct sockaddr_in dest;
 	int ret = uv_ip4_addr( host.data( ), port, &dest );
@@ -95,7 +92,7 @@ int net::tcp_client::connect( const std::string_view host, const uint16_t port )
 	}
 
 	session->init_handle( &m_loop );
-	session->tcp_handle( )->data = session;
+	session->tcp_handle( )->data = session.get( );
 
 	return uv_tcp_connect( session->connect_request( ), session->tcp_handle( ), ( struct sockaddr * )&dest,
 						   client_cb::on_connect );
