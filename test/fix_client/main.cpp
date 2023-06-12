@@ -1,7 +1,8 @@
 #include "include.h"
 
 #include "fix_client.h"
-
+#include <openssl/rand.h>
+#include <openssl/sha.h>
 #include <config.h>
 
 #include <sched.h>
@@ -81,25 +82,29 @@ void con_cb( net::tcp_session *session ) {
 			.count( );
 
 	auto raw_data = fmt::format( "{}.{}", timestamp, nonce64 );
-	auto raw_secret = raw_data + secret;
+	auto raw_data_and_secret = raw_data + secret;
 
-	spdlog::info( "raw data: {}, secret+ raw data: {}", raw_data, raw_secret );
+	spdlog::info( "raw data: {}, raw data + secret: {}", raw_data, raw_data_and_secret );
 
-	unsigned char hash[ 32 ];
-	int ret = mbedtls_sha256( ( unsigned char * )raw_secret.c_str( ), raw_secret.size( ), hash, 0 );
+	unsigned char hash[ SHA256_DIGEST_LENGTH ];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, raw_data_and_secret.c_str(), raw_data_and_secret.size());
+    SHA256_Final(hash, &sha256);
+	//int ret = mbedtls_sha256( ( unsigned char * )raw_data_and_secret.c_str( ), raw_data_and_secret.size( ), hash, 0 );
 
-	auto pass = details::base64_encode( hash, sizeof( hash ) );
+	auto pass = details::base64_encode( hash, SHA256_DIGEST_LENGTH );
 
 	char out_buf[ 1024 ];
 	hffix::message_writer wr{ out_buf, sizeof( out_buf ) };
 
 	wr.push_back_header( "FIX.4.4" );
 	wr.push_back_string( fix_spec::MsgType, "A" );
-	wr.push_back_int( fix_spec::HeartBtInt, 5 );
+	wr.push_back_int( fix_spec::HeartBtInt, 30 );
 	wr.push_back_string( fix_spec::Username, user );
 	wr.push_back_string( fix_spec::Password, pass );
 	wr.push_back_string( fix_spec::RawData, raw_data );
-	// wr.push_back_char( fix_spec::ResetSeqNumFlag, 'N' );
+	wr.push_back_string( fix_spec::ResetSeqNumFlag, "Y");
 	wr.push_back_trailer( );
 
 	std::string_view buf{ out_buf, wr.message_size( ) };
@@ -111,7 +116,7 @@ void con_cb( net::tcp_session *session ) {
 int main( ) {
 	config::cli_fix_cfg_t cfg{ };
 
-	if ( !config::get_cli_config( "fix.json", cfg ) ) {
+	if ( !config::get_cli_config( "/home/aks/workspace/CPP/fix_parse/bin/fix.json", cfg ) ) {
 		spdlog::error( "failed to parse client config file" );
 		return 0;
 	}
