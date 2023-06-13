@@ -60,9 +60,6 @@ void consumer( fix::fix_client &cli ) {
 }
 
 void con_cb( net::tcp_session *session ) {
-
-	// fix::fix_writer_t wr{ out_buf, sizeof( out_buf ) };
-
 	const std::string user{ "FnVfw2NS" };
 	const std::string secret{ "42fSsqVo1ZDgL5PWXSvcCTZH7D0pCqxpML-mKGSarGY" };
 
@@ -109,8 +106,9 @@ void con_cb( net::tcp_session *session ) {
 	wr.push_back_string( fix_spec::ResetSeqNumFlag, "Y");
 	wr.push_back_trailer( );
 
-	std::string_view buf{ out_buf, wr.message_size( ) };
-	spdlog::info( "buf: {}, len: {}", buf, wr.message_size( ) );
+	auto buf = wr.get_buf( );
+
+	spdlog::info( "buf: {}, len: {}", buf, buf.size( ) );
 
 	session->write( buf );
 }

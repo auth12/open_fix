@@ -166,79 +166,56 @@ namespace fix {
 		const iterator end( ) const { return iterator{ end_, nullptr }; }
 	};
 
-	// no message order checking
-	struct fix_writer_t {
-		char *begin = nullptr;
-		size_t len = 0, cur_pos = 0, body_len_pos = 0;
+	class fix_writer {
+	  public:
+		fix_writer( char *begin, const size_t len )
+			: m_buf{ begin }, m_len{ len }, m_cur_pos{ 0 }, m_body_len_pos{ 0 } {}
 
-		fix_writer_t( char *ptr, const size_t len_ ) : begin{ ptr }, len( len_ ) {}
-
-		fix_writer_t &push_header( const std::string_view fix_v ) {
-			body_len_pos = push_field( fix_spec::tag::BeginString, fix_v ).cur_pos;
-			return *this;
+		fix_writer &push_header( const int fix_maj, const int fix_min ) {
+			return push_field( fix_spec::BeginString, fmt::format( "FIX.{}.{}", fix_maj, fix_min ) );
 		}
 
-		fix_writer_t &push_trailer( ) {
-			if ( cur_pos >= len ) {
-				return *this;
+		fix_writer &push_field( const int &tag, const std::string_view val ) {
+			m_cur_pos += details::itoa( tag, m_buf, m_len - m_cur_pos );
+			m_buf[ m_cur_pos++ ] = '=';
+			memcpy( m_buf + m_cur_pos, val.data( ), val.size( ) );
+			m_cur_pos += val.size( );
+			m_buf[ m_cur_pos++ ] = '\001';
+
+			if ( tag == fix_spec::BeginString && !m_body_len_pos ) {
+				m_body_len_pos = m_cur_pos;
 			}
 
-			auto len = cur_pos - body_len_pos;
+			return *this;
+		}
 
-			auto len_field = fmt::format( "9={}\001", len );
+		fix_writer &push_trailer( ) {
+			const size_t body_len = m_cur_pos - m_body_len_pos;
+			auto len_str = fmt::format( "9={}\001", body_len );
 
-			// shift the buffer
-			memmove( begin + body_len_pos + len_field.size( ), begin + body_len_pos, len );
-			memcpy( begin + body_len_pos, len_field.data( ), len_field.size( ) );
+			memmove( m_buf + m_body_len_pos + len_str.size( ), m_buf + m_body_len_pos, body_len );
+			memcpy( m_buf + m_body_len_pos, len_str.data( ), len_str.size( ) );
 
-			cur_pos += len_field.size( );
+			m_cur_pos += len_str.size( );
 
-			uint8_t checksum = std::accumulate( begin, begin + cur_pos, uint8_t{ 0 } );
+			size_t checksum = 0;
+			for ( int i = 0; i < m_cur_pos; ++i )
+				checksum += static_cast< int >( m_buf[ i ] );
 
-			checksum %= 256;
+			auto checksum_field = fmt::format( "10={:03}\001", checksum % 256 );
 
-			memcpy( begin + cur_pos, "10=", 3 );
-			cur_pos += 3;
-			char *cur = begin + cur_pos;
+			memcpy( m_buf + m_cur_pos, checksum_field.data( ), checksum_field.size( ) );
 
-			cur[ 0 ] = '0' + ( ( checksum / 100 ) % 10 );
-			cur[ 1 ] = '0' + ( ( checksum / 10 ) % 10 );
-			cur[ 2 ] = '0' + ( checksum % 10 );
-
-			cur[ 3 ] = '\001';
-
-			cur_pos += 4;
+			m_cur_pos += checksum_field.size( );
 
 			return *this;
 		}
 
-		fix_writer_t &push_field( const int &tag, const std::string_view val ) {
-			if ( cur_pos >= len ) {
-				return *this;
-			}
-			cur_pos += details::itoa( tag, &begin[ cur_pos ], len - cur_pos );
-			begin[ cur_pos++ ] = '=';
-			memcpy( begin + cur_pos, val.data( ), val.size( ) );
-			cur_pos += val.size( );
+		auto get_buf( ) const { return std::string_view{ m_buf, m_cur_pos }; }
 
-			begin[ cur_pos++ ] = '\x01';
-
-			return *this;
-		}
-
-		fix_writer_t &push_int( const int &tag, const int val ) {
-			if ( cur_pos >= len ) {
-				return *this;
-			}
-
-			cur_pos += details::itoa( tag, &begin[ cur_pos ], len - cur_pos );
-			begin[ cur_pos++ ] = '=';
-			cur_pos += details::itoa( val, &begin[ cur_pos ], len - cur_pos );
-
-			begin[ cur_pos++ ] = '\x01';
-
-			return *this;
-		}
+	  private:
+		size_t m_cur_pos, m_body_len_pos, m_len;
+		char *m_buf;
 	};
 
 }; // namespace fix
