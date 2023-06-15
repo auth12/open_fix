@@ -4,14 +4,12 @@
 
 #include <fix_parse.h>
 
-constexpr char fix_buf[] = "8=FIX.4.4\0019=178\00135=W\00149=SENDER\00156=RECEIVER\00134=123\00152=20230517-09:30:00."
-                           "000\00155=EUR/"
-                           "USD\001262=1\001268=2\001269=0\001270=1.2345\001271=100000\00110=080\001";
+constexpr char fix_buf[] = "8=FIX.4.4\0019=000134\00135=A\00198=0\001553=FnVfw2NS554=tpBLRqLV7vkp5lgWXa9st6OV+l5wIV00R4OPjVFS9o0=\00196=1686700968042.HpiN3uFKdvLOxHJEWjO0pPk+jvnBWNg7RPXYvpIym4I=\00110=185\001";
 
 int main( ) {
     spdlog::set_pattern( "[%t]%+" );
 
-    /*if ( !fix::is_valid_fix( fix_buf ) ) {
+    if ( !fix::is_valid_fix( fix_buf ) ) {
         spdlog::error( "invalid fix msg" );
         return 0;
     }
@@ -20,9 +18,17 @@ int main( ) {
     for ( auto &r : rd ) {
         for ( auto &it : r ) {
             spdlog::info( "{}:{}", it.tag, it.val.as_str( ) );
+
+            if( it.tag == fix_spec::tag::BodyLength ) {
+                std::string_view checksum{ it.val.end + 1, ( size_t )it.val.as_int( ) };
+                spdlog::info( checksum );
+                //if( it.val.end + it.val.as_int( ) + 1  )
+            }
         }
         spdlog::info( "----" );
-    }*/
+    }
+
+
 
     spdlog::info( "{}", std::thread::hardware_concurrency( ) );
 

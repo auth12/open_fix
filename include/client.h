@@ -46,7 +46,7 @@ namespace net {
 	  private:
 		uv_loop_t m_loop;
 
-		atomic_queue::AtomicQueueB2< std::unique_ptr< message::net_msg_t > > m_queue;
+		atomic_queue::AtomicQueue2< std::unique_ptr< message::net_msg_t >, 1024 > m_queue;
 
 		std::shared_ptr< tcp_client_context_t > m_ctx;
 

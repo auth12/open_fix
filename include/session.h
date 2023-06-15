@@ -19,7 +19,7 @@ namespace net {
 			return uv_try_write( ( uv_stream_t * )&m_tcp_handle, &buf, 1 );
 		}
 
-		int write( const std::string_view buf ) { return write( buf.data( ), buf.size( ) ); }
+		int write( const std::string_view &buf ) { return write( buf.data( ), buf.size( ) ); }
 
 		int init_handle( uv_loop_t *loop ) { return uv_tcp_init( loop, &m_tcp_handle ); }
 

@@ -50,18 +50,14 @@ def parse_fix_spec():
             if field_type != 'INT' and field_type != 'CHAR' and field_type != 'STRING':
                 continue
 
-            header.write(f'\tnamespace {field_name}_val ')
-            header.write('{\n')
             for v in f.iter('value'):
                 desc = v.get('description')
                 ret = v.get('enum')
                 if field_type == 'INT' or field_type == 'QTY':
-                    header.write(f'\t\tstatic int {desc} = {ret};\n')
-                if field_type == 'CHAR' or field_type == 'STRING':
-                    header.write(f'\t\tstatic const char {desc}[] = "{ret}";\n')
-                
-
-            header.write('\t};\n\n')
+                    header.write(f'\tconstexpr int {field_name}_{desc} = {ret};\n')
+                if field_type == 'CHAR':
+                    header.write(f"\tconstexpr char {field_name}_{desc} = '{ret}';\n")
+            
         
         header.write('};')
 

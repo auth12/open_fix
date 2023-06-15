@@ -3,8 +3,7 @@
 #include "client.h"
 
 net::tcp_client::tcp_client( const std::string_view log_name, bool to_file, const unsigned int msg_queue_elements )
-	: m_ctx{ std::make_shared< tcp_client_context_t >( ) }, m_log{ details::log::make_sync( log_name, to_file ) },
-	  m_queue{ msg_queue_elements } {
+	: m_ctx{ std::make_shared< tcp_client_context_t >( ) }, m_log{ details::log::make_sync( log_name, to_file ) } {
 	m_log->flush_on( spdlog::level::n_levels );
 	m_log->set_level( spdlog::level::debug );
 	m_log->set_pattern( "[%t]%+" );
@@ -27,7 +26,7 @@ void net::client_cb::on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t
 	auto &log = cli->log( );
 	auto &ctx = cli->ctx( );
 
-	if ( nread < 0 ) {
+	if ( nread <= 0 ) {
 		log->warn( "failed to read from socket, {}", uv_strerror( nread ) );
 
 		session->close( );
@@ -35,6 +34,8 @@ void net::client_cb::on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t
 		ctx->bufpool.release( buf->base );
 		return;
 	}
+
+	log->info( "got msg {}", std::string_view{ buf->base, ( size_t )nread } );
 
 	auto msg = std::make_unique< message::net_msg_t >( );
 	msg->buf = buf->base;

@@ -1,6 +1,7 @@
 #include "include.h"
 
 #include "fix_client.h"
+
 #include <openssl/rand.h>
 #include <openssl/sha.h>
 #include <config.h>
@@ -14,13 +15,13 @@ void consumer( fix::fix_client &cli ) {
 	auto &queue = cli.msg_queue( );
 
 	while ( 1 ) {
-		auto msg = queue.pop( );
-		if ( !msg->buf ) {
-			log->critical( "invalid buffer in queue." );
+		std::unique_ptr< message::net_msg_t > msg;
+		if ( !queue.try_pop( msg ) ) {
 			continue;
 		}
 
 		std::string_view buf{ msg->buf, msg->len };
+		const int fd = msg->session->fd( );
 
 		log->info( buf );
 
@@ -45,7 +46,7 @@ void consumer( fix::fix_client &cli ) {
 
 		// add checksum field check
 
-		log->info( "fix message, type: {}, len: {}, fd: {}", cur->val.as_str( ), msg->len, msg->session->fd( ) );
+		log->info( "fix message, type: {}, len: {}, fd: {}", cur->val.as_str( ), msg->len, fd );
 
 		++cur;
 
@@ -65,10 +66,7 @@ void con_cb( net::tcp_session *session ) {
 
 	// nonce
 	unsigned char nonce[ 32 ] = { 0 };
-	srand( time( 0 ) );
-	for ( int i = 0; i < sizeof( nonce ); ++i ) {
-		nonce[ i ] = rand( ) % 255;
-	}
+	RAND_bytes( nonce, 32 );
 
 	const auto nonce64 = details::base64_encode( nonce, sizeof( nonce ) );
 
@@ -83,40 +81,48 @@ void con_cb( net::tcp_session *session ) {
 
 	spdlog::info( "raw data: {}, raw data + secret: {}", raw_data, raw_data_and_secret );
 
-	unsigned char hash[ SHA256_DIGEST_LENGTH ];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, raw_data_and_secret.c_str(), raw_data_and_secret.size());
-    SHA256_Final(hash, &sha256);
-	//int ret = mbedtls_sha256( ( unsigned char * )raw_data_and_secret.c_str( ), raw_data_and_secret.size( ), hash, 0 );
+	unsigned char hash[ 32 ];
+	/*SHA256_CTX sha256;
+	SHA256_Init( &sha256 );
+	SHA256_Update( &sha256, raw_data_and_secret.c_str( ), raw_data_and_secret.size( ) );
+	SHA256_Final( hash, &sha256 );*/
+	int ret = mbedtls_sha256( ( unsigned char * )&raw_data_and_secret[ 0 ], raw_data_and_secret.size( ), hash, 0 );
 
-	auto pass = details::base64_encode( hash, SHA256_DIGEST_LENGTH );
+	auto pass = details::base64_encode( &hash[ 0 ], sizeof( hash ) );
 
 	char out_buf[ 1024 ];
-	hffix::message_writer wr{ out_buf, sizeof( out_buf ) };
-	wr.push_back_header( "FIX.4.4" );
-    wr.push_back_int(fix_spec::EncryptMethod, 0);
-    wr.push_back_string( fix_spec::SenderCompID, user );
-    wr.push_back_string( fix_spec::TargetCompID, "DERIBITSERVER" );
-	wr.push_back_string( fix_spec::MsgType, "A" );
-	wr.push_back_int( fix_spec::HeartBtInt, 30 );
-	wr.push_back_string( fix_spec::Username, user );
-	wr.push_back_string( fix_spec::Password, pass );
-	wr.push_back_string( fix_spec::RawData, raw_data );
-	wr.push_back_string( fix_spec::ResetSeqNumFlag, "Y");
-	wr.push_back_trailer( );
+	fix::fix_writer wr{ out_buf, sizeof( out_buf ) };
+	wr.push_header( 4, 4 );
+	wr.push_char( fix_spec::MsgType, 'A' );
+	// wr.push_int( fix_spec::EncryptMethod, 0 );
+	// wr.push_field( fix_spec::SenderCompID, user );
+	// wr.push_field( fix_spec::TargetCompID, "DERIBITSERVER" );
+	//  wr.push_field( fix_spec::HeartBtInt, "30" );
+	wr.push_str( fix_spec::Username, user );
+	wr.push_str( fix_spec::Password, pass );
+	wr.push_str( fix_spec::RawData, raw_data );
+	wr.push_char( fix_spec::ResetSeqNumFlag, 'Y' );
+	wr.push_trailer( );
 
-	auto buf = wr.get_buf( );
+	std::string_view buf{ out_buf, wr.size( ) };
+	fix::fix_message_t rd{ buf };
+
+	for( auto &f : rd ) {
+		spdlog::info( "{}->{}", f.tag, f.val.as_str( ) );
+	}
+	std::cout << buf << std::endl;
 
 	spdlog::info( "buf: {}, len: {}", buf, buf.size( ) );
 
-	session->write( buf );
+	ret = session->write( buf );
+
+	spdlog::info( "wrote {} bytes", ret );
 }
 
 int main( ) {
 	config::cli_fix_cfg_t cfg{ };
 
-	if ( !config::get_cli_config( "/home/aks/workspace/CPP/fix_parse/bin/fix.json", cfg ) ) {
+	if ( !config::get_cli_config( "fix.json", cfg ) ) {
 		spdlog::error( "failed to parse client config file" );
 		return 0;
 	}

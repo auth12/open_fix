@@ -930,3151 +930,1194 @@ namespace fix_spec {
 		MAX_VAL = 9004
 	};
 
-	namespace Account_val {
-	};
-
-	namespace AdvId_val {
-	};
-
-	namespace AdvRefID_val {
-	};
-
-	namespace AdvSide_val {
-		static const char BUY[] = "B";
-		static const char SELL[] = "S";
-		static const char CROSS[] = "X";
-		static const char TRADE[] = "T";
-	};
-
-	namespace AdvTransType_val {
-		static const char NEW[] = "N";
-		static const char CANCEL[] = "C";
-		static const char REPLACE[] = "R";
-	};
-
-	namespace BeginString_val {
-	};
-
-	namespace CheckSum_val {
-	};
-
-	namespace ClOrdID_val {
-	};
-
-	namespace CommType_val {
-		static const char PER_UNIT[] = "1";
-		static const char PERCENTAGE[] = "2";
-		static const char ABSOLUTE[] = "3";
-		static const char PERCENTAGE_WAIVED_CASH_DISCOUNT[] = "4";
-		static const char PERCENTAGE_WAIVED_ENHANCED_UNITS[] = "5";
-		static const char POINTS_PER_BOND_OR_OR_CONTRACT[] = "6";
-	};
-
-	namespace ExecID_val {
-	};
-
-	namespace ExecRefID_val {
-	};
-
-	namespace HandlInst_val {
-		static const char AUTOMATED_EXECUTION_ORDER_PRIVATE[] = "1";
-		static const char AUTOMATED_EXECUTION_ORDER_PUBLIC[] = "2";
-		static const char MANUAL_ORDER[] = "3";
-	};
-
-	namespace SecurityIDSource_val {
-		static const char CUSIP[] = "1";
-		static const char SEDOL[] = "2";
-		static const char QUIK[] = "3";
-		static const char ISIN_NUMBER[] = "4";
-		static const char RIC_CODE[] = "5";
-		static const char ISO_CURRENCY_CODE[] = "6";
-		static const char ISO_COUNTRY_CODE[] = "7";
-		static const char EXCHANGE_SYMBOL[] = "8";
-		static const char CONSOLIDATED_TAPE_ASSOCIATION[] = "9";
-		static const char BLOOMBERG_SYMBOL[] = "A";
-		static const char WERTPAPIER[] = "B";
-		static const char DUTCH[] = "C";
-		static const char VALOREN[] = "D";
-		static const char SICOVAM[] = "E";
-		static const char BELGIAN[] = "F";
-		static const char COMMON[] = "G";
-		static const char CLEARING_HOUSE_CLEARING_ORGANIZATION[] = "H";
-		static const char ISDA_FPML_PRODUCT_SPECIFICATION[] = "I";
-		static const char OPTIONS_PRICE_REPORTING_AUTHORITY[] = "J";
-	};
-
-	namespace IOIID_val {
-	};
-
-	namespace IOIQltyInd_val {
-		static const char LOW[] = "L";
-		static const char MEDIUM[] = "M";
-		static const char HIGH[] = "H";
-	};
-
-	namespace IOIRefID_val {
-	};
-
-	namespace IOIQty_val {
-	};
-
-	namespace IOITransType_val {
-		static const char NEW[] = "N";
-		static const char CANCEL[] = "C";
-		static const char REPLACE[] = "R";
-	};
-
-	namespace LastCapacity_val {
-		static const char AGENT[] = "1";
-		static const char CROSS_AS_AGENT[] = "2";
-		static const char CROSS_AS_PRINCIPAL[] = "3";
-		static const char PRINCIPAL[] = "4";
-	};
-
-	namespace MsgType_val {
-		static const char HEARTBEAT[] = "0";
-		static const char TEST_REQUEST[] = "1";
-		static const char RESEND_REQUEST[] = "2";
-		static const char REJECT[] = "3";
-		static const char SEQUENCE_RESET[] = "4";
-		static const char LOGOUT[] = "5";
-		static const char INDICATION_OF_INTEREST[] = "6";
-		static const char ADVERTISEMENT[] = "7";
-		static const char EXECUTION_REPORT[] = "8";
-		static const char ORDER_CANCEL_REJECT[] = "9";
-		static const char LOGON[] = "A";
-		static const char NEWS[] = "B";
-		static const char EMAIL[] = "C";
-		static const char ORDER_SINGLE[] = "D";
-		static const char ORDER_LIST[] = "E";
-		static const char ORDER_CANCEL_REQUEST[] = "F";
-		static const char ORDER_CANCEL_REPLACE_REQUEST[] = "G";
-		static const char ORDER_STATUS_REQUEST[] = "H";
-		static const char ALLOCATION_INSTRUCTION[] = "J";
-		static const char LIST_CANCEL_REQUEST[] = "K";
-		static const char LIST_EXECUTE[] = "L";
-		static const char LIST_STATUS_REQUEST[] = "M";
-		static const char LIST_STATUS[] = "N";
-		static const char ALLOCATION_INSTRUCTION_ACK[] = "P";
-		static const char DONT_KNOW_TRADE[] = "Q";
-		static const char QUOTE_REQUEST[] = "R";
-		static const char QUOTE[] = "S";
-		static const char SETTLEMENT_INSTRUCTIONS[] = "T";
-		static const char MARKET_DATA_REQUEST[] = "V";
-		static const char MARKET_DATA_SNAPSHOT_FULL_REFRESH[] = "W";
-		static const char MARKET_DATA_INCREMENTAL_REFRESH[] = "X";
-		static const char MARKET_DATA_REQUEST_REJECT[] = "Y";
-		static const char QUOTE_CANCEL[] = "Z";
-		static const char QUOTE_STATUS_REQUEST[] = "a";
-		static const char MASS_QUOTE_ACKNOWLEDGEMENT[] = "b";
-		static const char SECURITY_DEFINITION_REQUEST[] = "c";
-		static const char SECURITY_DEFINITION[] = "d";
-		static const char SECURITY_STATUS_REQUEST[] = "e";
-		static const char SECURITY_STATUS[] = "f";
-		static const char TRADING_SESSION_STATUS_REQUEST[] = "g";
-		static const char TRADING_SESSION_STATUS[] = "h";
-		static const char MASS_QUOTE[] = "i";
-		static const char BUSINESS_MESSAGE_REJECT[] = "j";
-		static const char BID_REQUEST[] = "k";
-		static const char BID_RESPONSE[] = "l";
-		static const char LIST_STRIKE_PRICE[] = "m";
-		static const char XML_MESSAGE[] = "n";
-		static const char REGISTRATION_INSTRUCTIONS[] = "o";
-		static const char REGISTRATION_INSTRUCTIONS_RESPONSE[] = "p";
-		static const char ORDER_MASS_CANCEL_REQUEST[] = "q";
-		static const char ORDER_MASS_CANCEL_REPORT[] = "r";
-		static const char NEW_ORDER_CROSS[] = "s";
-		static const char CROSS_ORDER_CANCEL_REPLACE_REQUEST[] = "t";
-		static const char CROSS_ORDER_CANCEL_REQUEST[] = "u";
-		static const char SECURITY_TYPE_REQUEST[] = "v";
-		static const char SECURITY_TYPES[] = "w";
-		static const char SECURITY_LIST_REQUEST[] = "x";
-		static const char SECURITY_LIST[] = "y";
-		static const char DERIVATIVE_SECURITY_LIST_REQUEST[] = "z";
-		static const char DERIVATIVE_SECURITY_LIST[] = "AA";
-		static const char NEW_ORDER_MULTILEG[] = "AB";
-		static const char MULTILEG_ORDER_CANCEL_REPLACE[] = "AC";
-		static const char TRADE_CAPTURE_REPORT_REQUEST[] = "AD";
-		static const char TRADE_CAPTURE_REPORT[] = "AE";
-		static const char ORDER_MASS_STATUS_REQUEST[] = "AF";
-		static const char QUOTE_REQUEST_REJECT[] = "AG";
-		static const char RFQ_REQUEST[] = "AH";
-		static const char QUOTE_STATUS_REPORT[] = "AI";
-		static const char QUOTE_RESPONSE[] = "AJ";
-		static const char CONFIRMATION[] = "AK";
-		static const char POSITION_MAINTENANCE_REQUEST[] = "AL";
-		static const char POSITION_MAINTENANCE_REPORT[] = "AM";
-		static const char REQUEST_FOR_POSITIONS[] = "AN";
-		static const char REQUEST_FOR_POSITIONS_ACK[] = "AO";
-		static const char POSITION_REPORT[] = "AP";
-		static const char TRADE_CAPTURE_REPORT_REQUEST_ACK[] = "AQ";
-		static const char TRADE_CAPTURE_REPORT_ACK[] = "AR";
-		static const char ALLOCATION_REPORT[] = "AS";
-		static const char ALLOCATION_REPORT_ACK[] = "AT";
-		static const char CONFIRMATION_ACK[] = "AU";
-		static const char SETTLEMENT_INSTRUCTION_REQUEST[] = "AV";
-		static const char ASSIGNMENT_REPORT[] = "AW";
-		static const char COLLATERAL_REQUEST[] = "AX";
-		static const char COLLATERAL_ASSIGNMENT[] = "AY";
-		static const char COLLATERAL_RESPONSE[] = "AZ";
-		static const char COLLATERAL_REPORT[] = "BA";
-		static const char COLLATERAL_INQUIRY[] = "BB";
-		static const char NETWORK_STATUS_REQUEST[] = "BC";
-		static const char NETWORK_STATUS_RESPONSE[] = "BD";
-		static const char USER_REQUEST[] = "BE";
-		static const char USER_RESPONSE[] = "BF";
-		static const char COLLATERAL_INQUIRY_ACK[] = "BG";
-		static const char CONFIRMATION_REQUEST[] = "BH";
-	};
-
-	namespace OrderID_val {
-	};
-
-	namespace OrdStatus_val {
-		static const char NEW[] = "0";
-		static const char PARTIALLY_FILLED[] = "1";
-		static const char FILLED[] = "2";
-		static const char DONE_FOR_DAY[] = "3";
-		static const char CANCELED[] = "4";
-		static const char REPLACED[] = "5";
-		static const char PENDING_CANCEL[] = "6";
-		static const char STOPPED[] = "7";
-		static const char REJECTED[] = "8";
-		static const char SUSPENDED[] = "9";
-		static const char PENDING_NEW[] = "A";
-		static const char CALCULATED[] = "B";
-		static const char EXPIRED[] = "C";
-		static const char ACCEPTED_FOR_BIDDING[] = "D";
-		static const char PENDING_REPLACE[] = "E";
-	};
-
-	namespace OrdType_val {
-		static const char MARKET[] = "1";
-		static const char LIMIT[] = "2";
-		static const char STOP[] = "3";
-		static const char STOP_LIMIT[] = "4";
-		static const char MARKET_ON_CLOSE[] = "5";
-		static const char WITH_OR_WITHOUT[] = "6";
-		static const char LIMIT_OR_BETTER[] = "7";
-		static const char LIMIT_WITH_OR_WITHOUT[] = "8";
-		static const char ON_BASIS[] = "9";
-		static const char ON_CLOSE[] = "A";
-		static const char LIMIT_ON_CLOSE[] = "B";
-		static const char FOREX_MARKET[] = "C";
-		static const char PREVIOUSLY_QUOTED[] = "D";
-		static const char PREVIOUSLY_INDICATED[] = "E";
-		static const char FOREX_LIMIT[] = "F";
-		static const char FOREX_SWAP[] = "G";
-		static const char FOREX_PREVIOUSLY_QUOTED[] = "H";
-		static const char FUNARI[] = "I";
-		static const char MARKET_IF_TOUCHED[] = "J";
-		static const char MARKET_WITH_LEFTOVER_AS_LIMIT[] = "K";
-		static const char PREVIOUS_FUND_VALUATION_POINT[] = "L";
-		static const char NEXT_FUND_VALUATION_POINT[] = "M";
-		static const char PEGGED[] = "P";
-	};
-
-	namespace OrigClOrdID_val {
-	};
-
-	namespace SecurityID_val {
-	};
-
-	namespace SenderCompID_val {
-	};
-
-	namespace SenderSubID_val {
-	};
-
-	namespace Side_val {
-		static const char BUY[] = "1";
-		static const char SELL[] = "2";
-		static const char BUY_MINUS[] = "3";
-		static const char SELL_PLUS[] = "4";
-		static const char SELL_SHORT[] = "5";
-		static const char SELL_SHORT_EXEMPT[] = "6";
-		static const char UNDISCLOSED[] = "7";
-		static const char CROSS[] = "8";
-		static const char CROSS_SHORT[] = "9";
-		static const char CROSS_SHORT_EXEMPT[] = "A";
-		static const char AS_DEFINED[] = "B";
-		static const char OPPOSITE[] = "C";
-		static const char SUBSCRIBE[] = "D";
-		static const char REDEEM[] = "E";
-		static const char LEND[] = "F";
-		static const char BORROW[] = "G";
-	};
-
-	namespace Symbol_val {
-	};
-
-	namespace TargetCompID_val {
-	};
-
-	namespace TargetSubID_val {
-	};
-
-	namespace Text_val {
-	};
-
-	namespace TimeInForce_val {
-		static const char DAY[] = "0";
-		static const char GOOD_TILL_CANCEL[] = "1";
-		static const char AT_THE_OPENING[] = "2";
-		static const char IMMEDIATE_OR_CANCEL[] = "3";
-		static const char FILL_OR_KILL[] = "4";
-		static const char GOOD_TILL_CROSSING[] = "5";
-		static const char GOOD_TILL_DATE[] = "6";
-		static const char AT_THE_CLOSE[] = "7";
-	};
-
-	namespace Urgency_val {
-		static const char NORMAL[] = "0";
-		static const char FLASH[] = "1";
-		static const char BACKGROUND[] = "2";
-	};
-
-	namespace SettlType_val {
-		static const char REGULAR[] = "0";
-		static const char CASH[] = "1";
-		static const char NEXT_DAY[] = "2";
-		static const char T_PLUS_2[] = "3";
-		static const char T_PLUS_3[] = "4";
-		static const char T_PLUS_4[] = "5";
-		static const char FUTURE[] = "6";
-		static const char WHEN_AND_IF_ISSUED[] = "7";
-		static const char SELLERS_OPTION[] = "8";
-		static const char T_PLUS_5[] = "9";
-	};
-
-	namespace SymbolSfx_val {
-		static const char WHEN_ISSUED[] = "WI";
-		static const char A_EUCP_WITH_LUMP_SUM_INTEREST[] = "CD";
-	};
-
-	namespace ListID_val {
-	};
-
-	namespace ListSeqNo_val {
-	};
-
-	namespace TotNoOrders_val {
-	};
-
-	namespace ListExecInst_val {
-	};
-
-	namespace AllocID_val {
-	};
-
-	namespace AllocTransType_val {
-		static const char NEW[] = "0";
-		static const char REPLACE[] = "1";
-		static const char CANCEL[] = "2";
-		static const char PRELIMINARY[] = "3";
-		static const char CALCULATED[] = "4";
-		static const char CALCULATED_WITHOUT_PRELIMINARY[] = "5";
-	};
-
-	namespace RefAllocID_val {
-	};
-
-	namespace AvgPxPrecision_val {
-	};
-
-	namespace PositionEffect_val {
-		static const char OPEN[] = "O";
-		static const char CLOSE[] = "C";
-		static const char ROLLED[] = "R";
-		static const char FIFO[] = "F";
-	};
-
-	namespace AllocAccount_val {
-	};
-
-	namespace ProcessCode_val {
-		static const char REGULAR[] = "0";
-		static const char SOFT_DOLLAR[] = "1";
-		static const char STEP_IN[] = "2";
-		static const char STEP_OUT[] = "3";
-		static const char SOFT_DOLLAR_STEP_IN[] = "4";
-		static const char SOFT_DOLLAR_STEP_OUT[] = "5";
-		static const char PLAN_SPONSOR[] = "6";
-	};
-
-	namespace RptSeq_val {
-	};
-
-	namespace AllocStatus_val {
-		static int ACCEPTED = 0;
-		static int BLOCK_LEVEL_REJECT = 1;
-		static int ACCOUNT_LEVEL_REJECT = 2;
-		static int RECEIVED = 3;
-		static int INCOMPLETE = 4;
-		static int REJECTED_BY_INTERMEDIARY = 5;
-	};
-
-	namespace AllocRejCode_val {
-		static int UNKNOWN_ACCOUNT = 0;
-		static int INCORRECT_QUANTITY = 1;
-		static int INCORRECT_AVERAGE_PRICE = 2;
-		static int UNKNOWN_EXECUTING_BROKER_MNEMONIC = 3;
-		static int COMMISSION_DIFFERENCE = 4;
-		static int UNKNOWN_ORDERID = 5;
-		static int UNKNOWN_LISTID = 6;
-		static int OTHER = 7;
-		static int INCORRECT_ALLOCATED_QUANTITY = 8;
-		static int CALCULATION_DIFFERENCE = 9;
-		static int UNKNOWN_OR_STALE_EXEC_ID = 10;
-		static int MISMATCHED_DATA_VALUE = 11;
-		static int UNKNOWN_CLORDID = 12;
-		static int WAREHOUSE_REQUEST_REJECTED = 13;
-	};
-
-	namespace EmailType_val {
-		static const char NEW[] = "0";
-		static const char REPLY[] = "1";
-		static const char ADMIN_REPLY[] = "2";
-	};
-
-	namespace EncryptMethod_val {
-		static int NONE_OTHER = 0;
-		static int PKCS = 1;
-		static int DES = 2;
-		static int PKCS_DES = 3;
-		static int PGP_DES = 4;
-		static int PGP_DES_MD5 = 5;
-		static int PEM_DES_MD5 = 6;
-	};
-
-	namespace CxlRejReason_val {
-		static int TOO_LATE_TO_CANCEL = 0;
-		static int UNKNOWN_ORDER = 1;
-		static int BROKER_EXCHANGE_OPTION = 2;
-		static int ORDER_ALREADY_IN_PENDING_CANCEL_OR_PENDING_REPLACE_STATUS = 3;
-		static int UNABLE_TO_PROCESS_ORDER_MASS_CANCEL_REQUEST = 4;
-		static int ORIGORDMODTIME_DID_NOT_MATCH_LAST_TRANSACTTIME_OF_ORDER = 5;
-		static int DUPLICATE_CLORDID_RECEIVED = 6;
-		static int OTHER = 99;
-	};
-
-	namespace OrdRejReason_val {
-		static int BROKER_EXCHANGE_OPTION = 0;
-		static int UNKNOWN_SYMBOL = 1;
-		static int EXCHANGE_CLOSED = 2;
-		static int ORDER_EXCEEDS_LIMIT = 3;
-		static int TOO_LATE_TO_ENTER = 4;
-		static int UNKNOWN_ORDER = 5;
-		static int DUPLICATE_ORDER = 6;
-		static int DUPLICATE_OF_A_VERBALLY_COMMUNICATED_ORDER = 7;
-		static int STALE_ORDER = 8;
-		static int TRADE_ALONG_REQUIRED = 9;
-		static int INVALID_INVESTOR_ID = 10;
-		static int UNSUPPORTED_ORDER_CHARACTERISTIC = 11;
-		static int SURVEILLENCE_OPTION = 12;
-		static int INCORRECT_QUANTITY = 13;
-		static int INCORRECT_ALLOCATED_QUANTITY = 14;
-		static int UNKNOWN_ACCOUNT = 15;
-		static int OTHER = 99;
-	};
-
-	namespace IOIQualifier_val {
-		static const char ALL_OR_NONE[] = "A";
-		static const char MARKET_ON_CLOSE[] = "B";
-		static const char AT_THE_CLOSE[] = "C";
-		static const char VWAP[] = "D";
-		static const char IN_TOUCH_WITH[] = "I";
-		static const char LIMIT[] = "L";
-		static const char MORE_BEHIND[] = "M";
-		static const char AT_THE_OPEN[] = "O";
-		static const char TAKING_A_POSITION[] = "P";
-		static const char AT_THE_MARKET[] = "Q";
-		static const char READY_TO_TRADE[] = "R";
-		static const char PORTFOLIO_SHOWN[] = "S";
-		static const char THROUGH_THE_DAY[] = "T";
-		static const char VERSUS[] = "V";
-		static const char INDICATION_WORKING_AWAY[] = "W";
-		static const char CROSSING_OPPORTUNITY[] = "X";
-		static const char AT_THE_MIDPOINT[] = "Y";
-		static const char PRE_OPEN[] = "Z";
-	};
-
-	namespace WaveNo_val {
-	};
-
-	namespace Issuer_val {
-	};
-
-	namespace SecurityDesc_val {
-	};
-
-	namespace HeartBtInt_val {
-	};
-
-	namespace TestReqID_val {
-	};
-
-	namespace OnBehalfOfCompID_val {
-	};
-
-	namespace OnBehalfOfSubID_val {
-	};
-
-	namespace QuoteID_val {
-	};
-
-	namespace DKReason_val {
-		static const char UNKNOWN_SYMBOL[] = "A";
-		static const char WRONG_SIDE[] = "B";
-		static const char QUANTITY_EXCEEDS_ORDER[] = "C";
-		static const char NO_MATCHING_ORDER[] = "D";
-		static const char PRICE_EXCEEDS_LIMIT[] = "E";
-		static const char CALCULATION_DIFFERENCE[] = "F";
-		static const char OTHER[] = "Z";
-	};
-
-	namespace DeliverToCompID_val {
-	};
-
-	namespace DeliverToSubID_val {
-	};
-
-	namespace QuoteReqID_val {
-	};
-
-	namespace MiscFeeType_val {
-		static const char REGULATORY[] = "1";
-		static const char TAX[] = "2";
-		static const char LOCAL_COMMISSION[] = "3";
-		static const char EXCHANGE_FEES[] = "4";
-		static const char STAMP[] = "5";
-		static const char LEVY[] = "6";
-		static const char OTHER[] = "7";
-		static const char MARKUP[] = "8";
-		static const char CONSUMPTION_TAX[] = "9";
-		static const char PER_TRANSACTION[] = "10";
-		static const char CONVERSION[] = "11";
-		static const char AGENT[] = "12";
-	};
-
-	namespace SenderLocationID_val {
-	};
-
-	namespace TargetLocationID_val {
-	};
-
-	namespace OnBehalfOfLocationID_val {
-	};
-
-	namespace DeliverToLocationID_val {
-	};
-
-	namespace Subject_val {
-	};
-
-	namespace Headline_val {
-	};
-
-	namespace URLLink_val {
-	};
-
-	namespace ExecType_val {
-		static const char NEW[] = "0";
-		static const char PARTIAL_FILL[] = "1";
-		static const char FILL[] = "2";
-		static const char DONE_FOR_DAY[] = "3";
-		static const char CANCELED[] = "4";
-		static const char REPLACE[] = "5";
-		static const char PENDING_CANCEL[] = "6";
-		static const char STOPPED[] = "7";
-		static const char REJECTED[] = "8";
-		static const char SUSPENDED[] = "9";
-		static const char PENDING_NEW[] = "A";
-		static const char CALCULATED[] = "B";
-		static const char EXPIRED[] = "C";
-		static const char RESTATED[] = "D";
-		static const char PENDING_REPLACE[] = "E";
-		static const char TRADE[] = "F";
-		static const char TRADE_CORRECT[] = "G";
-		static const char TRADE_CANCEL[] = "H";
-		static const char ORDER_STATUS[] = "I";
-	};
-
-	namespace SettlCurrFxRateCalc_val {
-		static const char MULTIPLY[] = "M";
-		static const char DIVIDE[] = "D";
-	};
-
-	namespace NumDaysInterest_val {
-	};
-
-	namespace SettlInstMode_val {
-		static const char DEFAULT[] = "0";
-		static const char STANDING_INSTRUCTIONS_PROVIDED[] = "1";
-		static const char SPECIFIC_ORDER_FOR_A_SINGLE_ACCOUNT[] = "4";
-		static const char REQUEST_REJECT[] = "5";
-	};
-
-	namespace AllocText_val {
-	};
-
-	namespace SettlInstID_val {
-	};
-
-	namespace SettlInstTransType_val {
-		static const char NEW[] = "N";
-		static const char CANCEL[] = "C";
-		static const char REPLACE[] = "R";
-		static const char RESTATE[] = "T";
-	};
-
-	namespace EmailThreadID_val {
-	};
-
-	namespace SettlInstSource_val {
-		static const char BROKERS_INSTRUCTIONS[] = "1";
-		static const char INSTITUTIONS_INSTRUCTIONS[] = "2";
-		static const char INVESTOR[] = "3";
-	};
-
-	namespace SecurityType_val {
-		static const char WILDCARD[] = "?";
-		static const char ASSET_BACKED_SECURITIES[] = "ABS";
-		static const char AMENDED_AND_RESTATED[] = "AMENDED";
-		static const char OTHER_ANTICIPATION_NOTES[] = "AN";
-		static const char BANKERS_ACCEPTANCE[] = "BA";
-		static const char BANK_NOTES[] = "BN";
-		static const char BILL_OF_EXCHANGES[] = "BOX";
-		static const char BRADY_BOND[] = "BRADY";
-		static const char BRIDGE_LOAN[] = "BRIDGE";
-		static const char BUY_SELLBACK[] = "BUYSELL";
-		static const char CONVERTIBLE_BOND[] = "CB";
-		static const char CERTIFICATE_OF_DEPOSIT[] = "CD";
-		static const char CALL_LOANS[] = "CL";
-		static const char CORP_MORTGAGE_BACKED_SECURITIES[] = "CMBS";
-		static const char COLLATERALIZED_MORTGAGE_OBLIGATION[] = "CMO";
-		static const char CERTIFICATE_OF_OBLIGATION[] = "COFO";
-		static const char CERTIFICATE_OF_PARTICIPATION[] = "COFP";
-		static const char CORPORATE_BOND[] = "CORP";
-		static const char COMMERCIAL_PAPER[] = "CP";
-		static const char CORPORATE_PRIVATE_PLACEMENT[] = "CPP";
-		static const char COMMON_STOCK[] = "CS";
-		static const char DEFAULTED[] = "DEFLTED";
-		static const char DEBTOR_IN_POSSESSION[] = "DINP";
-		static const char DEPOSIT_NOTES[] = "DN";
-		static const char DUAL_CURRENCY[] = "DUAL";
-		static const char EURO_CERTIFICATE_OF_DEPOSIT[] = "EUCD";
-		static const char EURO_CORPORATE_BOND[] = "EUCORP";
-		static const char EURO_COMMERCIAL_PAPER[] = "EUCP";
-		static const char EURO_SOVEREIGNS[] = "EUSOV";
-		static const char EURO_SUPRANATIONAL_COUPONS[] = "EUSUPRA";
-		static const char FEDERAL_AGENCY_COUPON[] = "FAC";
-		static const char FEDERAL_AGENCY_DISCOUNT_NOTE[] = "FADN";
-		static const char FOREIGN_EXCHANGE_CONTRACT[] = "FOR";
-		static const char FORWARD[] = "FORWARD";
-		static const char FUTURE[] = "FUT";
-		static const char GENERAL_OBLIGATION_BONDS[] = "GO";
-		static const char IOETTE_MORTGAGE[] = "IET";
-		static const char LETTER_OF_CREDIT[] = "LOFC";
-		static const char LIQUIDITY_NOTE[] = "LQN";
-		static const char MATURED[] = "MATURED";
-		static const char MORTGAGE_BACKED_SECURITIES[] = "MBS";
-		static const char MUTUAL_FUND[] = "MF";
-		static const char MORTGAGE_INTEREST_ONLY[] = "MIO";
-		static const char MULTI_LEG_INSTRUMENT[] = "MLEG";
-		static const char MORTGAGE_PRINCIPAL_ONLY[] = "MPO";
-		static const char MORTGAGE_PRIVATE_PLACEMENT[] = "MPP";
-		static const char MISCELLANEOUS_PASS_THROUGH[] = "MPT";
-		static const char MANDATORY_TENDER[] = "MT";
-		static const char MEDIUM_TERM_NOTES[] = "MTN";
-		static const char NO_SECURITY_TYPE[] = "NONE";
-		static const char OVERNIGHT[] = "ONITE";
-		static const char OPTION[] = "OPT";
-		static const char PRIVATE_EXPORT_FUNDING[] = "PEF";
-		static const char PFANDBRIEFE[] = "PFAND";
-		static const char PROMISSORY_NOTE[] = "PN";
-		static const char PREFERRED_STOCK[] = "PS";
-		static const char PLAZOS_FIJOS[] = "PZFJ";
-		static const char REVENUE_ANTICIPATION_NOTE[] = "RAN";
-		static const char REPLACED[] = "REPLACD";
-		static const char REPURCHASE[] = "REPO";
-		static const char RETIRED[] = "RETIRED";
-		static const char REVENUE_BONDS[] = "REV";
-		static const char REVOLVER_LOAN[] = "RVLV";
-		static const char REVOLVER_TERM_LOAN[] = "RVLVTRM";
-		static const char SECURITIES_LOAN[] = "SECLOAN";
-		static const char SECURITIES_PLEDGE[] = "SECPLEDGE";
-		static const char SPECIAL_ASSESSMENT[] = "SPCLA";
-		static const char SPECIAL_OBLIGATION[] = "SPCLO";
-		static const char SPECIAL_TAX[] = "SPCLT";
-		static const char SHORT_TERM_LOAN_NOTE[] = "STN";
-		static const char STRUCTURED_NOTES[] = "STRUCT";
-		static const char USD_SUPRANATIONAL_COUPONS[] = "SUPRA";
-		static const char SWING_LINE_FACILITY[] = "SWING";
-		static const char TAX_ANTICIPATION_NOTE[] = "TAN";
-		static const char TAX_ALLOCATION[] = "TAXA";
-		static const char TO_BE_ANNOUNCED[] = "TBA";
-		static const char US_TREASURY_BILL[] = "TBILL";
-		static const char US_TREASURY_BOND[] = "TBOND";
-		static const char PRINCIPAL_STRIP_OF_A_CALLABLE_BOND_OR_NOTE[] = "TCAL";
-		static const char TIME_DEPOSIT[] = "TD";
-		static const char TAX_EXEMPT_COMMERCIAL_PAPER[] = "TECP";
-		static const char TERM_LOAN[] = "TERM";
-		static const char INTEREST_STRIP_FROM_ANY_BOND_OR_NOTE[] = "TINT";
-		static const char TREASURY_INFLATION_PROTECTED_SECURITIES[] = "TIPS";
-		static const char US_TREASURY_NOTE[] = "TNOTE";
-		static const char PRINCIPAL_STRIP_FROM_A_NON_CALLABLE_BOND_OR_NOTE[] = "TPRN";
-		static const char TAX_AND_REVENUE_ANTICIPATION_NOTE[] = "TRAN";
-		static const char VARIABLE_RATE_DEMAND_NOTE[] = "VRDN";
-		static const char WARRANT[] = "WAR";
-		static const char WITHDRAWN[] = "WITHDRN";
-		static const char EXTENDED_COMM_NOTE[] = "XCN";
-		static const char INDEXED_LINKED[] = "XLINKD";
-		static const char YANKEE_CORPORATE_BOND[] = "YANK";
-		static const char YANKEE_CERTIFICATE_OF_DEPOSIT[] = "YCD";
-	};
-
-	namespace StandInstDbType_val {
-		static int OTHER = 0;
-		static int DTC_SID = 1;
-		static int THOMSON_ALERT = 2;
-		static int A_GLOBAL_CUSTODIAN = 3;
-		static int ACCOUNTNET = 4;
-	};
-
-	namespace StandInstDbName_val {
-	};
-
-	namespace StandInstDbID_val {
-	};
-
-	namespace SettlDeliveryType_val {
-		static int VERSUS_PAYMENT = 0;
-		static int FREE = 1;
-		static int TRI_PARTY = 2;
-		static int HOLD_IN_CUSTODY = 3;
-	};
-
-	namespace AllocLinkID_val {
-	};
-
-	namespace AllocLinkType_val {
-		static int F_X_NETTING = 0;
-		static int F_X_SWAP = 1;
-	};
-
-	namespace SecondaryOrderID_val {
-	};
-
-	namespace PutOrCall_val {
-		static int PUT = 0;
-		static int CALL = 1;
-	};
-
-	namespace CoveredOrUncovered_val {
-		static int COVERED = 0;
-		static int UNCOVERED = 1;
-	};
-
-	namespace OptAttribute_val {
-	};
-
-	namespace AllocHandlInst_val {
-		static int MATCH = 1;
-		static int FORWARD = 2;
-		static int FORWARD_AND_MATCH = 3;
-	};
-
-	namespace SettlInstRefID_val {
-	};
-
-	namespace RoutingType_val {
-		static int TARGET_FIRM = 1;
-		static int TARGET_LIST = 2;
-		static int BLOCK_FIRM = 3;
-		static int BLOCK_LIST = 4;
-	};
-
-	namespace RoutingID_val {
-	};
-
-	namespace BenchmarkCurveName_val {
-		static const char MUNIAAA[] = "MuniAAA";
-		static const char FUTURESWAP[] = "FutureSWAP";
-		static const char LIBID[] = "LIBID";
-		static const char LIBOR[] = "LIBOR";
-		static const char OTHER[] = "OTHER";
-		static const char SWAP[] = "SWAP";
-		static const char TREASURY[] = "Treasury";
-		static const char EURIBOR[] = "Euribor";
-		static const char PFANDBRIEFE[] = "Pfandbriefe";
-		static const char EONIA[] = "EONIA";
-		static const char SONIA[] = "SONIA";
-		static const char EUREPO[] = "EUREPO";
-	};
-
-	namespace BenchmarkCurvePoint_val {
-	};
-
-	namespace RepurchaseTerm_val {
-	};
-
-	namespace StipulationType_val {
-		static const char AMT[] = "AMT";
-		static const char AUTO_REINVESTMENT_AT_OR_BETTER[] = "AUTOREINV";
-		static const char BANK_QUALIFIED[] = "BANKQUAL";
-		static const char BARGAIN_CONDITIONS[] = "BGNCON";
-		static const char COUPON_RANGE[] = "COUPON";
-		static const char ISO_CURRENCY_CODE[] = "CURRENCY";
-		static const char CUSTOM_START_END_DATE[] = "CUSTOMDATE";
-		static const char GEOGRAPHICS_AND_PERCENT_RANGE[] = "GEOG";
-		static const char VALUATION_DISCOUNT[] = "HAIRCUT";
-		static const char INSURED[] = "INSURED";
-		static const char YEAR_OR_YEAR_MONTH_OF_ISSUE[] = "ISSUE";
-		static const char ISSUERS_TICKER[] = "ISSUER";
-		static const char ISSUE_SIZE_RANGE[] = "ISSUESIZE";
-		static const char LOOKBACK_DAYS[] = "LOOKBACK";
-		static const char EXPLICIT_LOT_IDENTIFIER[] = "LOT";
-		static const char LOT_VARIANCE[] = "LOTVAR";
-		static const char MATURITY_YEAR_AND_MONTH[] = "MAT";
-		static const char MATURITY_RANGE[] = "MATURITY";
-		static const char MAXIMUM_SUBSTITUTIONS[] = "MAXSUBS";
-		static const char MINIMUM_QUANTITY[] = "MINQTY";
-		static const char MINIMUM_INCREMENT[] = "MININCR";
-		static const char MINIMUM_DENOMINATION[] = "MINDNOM";
-		static const char PAYMENT_FREQUENCY_CALENDAR[] = "PAYFREQ";
-		static const char NUMBER_OF_PIECES[] = "PIECES";
-		static const char POOLS_MAXIMUM[] = "PMAX";
-		static const char POOLS_PER_MILLION[] = "PPM";
-		static const char POOLS_PER_LOT[] = "PPL";
-		static const char POOLS_PER_TRADE[] = "PPT";
-		static const char PRICE_RANGE[] = "PRICE";
-		static const char PRICING_FREQUENCY[] = "PRICEFREQ";
-		static const char PRODUCTION_YEAR[] = "PROD";
-		static const char CALL_PROTECTION[] = "PROTECT";
-		static const char PURPOSE[] = "PURPOSE";
-		static const char BENCHMARK_PRICE_SOURCE[] = "PXSOURCE";
-		static const char RATING_SOURCE_AND_RANGE[] = "RATING";
-		static const char RESTRICTED[] = "RESTRICTED";
-		static const char MARKET_SECTOR[] = "SECTOR";
-		static const char SECURITYTYPE_INCLUDED_OR_EXCLUDED[] = "SECTYPE";
-		static const char STRUCTURE[] = "STRUCT";
-		static const char SUBSTITUTIONS_FREQUENCY[] = "SUBSFREQ";
-		static const char SUBSTITUTIONS_LEFT[] = "SUBSLEFT";
-		static const char FREEFORM_TEXT[] = "TEXT";
-		static const char TRADE_VARIANCE[] = "TRDVAR";
-		static const char WEIGHTED_AVERAGE_COUPON[] = "WAC";
-		static const char WEIGHTED_AVERAGE_LIFE_COUPON[] = "WAL";
-		static const char WEIGHTED_AVERAGE_LOAN_AGE[] = "WALA";
-		static const char WEIGHTED_AVERAGE_MATURITY[] = "WAM";
-		static const char WHOLE_POOL[] = "WHOLE";
-		static const char YIELD_RANGE[] = "YIELD";
-		static const char SINGLE_MONTHLY_MORTALITY[] = "SMM";
-		static const char CONSTANT_PREPAYMENT_RATE[] = "CPR";
-		static const char CONSTANT_PREPAYMENT_YIELD[] = "CPY";
-		static const char CONSTANT_PREPAYMENT_PENALTY[] = "CPP";
-		static const char ABSOLUTE_PREPAYMENT_SPEED[] = "ABS";
-		static const char MONTHLY_PREPAYMENT_RATE[] = "MPR";
-		static const char PERCENT_OF_BMA_PREPAYMENT_CURVE[] = "PSA";
-		static const char PERCENT_OF_PROSPECTUS_PREPAYMENT_CURVE[] = "PPC";
-		static const char PERCENT_OF_MANUFACTURED_HOUSING_PREPAYMENT_CURVE[] = "MHP";
-		static const char FINAL_CPR_OF_HOME_EQUITY_PREPAYMENT_CURVE[] = "HEP";
-	};
-
-	namespace StipulationValue_val {
-		static const char SPECIAL_CUM_DIVIDEND[] = "CD";
-		static const char SPECIAL_EX_DIVIDEND[] = "XD";
-		static const char SPECIAL_CUM_COUPON[] = "CC";
-		static const char SPECIAL_EX_COUPON[] = "XC";
-		static const char SPECIAL_CUM_BONUS[] = "CB";
-		static const char SPECIAL_EX_BONUS[] = "XB";
-		static const char SPECIAL_CUM_RIGHTS[] = "CR";
-		static const char SPECIAL_EX_RIGHTS[] = "XR";
-		static const char SPECIAL_CUM_CAPITAL_REPAYMENTS[] = "CP";
-		static const char SPECIAL_EX_CAPITAL_REPAYMENTS[] = "XP";
-		static const char CASH_SETTLEMENT[] = "CS";
-		static const char SPECIAL_PRICE[] = "SP";
-		static const char REPORT_FOR_EUROPEAN_EQUITY_MARKET_SECURITIES[] = "TR";
-		static const char GUARANTEED_DELIVERY[] = "GD";
-	};
-
-	namespace YieldType_val {
-		static const char AFTER_TAX_YIELD[] = "AFTERTAX";
-		static const char ANNUAL_YIELD[] = "ANNUAL";
-		static const char YIELD_AT_ISSUE[] = "ATISSUE";
-		static const char YIELD_TO_AVERAGE_MATURITY[] = "AVGMATURITY";
-		static const char BOOK_YIELD[] = "BOOK";
-		static const char YIELD_TO_NEXT_CALL[] = "CALL";
-		static const char YIELD_CHANGE_SINCE_CLOSE[] = "CHANGE";
-		static const char CLOSING_YIELD[] = "CLOSE";
-		static const char COMPOUND_YIELD[] = "COMPOUND";
-		static const char CURRENT_YIELD[] = "CURRENT";
-		static const char TRUE_GROSS_YIELD[] = "GROSS";
-		static const char GOVERNMENT_EQUIVALENT_YIELD[] = "GOVTEQUIV";
-		static const char YIELD_WITH_INFLATION_ASSUMPTION[] = "INFLATION";
-		static const char INVERSE_FLOATER_BOND_YIELD[] = "INVERSEFLOATER";
-		static const char MOST_RECENT_CLOSING_YIELD[] = "LASTCLOSE";
-		static const char CLOSING_YIELD_MOST_RECENT_MONTH[] = "LASTMONTH";
-		static const char CLOSING_YIELD_MOST_RECENT_QUARTER[] = "LASTQUARTER";
-		static const char CLOSING_YIELD_MOST_RECENT_YEAR[] = "LASTYEAR";
-		static const char YIELD_TO_LONGEST_AVERAGE_LIFE[] = "LONGAVGLIFE";
-		static const char MARK_TO_MARKET_YIELD[] = "MARK";
-		static const char YIELD_TO_MATURITY[] = "MATURITY";
-		static const char YIELD_TO_NEXT_REFUND[] = "NEXTREFUND";
-		static const char OPEN_AVERAGE_YIELD[] = "OPENAVG";
-		static const char YIELD_TO_NEXT_PUT[] = "PUT";
-		static const char PREVIOUS_CLOSE_YIELD[] = "PREVCLOSE";
-		static const char PROCEEDS_YIELD[] = "PROCEEDS";
-		static const char SEMI_ANNUAL_YIELD[] = "SEMIANNUAL";
-		static const char YIELD_TO_SHORTEST_AVERAGE_LIFE[] = "SHORTAVGLIFE";
-		static const char SIMPLE_YIELD[] = "SIMPLE";
-		static const char TAX_EQUIVALENT_YIELD[] = "TAXEQUIV";
-		static const char YIELD_TO_TENDER_DATE[] = "TENDER";
-		static const char TRUE_YIELD[] = "TRUE";
-		static const char YIELD_VALUE_OF_1_32[] = "VALUE1_32";
-		static const char YIELD_TO_WORST[] = "WORST";
-	};
-
-	namespace RepoCollateralSecurityType_val {
-	};
-
-	namespace UnderlyingRepoCollateralSecurityType_val {
-	};
-
-	namespace UnderlyingRepurchaseTerm_val {
-	};
-
-	namespace LegRepoCollateralSecurityType_val {
-	};
-
-	namespace LegRepurchaseTerm_val {
-	};
-
-	namespace CreditRating_val {
-	};
-
-	namespace UnderlyingCreditRating_val {
-	};
-
-	namespace LegCreditRating_val {
-	};
-
-	namespace MDReqID_val {
-	};
-
-	namespace SubscriptionRequestType_val {
-		static const char SNAPSHOT[] = "0";
-		static const char SNAPSHOT_PLUS_UPDATES[] = "1";
-		static const char DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST[] = "2";
-	};
-
-	namespace MarketDepth_val {
-		static int FULL_BOOK = 0;
-		static int TOP_OF_BOOK = 1;
-	};
-
-	namespace MDUpdateType_val {
-		static int FULL_REFRESH = 0;
-		static int INCREMENTAL_REFRESH = 1;
-	};
-
-	namespace MDEntryType_val {
-		static const char BID[] = "0";
-		static const char OFFER[] = "1";
-		static const char TRADE[] = "2";
-		static const char INDEX_VALUE[] = "3";
-		static const char OPENING_PRICE[] = "4";
-		static const char CLOSING_PRICE[] = "5";
-		static const char SETTLEMENT_PRICE[] = "6";
-		static const char TRADING_SESSION_HIGH_PRICE[] = "7";
-		static const char TRADING_SESSION_LOW_PRICE[] = "8";
-		static const char TRADING_SESSION_VWAP_PRICE[] = "9";
-		static const char IMBALANCE[] = "A";
-		static const char TRADE_VOLUME[] = "B";
-		static const char OPEN_INTEREST[] = "C";
-		static const char AUCTION_CLEARING_PRICE[] = "Q";
-	};
-
-	namespace TickDirection_val {
-		static const char PLUS_TICK[] = "0";
-		static const char ZERO_PLUS_TICK[] = "1";
-		static const char MINUS_TICK[] = "2";
-		static const char ZERO_MINUS_TICK[] = "3";
-	};
-
-	namespace MDEntryID_val {
-	};
-
-	namespace MDUpdateAction_val {
-		static const char NEW[] = "0";
-		static const char CHANGE[] = "1";
-		static const char DELETE[] = "2";
-	};
-
-	namespace MDEntryRefID_val {
-	};
-
-	namespace MDReqRejReason_val {
-		static const char UNKNOWN_SYMBOL[] = "0";
-		static const char DUPLICATE_MDREQID[] = "1";
-		static const char INSUFFICIENT_BANDWIDTH[] = "2";
-		static const char INSUFFICIENT_PERMISSIONS[] = "3";
-		static const char UNSUPPORTED_SUBSCRIPTIONREQUESTTYPE[] = "4";
-		static const char UNSUPPORTED_MARKETDEPTH[] = "5";
-		static const char UNSUPPORTED_MDUPDATETYPE[] = "6";
-		static const char UNSUPPORTED_AGGREGATEDBOOK[] = "7";
-		static const char UNSUPPORTED_MDENTRYTYPE[] = "8";
-		static const char UNSUPPORTED_TRADINGSESSIONID[] = "9";
-		static const char UNSUPPORTED_SCOPE[] = "A";
-		static const char UNSUPPORTED_OPENCLOSESETTLEFLAG[] = "B";
-		static const char UNSUPPORTED_MDIMPLICITDELETE[] = "C";
-	};
-
-	namespace MDEntryOriginator_val {
-	};
-
-	namespace LocationID_val {
-	};
-
-	namespace DeskID_val {
-	};
-
-	namespace DeleteReason_val {
-		static const char CANCELATION_TRADE_BUST[] = "0";
-		static const char ERROR[] = "1";
-	};
-
-	namespace SellerDays_val {
-	};
-
-	namespace MDEntryBuyer_val {
-	};
-
-	namespace MDEntrySeller_val {
-	};
-
-	namespace MDEntryPositionNo_val {
-	};
-
-	namespace QuoteStatus_val {
-		static int ACCEPTED = 0;
-		static int CANCELED_FOR_SYMBOL = 1;
-		static int CANCELED_FOR_SECURITY_TYPE = 2;
-		static int CANCELED_FOR_UNDERLYING = 3;
-		static int CANCELED_ALL = 4;
-		static int REJECTED = 5;
-		static int REMOVED_FROM_MARKET = 6;
-		static int EXPIRED = 7;
-		static int QUERY = 8;
-		static int QUOTE_NOT_FOUND = 9;
-		static int PENDING = 10;
-		static int PASS = 11;
-		static int LOCKED_MARKET_WARNING = 12;
-		static int CROSS_MARKET_WARNING = 13;
-		static int CANCELED_DUE_TO_LOCK_MARKET = 14;
-		static int CANCELED_DUE_TO_CROSS_MARKET = 15;
-	};
-
-	namespace QuoteCancelType_val {
-		static int CANCEL_FOR_SYMBOL = 1;
-		static int CANCEL_FOR_SECURITY_TYPE = 2;
-		static int CANCEL_FOR_UNDERLYING_SYMBOL = 3;
-		static int CANCEL_ALL_QUOTES = 4;
-	};
-
-	namespace QuoteEntryID_val {
-	};
-
-	namespace QuoteRejectReason_val {
-		static int UNKNOWN_SYMBOL = 1;
-		static int EXCHANGE_CLOSED = 2;
-		static int QUOTE_REQUEST_EXCEEDS_LIMIT = 3;
-		static int TOO_LATE_TO_ENTER = 4;
-		static int UNKNOWN_QUOTE = 5;
-		static int DUPLICATE_QUOTE = 6;
-		static int INVALID_BID_ASK_SPREAD = 7;
-		static int INVALID_PRICE = 8;
-		static int NOT_AUTHORIZED_TO_QUOTE_SECURITY = 9;
-		static int OTHER = 99;
-	};
-
-	namespace QuoteResponseLevel_val {
-		static int NO_ACKNOWLEDGEMENT = 0;
-		static int ACKNOWLEDGE_ONLY_NEGATIVE_OR_ERRONEOUS_QUOTES = 1;
-		static int ACKNOWLEDGE_EACH_QUOTE_MESSAGES = 2;
-	};
-
-	namespace QuoteSetID_val {
-	};
-
-	namespace QuoteRequestType_val {
-		static int MANUAL = 1;
-		static int AUTOMATIC = 2;
-	};
-
-	namespace TotNoQuoteEntries_val {
-	};
-
-	namespace UnderlyingSecurityIDSource_val {
-	};
-
-	namespace UnderlyingIssuer_val {
-	};
-
-	namespace UnderlyingSecurityDesc_val {
-	};
-
-	namespace UnderlyingSecurityID_val {
-	};
-
-	namespace UnderlyingSecurityType_val {
-	};
-
-	namespace UnderlyingSymbol_val {
-	};
-
-	namespace UnderlyingSymbolSfx_val {
-	};
-
-	namespace UnderlyingPutOrCall_val {
-		static int PUT = 0;
-		static int CALL = 1;
-	};
-
-	namespace UnderlyingOptAttribute_val {
-	};
-
-	namespace SecurityReqID_val {
-	};
-
-	namespace SecurityRequestType_val {
-		static int REQUEST_SECURITY_IDENTITY_AND_SPECIFICATIONS = 0;
-		static int REQUEST_SECURITY_IDENTITY_FOR_THE_SPECIFICATIONS_PROVIDED = 1;
-		static int REQUEST_LIST_SECURITY_TYPES = 2;
-		static int REQUEST_LIST_SECURITIES = 3;
-	};
-
-	namespace SecurityResponseID_val {
-	};
-
-	namespace SecurityResponseType_val {
-		static int ACCEPT_SECURITY_PROPOSAL_AS_IS = 1;
-		static int ACCEPT_SECURITY_PROPOSAL_WITH_REVISIONS_AS_INDICATED_IN_THE_MESSAGE = 2;
-		static int LIST_OF_SECURITY_TYPES_RETURNED_PER_REQUEST = 3;
-		static int LIST_OF_SECURITIES_RETURNED_PER_REQUEST = 4;
-		static int REJECT_SECURITY_PROPOSAL = 5;
-		static int CAN_NOT_MATCH_SELECTION_CRITERIA = 6;
-	};
-
-	namespace SecurityStatusReqID_val {
-	};
-
-	namespace SecurityTradingStatus_val {
-		static int OPENING_DELAY = 1;
-		static int TRADING_HALT = 2;
-		static int RESUME = 3;
-		static int NO_OPEN_NO_RESUME = 4;
-		static int PRICE_INDICATION = 5;
-		static int TRADING_RANGE_INDICATION = 6;
-		static int MARKET_IMBALANCE_BUY = 7;
-		static int MARKET_IMBALANCE_SELL = 8;
-		static int MARKET_ON_CLOSE_IMBALANCE_BUY = 9;
-		static int MARKET_ON_CLOSE_IMBALANCE_SELL = 10;
-		static int NOT_ASSIGNED = 11;
-		static int NO_MARKET_IMBALANCE = 12;
-		static int NO_MARKET_ON_CLOSE_IMBALANCE = 13;
-		static int ITS_PRE_OPENING = 14;
-		static int NEW_PRICE_INDICATION = 15;
-		static int TRADE_DISSEMINATION_TIME = 16;
-		static int READY_TO_TRADE_START_OF_SESSION = 17;
-		static int NOT_AVAILABLE_FOR_TRADING_END_OF_SESSION = 18;
-		static int NOT_TRADED_ON_THIS_MARKET = 19;
-		static int UNKNOWN_OR_INVALID = 20;
-		static int PRE_OPEN = 21;
-		static int OPENING_ROTATION = 22;
-		static int FAST_MARKET = 23;
-	};
-
-	namespace HaltReason_val {
-		static const char ORDER_IMBALANCE[] = "I";
-		static const char EQUIPMENT_CHANGEOVER[] = "X";
-		static const char NEWS_PENDING[] = "P";
-		static const char NEWS_DISSEMINATION[] = "D";
-		static const char ORDER_INFLUX[] = "E";
-		static const char ADDITIONAL_INFORMATION[] = "M";
-	};
-
-	namespace Adjustment_val {
-		static int CANCEL = 1;
-		static int ERROR = 2;
-		static int CORRECTION = 3;
-	};
-
-	namespace TradSesReqID_val {
-	};
-
-	namespace TradingSessionID_val {
-	};
-
-	namespace ContraTrader_val {
-	};
-
-	namespace TradSesMethod_val {
-		static int ELECTRONIC = 1;
-		static int OPEN_OUTCRY = 2;
-		static int TWO_PARTY = 3;
-	};
-
-	namespace TradSesMode_val {
-		static int TESTING = 1;
-		static int SIMULATED = 2;
-		static int PRODUCTION = 3;
-	};
-
-	namespace TradSesStatus_val {
-		static int UNKNOWN = 0;
-		static int HALTED = 1;
-		static int OPEN = 2;
-		static int CLOSED = 3;
-		static int PRE_OPEN = 4;
-		static int PRE_CLOSE = 5;
-		static int REQUEST_REJECTED = 6;
-	};
-
-	namespace NumberOfOrders_val {
-	};
-
-	namespace MessageEncoding_val {
-		static const char ISO_2022_JP[] = "ISO-2022-JP";
-		static const char EUC_JP[] = "EUC-JP";
-		static const char SHIFT_JIS[] = "SHIFT_JIS";
-		static const char UTF_8[] = "UTF-8";
-	};
-
-	namespace QuoteEntryRejectReason_val {
-		static int UNKNOWN_SYMBOL = 1;
-		static int EXCHANGE_CLOSED = 2;
-		static int QUOTE_EXCEEDS_LIMIT = 3;
-		static int TOO_LATE_TO_ENTER = 4;
-		static int UNKNOWN_QUOTE = 5;
-		static int DUPLICATE_QUOTE = 6;
-		static int INVALID_BID_ASK_SPREAD = 7;
-		static int INVALID_PRICE = 8;
-		static int NOT_AUTHORIZED_TO_QUOTE_SECURITY = 9;
-	};
-
-	namespace RefTagID_val {
-	};
-
-	namespace RefMsgType_val {
-	};
-
-	namespace SessionRejectReason_val {
-		static int INVALID_TAG_NUMBER = 0;
-		static int REQUIRED_TAG_MISSING = 1;
-		static int TAG_NOT_DEFINED_FOR_THIS_MESSAGE_TYPE = 2;
-		static int UNDEFINED_TAG = 3;
-		static int TAG_SPECIFIED_WITHOUT_A_VALUE = 4;
-		static int VALUE_IS_INCORRECT = 5;
-		static int INCORRECT_DATA_FORMAT_FOR_VALUE = 6;
-		static int DECRYPTION_PROBLEM = 7;
-		static int SIGNATURE_PROBLEM = 8;
-		static int COMPID_PROBLEM = 9;
-		static int SENDINGTIME_ACCURACY_PROBLEM = 10;
-		static int INVALID_MSGTYPE = 11;
-		static int XML_VALIDATION_ERROR = 12;
-		static int TAG_APPEARS_MORE_THAN_ONCE = 13;
-		static int TAG_SPECIFIED_OUT_OF_REQUIRED_ORDER = 14;
-		static int REPEATING_GROUP_FIELDS_OUT_OF_ORDER = 15;
-		static int INCORRECT_NUMINGROUP_COUNT_FOR_REPEATING_GROUP = 16;
-		static int NON_DATA_VALUE_INCLUDES_FIELD_DELIMITER = 17;
-		static int OTHER = 99;
-	};
-
-	namespace BidRequestTransType_val {
-		static const char NEW[] = "N";
-		static const char CANCEL[] = "C";
-	};
-
-	namespace ContraBroker_val {
-	};
-
-	namespace ComplianceID_val {
-	};
-
-	namespace ExecRestatementReason_val {
-		static int GT_CORPORATE_ACTION = 0;
-		static int GT_RENEWAL_RESTATEMENT = 1;
-		static int VERBAL_CHANGE = 2;
-		static int REPRICING_OF_ORDER = 3;
-		static int BROKER_OPTION = 4;
-		static int PARTIAL_DECLINE_OF_ORDERQTY = 5;
-		static int CANCEL_ON_TRADING_HALT = 6;
-		static int CANCEL_ON_SYSTEM_FAILURE = 7;
-		static int MARKET_OPTION = 8;
-		static int CANCELED_NOT_BEST = 9;
-		static int WAREHOUSE_RECAP = 10;
-		static int OTHER = 99;
-	};
-
-	namespace BusinessRejectRefID_val {
-	};
-
-	namespace BusinessRejectReason_val {
-		static int OTHER = 0;
-		static int UNKOWN_ID = 1;
-		static int UNKNOWN_SECURITY = 2;
-		static int UNSUPPORTED_MESSAGE_TYPE = 3;
-		static int APPLICATION_NOT_AVAILABLE = 4;
-		static int CONDITIONALLY_REQUIRED_FIELD_MISSING = 5;
-		static int NOT_AUTHORIZED = 6;
-		static int DELIVERTO_FIRM_NOT_AVAILABLE_AT_THIS_TIME = 7;
-	};
-
-	namespace MsgDirection_val {
-		static const char SEND[] = "S";
-		static const char RECEIVE[] = "R";
-	};
-
-	namespace DiscretionInst_val {
-		static const char RELATED_TO_DISPLAYED_PRICE[] = "0";
-		static const char RELATED_TO_MARKET_PRICE[] = "1";
-		static const char RELATED_TO_PRIMARY_PRICE[] = "2";
-		static const char RELATED_TO_LOCAL_PRIMARY_PRICE[] = "3";
-		static const char RELATED_TO_MIDPOINT_PRICE[] = "4";
-		static const char RELATED_TO_LAST_TRADE_PRICE[] = "5";
-		static const char RELATED_TO_VWAP[] = "6";
-	};
-
-	namespace BidID_val {
-	};
-
-	namespace ClientBidID_val {
-	};
-
-	namespace ListName_val {
-	};
-
-	namespace TotNoRelatedSym_val {
-	};
-
-	namespace BidType_val {
-		static int NON_DISCLOSED = 1;
-		static int DISCLOSED_STYLE = 2;
-		static int NO_BIDDING_PROCESS = 3;
-	};
-
-	namespace NumTickets_val {
-	};
-
-	namespace BidDescriptorType_val {
-		static int SECTOR = 1;
-		static int COUNTRY = 2;
-		static int INDEX = 3;
-	};
-
-	namespace BidDescriptor_val {
-	};
-
-	namespace SideValueInd_val {
-		static int SIDEVALUE1 = 1;
-		static int SIDEVALUE2 = 2;
-	};
-
-	namespace LiquidityIndType_val {
-		static int FIVEDAY_MOVING_AVERAGE = 1;
-		static int TWENTYDAY_MOVING_AVERAGE = 2;
-		static int NORMAL_MARKET_SIZE = 3;
-		static int OTHER = 4;
-	};
-
-	namespace ProgRptReqs_val {
-		static int BUYSIDE_EXPLICITLY_REQUESTS_STATUS_USING_STATUSREQUEST = 1;
-		static int SELLSIDE_PERIODICALLY_SENDS_STATUS_USING_LISTSTATUS = 2;
-		static int REAL_TIME_EXECUTION_REPORTS = 3;
-	};
-
-	namespace ProgPeriodInterval_val {
-	};
-
-	namespace IncTaxInd_val {
-		static int NET = 1;
-		static int GROSS = 2;
-	};
-
-	namespace NumBidders_val {
-	};
-
-	namespace BidTradeType_val {
-		static const char RISK_TRADE[] = "R";
-		static const char VWAP_GUARANTEE[] = "G";
-		static const char AGENCY[] = "A";
-		static const char GUARANTEED_CLOSE[] = "J";
-	};
-
-	namespace BasisPxType_val {
-		static const char CLOSING_PRICE_AT_MORNING_SESSION[] = "2";
-		static const char CLOSING_PRICE[] = "3";
-		static const char CURRENT_PRICE[] = "4";
-		static const char SQ[] = "5";
-		static const char VWAP_THROUGH_A_DAY[] = "6";
-		static const char VWAP_THROUGH_A_MORNING_SESSION[] = "7";
-		static const char VWAP_THROUGH_AN_AFTERNOON_SESSION[] = "8";
-		static const char VWAP_THROUGH_A_DAY_EXCEPT_YORI[] = "9";
-		static const char VWAP_THROUGH_A_MORNING_SESSION_EXCEPT_YORI[] = "A";
-		static const char VWAP_THROUGH_AN_AFTERNOON_SESSION_EXCEPT_YORI[] = "B";
-		static const char STRIKE[] = "C";
-		static const char OPEN[] = "D";
-		static const char OTHERS[] = "Z";
-	};
-
-	namespace TotNoStrikes_val {
-	};
-
-	namespace PriceType_val {
-		static int PERCENTAGE = 1;
-		static int PER_UNIT = 2;
-		static int FIXED_AMOUNT = 3;
-		static int DISCOUNT = 4;
-		static int PREMIUM = 5;
-		static int SPREAD = 6;
-		static int TED_PRICE = 7;
-		static int TED_YIELD = 8;
-		static int YIELD = 9;
-		static int FIXED_CABINET_TRADE_PRICE = 10;
-		static int VARIABLE_CABINET_TRADE_PRICE = 11;
-	};
-
-	namespace GTBookingInst_val {
-		static int BOOK_OUT_ALL_TRADES_ON_DAY_OF_EXECUTION = 0;
-		static int ACCUMULATE_EXECUTIONS_UNTIL_ORDER_IS_FILLED_OR_EXPIRES = 1;
-		static int ACCUMULATE_UNTIL_VERBALLY_NOTIFIED_OTHERWISE = 2;
-	};
-
-	namespace ListStatusType_val {
-		static int ACK = 1;
-		static int RESPONSE = 2;
-		static int TIMED = 3;
-		static int EXECSTARTED = 4;
-		static int ALLDONE = 5;
-		static int ALERT = 6;
-	};
-
-	namespace NetGrossInd_val {
-		static int NET = 1;
-		static int GROSS = 2;
-	};
-
-	namespace ListOrderStatus_val {
-		static int INBIDDINGPROCESS = 1;
-		static int RECEIVEDFOREXECUTION = 2;
-		static int EXECUTING = 3;
-		static int CANCELING = 4;
-		static int ALERT = 5;
-		static int ALL_DONE = 6;
-		static int REJECT = 7;
-	};
-
-	namespace ListExecInstType_val {
-		static const char IMMEDIATE[] = "1";
-		static const char WAIT_FOR_EXECUTE_INSTRUCTION[] = "2";
-		static const char EXCHANGE_SWITCH_CIV_ORDER_SELL_DRIVEN[] = "3";
-		static const char EXCHANGE_SWITCH_CIV_ORDER_BUY_DRIVEN_CASH_TOP_UP[] = "4";
-		static const char EXCHANGE_SWITCH_CIV_ORDER_BUY_DRIVEN_CASH_WITHDRAW[] = "5";
-	};
-
-	namespace CxlRejResponseTo_val {
-		static const char ORDER_CANCEL_REQUEST[] = "1";
-		static const char ORDER_CANCEL_REPLACE_REQUEST[] = "2";
-	};
-
-	namespace LiquidityNumSecurities_val {
-	};
-
-	namespace MultiLegReportingType_val {
-		static const char SINGLE_SECURITY[] = "1";
-		static const char INDIVIDUAL_LEG_OF_A_MULTI_LEG_SECURITY[] = "2";
-		static const char MULTI_LEG_SECURITY[] = "3";
-	};
-
-	namespace ListStatusText_val {
-	};
-
-	namespace PartyIDSource_val {
-		static const char BIC[] = "B";
-		static const char GENERALLY_ACCEPTED_MARKET_PARTICIPANT_IDENTIFIER[] = "C";
-		static const char PROPRIETARY_CUSTOM_CODE[] = "D";
-		static const char ISO_COUNTRY_CODE[] = "E";
-		static const char SETTLEMENT_ENTITY_LOCATION[] = "F";
-		static const char MIC[] = "G";
-		static const char CSD_PARTICIPANT_MEMBER_CODE[] = "H";
-		static const char KOREAN_INVESTOR_ID[] = "1";
-		static const char TAIWANESE_QUALIFIED_FOREIGN_INVESTOR_ID_QFII_FID[] = "2";
-		static const char TAIWANESE_TRADING_ACCOUNT[] = "3";
-		static const char MALAYSIAN_CENTRAL_DEPOSITORY_NUMBER[] = "4";
-		static const char CHINESE_B_SHARE[] = "5";
-		static const char UK_NATIONAL_INSURANCE_OR_PENSION_NUMBER[] = "6";
-		static const char US_SOCIAL_SECURITY_NUMBER[] = "7";
-		static const char US_EMPLOYER_IDENTIFICATION_NUMBER[] = "8";
-		static const char AUSTRALIAN_BUSINESS_NUMBER[] = "9";
-		static const char AUSTRALIAN_TAX_FILE_NUMBER[] = "A";
-		static const char DIRECTED_BROKER[] = "I";
-	};
-
-	namespace PartyID_val {
-	};
-
-	namespace PartyRole_val {
-		static int EXECUTING_FIRM = 1;
-		static int BROKER_OF_CREDIT = 2;
-		static int CLIENT_ID = 3;
-		static int CLEARING_FIRM = 4;
-		static int INVESTOR_ID = 5;
-		static int INTRODUCING_FIRM = 6;
-		static int ENTERING_FIRM = 7;
-		static int LOCATE_LENDING_FIRM = 8;
-		static int FUND_MANAGER_CLIENT_ID = 9;
-		static int SETTLEMENT_LOCATION = 10;
-		static int ORDER_ORIGINATION_TRADER = 11;
-		static int EXECUTING_TRADER = 12;
-		static int ORDER_ORIGINATION_FIRM = 13;
-		static int GIVEUP_CLEARING_FIRM = 14;
-		static int CORRESPONDANT_CLEARING_FIRM = 15;
-		static int EXECUTING_SYSTEM = 16;
-		static int CONTRA_FIRM = 17;
-		static int CONTRA_CLEARING_FIRM = 18;
-		static int SPONSORING_FIRM = 19;
-		static int UNDERLYING_CONTRA_FIRM = 20;
-		static int CLEARING_ORGANIZATION = 21;
-		static int EXCHANGE = 22;
-		static int CUSTOMER_ACCOUNT = 24;
-		static int CORRESPONDENT_CLEARING_ORGANIZATION = 25;
-		static int CORRESPONDENT_BROKER = 26;
-		static int BUYER_SELLER = 27;
-		static int CUSTODIAN = 28;
-		static int INTERMEDIARY = 29;
-		static int AGENT = 30;
-		static int SUB_CUSTODIAN = 31;
-		static int BENEFICIARY = 32;
-		static int INTERESTED_PARTY = 33;
-		static int REGULATORY_BODY = 34;
-		static int LIQUIDITY_PROVIDER = 35;
-		static int ENTERING_TRADER = 36;
-		static int CONTRA_TRADER = 37;
-		static int POSITION_ACCOUNT = 38;
-	};
-
-	namespace SecurityAltID_val {
-	};
-
-	namespace SecurityAltIDSource_val {
-	};
-
-	namespace UnderlyingSecurityAltID_val {
-	};
-
-	namespace UnderlyingSecurityAltIDSource_val {
-	};
-
-	namespace Product_val {
-		static int AGENCY = 1;
-		static int COMMODITY = 2;
-		static int CORPORATE = 3;
-		static int CURRENCY = 4;
-		static int EQUITY = 5;
-		static int GOVERNMENT = 6;
-		static int INDEX = 7;
-		static int LOAN = 8;
-		static int MONEYMARKET = 9;
-		static int MORTGAGE = 10;
-		static int MUNICIPAL = 11;
-		static int OTHER = 12;
-		static int FINANCING = 13;
-	};
-
-	namespace CFICode_val {
-	};
-
-	namespace UnderlyingProduct_val {
-	};
-
-	namespace UnderlyingCFICode_val {
-	};
-
-	namespace QuantityType_val {
-		static int SHARES = 1;
-		static int BONDS = 2;
-		static int CURRENTFACE = 3;
-		static int ORIGINALFACE = 4;
-		static int CURRENCY = 5;
-		static int CONTRACTS = 6;
-		static int OTHER = 7;
-		static int PAR = 8;
-	};
-
-	namespace BookingRefID_val {
-	};
-
-	namespace IndividualAllocID_val {
-	};
-
-	namespace RoundingDirection_val {
-		static const char ROUND_TO_NEAREST[] = "0";
-		static const char ROUND_DOWN[] = "1";
-		static const char ROUND_UP[] = "2";
-	};
-
-	namespace StateOrProvinceOfIssue_val {
-	};
-
-	namespace LocaleOfIssue_val {
-	};
-
-	namespace MailingDtls_val {
-	};
-
-	namespace PaymentRef_val {
-	};
-
-	namespace DistribPaymentMethod_val {
-		static int CREST = 1;
-		static int NSCC = 2;
-		static int EUROCLEAR = 3;
-		static int CLEARSTREAM = 4;
-		static int CHEQUE = 5;
-		static int TELEGRAPHIC_TRANSFER = 6;
-		static int FEDWIRE = 7;
-		static int DIRECT_CREDIT = 8;
-		static int ACH_CREDIT = 9;
-		static int BPAY = 10;
-		static int HIGH_VALUE_CLEARING_SYSTEM = 11;
-		static int REINVEST_IN_FUND = 12;
-	};
-
-	namespace CancellationRights_val {
-		static const char YES[] = "Y";
-		static const char NO_EXECUTION_ONLY[] = "N";
-		static const char NO_WAIVER_AGREEMENT[] = "M";
-		static const char NO_INSTITUTIONAL[] = "O";
-	};
-
-	namespace MoneyLaunderingStatus_val {
-		static const char PASSED[] = "Y";
-		static const char NOT_CHECKED[] = "N";
-		static const char EXEMPT_BELOW_THE_LIMIT[] = "1";
-		static const char EXEMPT_CLIENT_MONEY_TYPE_EXEMPTION[] = "2";
-		static const char EXEMPT_AUTHORISED_CREDIT_OR_FINANCIAL_INSTITUTION[] = "3";
-	};
-
-	namespace MailingInst_val {
-	};
-
-	namespace ExecPriceType_val {
-		static const char BID_PRICE[] = "B";
-		static const char CREATION_PRICE[] = "C";
-		static const char CREATION_PRICE_PLUS_ADJUSTMENT_PERCENT[] = "D";
-		static const char CREATION_PRICE_PLUS_ADJUSTMENT_AMOUNT[] = "E";
-		static const char OFFER_PRICE[] = "O";
-		static const char OFFER_PRICE_MINUS_ADJUSTMENT_PERCENT[] = "P";
-		static const char OFFER_PRICE_MINUS_ADJUSTMENT_AMOUNT[] = "Q";
-		static const char SINGLE_PRICE[] = "S";
-	};
-
-	namespace TradeReportTransType_val {
-		static int NEW = 0;
-		static int CANCEL = 1;
-		static int REPLACE = 2;
-		static int RELEASE = 3;
-		static int REVERSE = 4;
-	};
-
-	namespace CardHolderName_val {
-	};
-
-	namespace CardNumber_val {
-	};
-
-	namespace CardIssNum_val {
-	};
-
-	namespace PaymentMethod_val {
-		static int CREST = 1;
-		static int NSCC = 2;
-		static int EUROCLEAR = 3;
-		static int CLEARSTREAM = 4;
-		static int CHEQUE = 5;
-		static int TELEGRAPHIC_TRANSFER = 6;
-		static int FEDWIRE = 7;
-		static int DEBIT_CARD = 8;
-		static int DIRECT_DEBIT = 9;
-		static int DIRECT_CREDIT = 10;
-		static int CREDIT_CARD = 11;
-		static int ACH_DEBIT = 12;
-		static int ACH_CREDIT = 13;
-		static int BPAY = 14;
-		static int HIGH_VALUE_CLEARING_SYSTEM = 15;
-	};
-
-	namespace RegistAcctType_val {
-	};
-
-	namespace Designation_val {
-	};
-
-	namespace TaxAdvantageType_val {
-		static int NONE = 0;
-		static int MAXI_ISA = 1;
-		static int TESSA = 2;
-		static int MINI_CASH_ISA = 3;
-		static int MINI_STOCKS_AND_SHARES_ISA = 4;
-		static int MINI_INSURANCE_ISA = 5;
-		static int CURRENT_YEAR_PAYMENT = 6;
-		static int PRIOR_YEAR_PAYMENT = 7;
-		static int ASSET_TRANSFER = 8;
-		static int EMPLOYEE_PRIOR_YEAR = 9;
-		static int OTHER = 999;
-	};
-
-	namespace RegistRejReasonText_val {
-	};
-
-	namespace FundRenewWaiv_val {
-		static const char YES[] = "Y";
-		static const char NO[] = "N";
-	};
-
-	namespace CashDistribAgentName_val {
-	};
-
-	namespace CashDistribAgentCode_val {
-	};
-
-	namespace CashDistribAgentAcctNumber_val {
-	};
-
-	namespace CashDistribPayRef_val {
-	};
-
-	namespace CashDistribAgentAcctName_val {
-	};
-
-	namespace PaymentRemitterID_val {
-	};
-
-	namespace RegistStatus_val {
-		static const char ACCEPTED[] = "A";
-		static const char REJECTED[] = "R";
-		static const char HELD[] = "H";
-		static const char REMINDER[] = "N";
-	};
-
-	namespace RegistRejReasonCode_val {
-		static int INVALID_UNACCEPTABLE_ACCOUNT_TYPE = 1;
-		static int INVALID_UNACCEPTABLE_TAX_EXEMPT_TYPE = 2;
-		static int INVALID_UNACCEPTABLE_OWNERSHIP_TYPE = 3;
-		static int INVALID_UNACCEPTABLE_NO_REG_DETLS = 4;
-		static int INVALID_UNACCEPTABLE_REG_SEQ_NO = 5;
-		static int INVALID_UNACCEPTABLE_REG_DTLS = 6;
-		static int INVALID_UNACCEPTABLE_MAILING_DTLS = 7;
-		static int INVALID_UNACCEPTABLE_MAILING_INST = 8;
-		static int INVALID_UNACCEPTABLE_INVESTOR_ID = 9;
-		static int INVALID_UNACCEPTABLE_INVESTOR_ID_SOURCE = 10;
-		static int INVALID_UNACCEPTABLE_DATE_OF_BIRTH = 11;
-		static int INVALID_UNACCEPTABLE_INVESTOR_COUNTRY_OF_RESIDENCE = 12;
-		static int INVALID_UNACCEPTABLE_NODISTRIBINSTNS = 13;
-		static int INVALID_UNACCEPTABLE_DISTRIB_PERCENTAGE = 14;
-		static int INVALID_UNACCEPTABLE_DISTRIB_PAYMENT_METHOD = 15;
-		static int INVALID_UNACCEPTABLE_CASH_DISTRIB_AGENT_ACCT_NAME = 16;
-		static int INVALID_UNACCEPTABLE_CASH_DISTRIB_AGENT_CODE = 17;
-		static int INVALID_UNACCEPTABLE_CASH_DISTRIB_AGENT_ACCT_NUM = 18;
-		static int OTHER = 99;
-	};
-
-	namespace RegistRefID_val {
-	};
-
-	namespace RegistDtls_val {
-	};
-
-	namespace RegistEmail_val {
-	};
-
-	namespace RegistID_val {
-	};
-
-	namespace RegistTransType_val {
-		static const char NEW[] = "0";
-		static const char REPLACE[] = "1";
-		static const char CANCEL[] = "2";
-	};
-
-	namespace OwnershipType_val {
-		static const char JOINT_INVESTORS[] = "J";
-		static const char TENANTS_IN_COMMON[] = "T";
-		static const char JOINT_TRUSTEES[] = "2";
-	};
-
-	namespace ContAmtType_val {
-		static int COMMISSION_AMOUNT = 1;
-		static int COMMISSION_PERCENT = 2;
-		static int INITIAL_CHARGE_AMOUNT = 3;
-		static int INITIAL_CHARGE_PERCENT = 4;
-		static int DISCOUNT_AMOUNT = 5;
-		static int DISCOUNT_PERCENT = 6;
-		static int DILUTION_LEVY_AMOUNT = 7;
-		static int DILUTION_LEVY_PERCENT = 8;
-		static int EXIT_CHARGE_AMOUNT = 9;
-	};
-
-	namespace OwnerType_val {
-		static int INDIVIDUAL_INVESTOR = 1;
-		static int PUBLIC_COMPANY = 2;
-		static int PRIVATE_COMPANY = 3;
-		static int INDIVIDUAL_TRUSTEE = 4;
-		static int COMPANY_TRUSTEE = 5;
-		static int PENSION_PLAN = 6;
-		static int CUSTODIAN_UNDER_GIFTS_TO_MINORS_ACT = 7;
-		static int TRUSTS = 8;
-		static int FIDUCIARIES = 9;
-		static int NETWORKING_SUB_ACCOUNT = 10;
-		static int NON_PROFIT_ORGANIZATION = 11;
-		static int CORPORATE_BODY = 12;
-		static int NOMINEE = 13;
-	};
-
-	namespace PartySubID_val {
-	};
-
-	namespace NestedPartyID_val {
-	};
-
-	namespace NestedPartyIDSource_val {
-	};
-
-	namespace SecondaryClOrdID_val {
-	};
-
-	namespace SecondaryExecID_val {
-	};
-
-	namespace OrderCapacity_val {
-		static const char AGENCY[] = "A";
-		static const char PROPRIETARY[] = "G";
-		static const char INDIVIDUAL[] = "I";
-		static const char PRINCIPAL[] = "P";
-		static const char RISKLESS_PRINCIPAL[] = "R";
-		static const char AGENT_FOR_OTHER_MEMBER[] = "W";
-	};
-
-	namespace MassCancelRequestType_val {
-		static const char CANCEL_ORDERS_FOR_A_SECURITY[] = "1";
-		static const char CANCEL_ORDERS_FOR_AN_UNDERLYING_SECURITY[] = "2";
-		static const char CANCEL_ORDERS_FOR_A_PRODUCT[] = "3";
-		static const char CANCEL_ORDERS_FOR_A_CFICODE[] = "4";
-		static const char CANCEL_ORDERS_FOR_A_SECURITYTYPE[] = "5";
-		static const char CANCEL_ORDERS_FOR_A_TRADING_SESSION[] = "6";
-		static const char CANCEL_ALL_ORDERS[] = "7";
-	};
-
-	namespace MassCancelResponse_val {
-		static const char CANCEL_REQUEST_REJECTED[] = "0";
-		static const char CANCEL_ORDERS_FOR_A_SECURITY[] = "1";
-		static const char CANCEL_ORDERS_FOR_AN_UNDERLYING_SECURITY[] = "2";
-		static const char CANCEL_ORDERS_FOR_A_PRODUCT[] = "3";
-		static const char CANCEL_ORDERS_FOR_A_CFICODE[] = "4";
-		static const char CANCEL_ORDERS_FOR_A_SECURITYTYPE[] = "5";
-		static const char CANCEL_ORDERS_FOR_A_TRADING_SESSION[] = "6";
-		static const char CANCEL_ALL_ORDERS[] = "7";
-	};
-
-	namespace MassCancelRejectReason_val {
-		static const char MASS_CANCEL_NOT_SUPPORTED[] = "0";
-		static const char INVALID_OR_UNKNOWN_SECURITY[] = "1";
-		static const char INVALID_OR_UNKNOWN_UNDERLYING[] = "2";
-		static const char INVALID_OR_UNKNOWN_PRODUCT[] = "3";
-		static const char INVALID_OR_UNKNOWN_CFICODE[] = "4";
-		static const char INVALID_OR_UNKNOWN_SECURITY_TYPE[] = "5";
-		static const char INVALID_OR_UNKNOWN_TRADING_SESSION[] = "6";
-		static const char OTHER[] = "99";
-	};
-
-	namespace TotalAffectedOrders_val {
-	};
-
-	namespace NoAffectedOrders_val {
-	};
-
-	namespace AffectedOrderID_val {
-	};
-
-	namespace AffectedSecondaryOrderID_val {
-	};
-
-	namespace QuoteType_val {
-		static int INDICATIVE = 0;
-		static int TRADEABLE = 1;
-		static int RESTRICTED_TRADEABLE = 2;
-		static int COUNTER = 3;
-	};
-
-	namespace NestedPartyRole_val {
-	};
-
-	namespace InstrRegistry_val {
-	};
-
-	namespace CashMargin_val {
-		static const char CASH[] = "1";
-		static const char MARGIN_OPEN[] = "2";
-		static const char MARGIN_CLOSE[] = "3";
-	};
-
-	namespace NestedPartySubID_val {
-	};
-
-	namespace CrossID_val {
-	};
-
-	namespace CrossType_val {
-		static int CROSS_TRADE_WHICH_IS_EXECUTED_COMPLETELY_OR_NOT = 1;
-		static int CROSS_TRADE_WHICH_IS_EXECUTED_PARTIALLY_AND_THE_REST_IS_CANCELLED = 2;
-		static int CROSS_TRADE_WHICH_IS_PARTIALLY_EXECUTED_WITH_THE_UNFILLED_PORTIONS_REMAINING_ACTIVE = 3;
-		static int CROSS_TRADE_IS_EXECUTED_WITH_EXISTING_ORDERS_WITH_THE_SAME_PRICE = 4;
-	};
-
-	namespace CrossPrioritization_val {
-		static int NONE = 0;
-		static int BUY_SIDE_IS_PRIORITIZED = 1;
-		static int SELL_SIDE_IS_PRIORITIZED = 2;
-	};
-
-	namespace OrigCrossID_val {
-	};
-
-	namespace Username_val {
-	};
-
-	namespace Password_val {
-	};
-
-	namespace TotNoSecurityTypes_val {
-	};
-
-	namespace SecurityListRequestType_val {
-		static int SYMBOL = 0;
-		static int SECURITYTYPE_AND_OR_CFICODE = 1;
-		static int PRODUCT = 2;
-		static int TRADINGSESSIONID = 3;
-		static int ALL_SECURITIES = 4;
-	};
-
-	namespace SecurityRequestResult_val {
-		static int VALID_REQUEST = 0;
-		static int INVALID_OR_UNSUPPORTED_REQUEST = 1;
-		static int NO_INSTRUMENTS_FOUND_THAT_MATCH_SELECTION_CRITERIA = 2;
-		static int NOT_AUTHORIZED_TO_RETRIEVE_INSTRUMENT_DATA = 3;
-		static int INSTRUMENT_DATA_TEMPORARILY_UNAVAILABLE = 4;
-		static int REQUEST_FOR_INSTRUMENT_DATA_NOT_SUPPORTED = 5;
-	};
-
-	namespace MultiLegRptTypeReq_val {
-		static int REPORT_BY_MULITLEG_SECURITY_ONLY = 0;
-		static int REPORT_BY_MULTILEG_SECURITY_AND_BY_INSTRUMENT_LEGS_BELONGING_TO_THE_MULTILEG_SECURITY = 1;
-		static int REPORT_BY_INSTRUMENT_LEGS_BELONGING_TO_THE_MULTILEG_SECURITY_ONLY = 2;
-	};
-
-	namespace LegPositionEffect_val {
-	};
-
-	namespace LegCoveredOrUncovered_val {
-	};
-
-	namespace TradSesStatusRejReason_val {
-		static int UNKNOWN_OR_INVALID_TRADINGSESSIONID = 1;
-	};
-
-	namespace TradeRequestID_val {
-	};
-
-	namespace TradeRequestType_val {
-		static int ALL_TRADES = 0;
-		static int MATCHED_TRADES_MATCHING_CRITERIA_PROVIDED_ON_REQUEST = 1;
-		static int UNMATCHED_TRADES_THAT_MATCH_CRITERIA = 2;
-		static int UNREPORTED_TRADES_THAT_MATCH_CRITERIA = 3;
-		static int ADVISORIES_THAT_MATCH_CRITERIA = 4;
-	};
-
-	namespace TradeReportID_val {
-	};
-
-	namespace TradeReportRefID_val {
-	};
-
-	namespace MatchStatus_val {
-		static const char COMPARED_MATCHED_OR_AFFIRMED[] = "0";
-		static const char UNCOMPARED_UNMATCHED_OR_UNAFFIRMED[] = "1";
-		static const char ADVISORY_OR_ALERT[] = "2";
-	};
-
-	namespace MatchType_val {
-	};
-
-	namespace NoClearingInstructions_val {
-	};
-
-	namespace ClearingInstruction_val {
-		static int PROCESS_NORMALLY = 0;
-		static int EXCLUDE_FROM_ALL_NETTING = 1;
-		static int BILATERAL_NETTING_ONLY = 2;
-		static int EX_CLEARING = 3;
-		static int SPECIAL_TRADE = 4;
-		static int MULTILATERAL_NETTING = 5;
-		static int CLEAR_AGAINST_CENTRAL_COUNTERPARTY = 6;
-		static int EXCLUDE_FROM_CENTRAL_COUNTERPARTY = 7;
-		static int MANUAL_MODE = 8;
-		static int AUTOMATIC_POSTING_MODE = 9;
-		static int AUTOMATIC_GIVE_UP_MODE = 10;
-		static int QUALIFIED_SERVICE_REPRESENTATIVE = 11;
-		static int CUSTOMER_TRADE = 12;
-		static int SELF_CLEARING = 13;
-	};
-
-	namespace TradeInputSource_val {
-	};
-
-	namespace TradeInputDevice_val {
-	};
-
-	namespace NoDates_val {
-	};
-
-	namespace AccountType_val {
-		static int ACCOUNT_IS_CARRIED_ON_CUSTOMER_SIDE_OF_BOOKS = 1;
-		static int ACCOUNT_IS_CARRIED_ON_NON_CUSTOMER_SIDE_OF_BOOKS = 2;
-		static int HOUSE_TRADER = 3;
-		static int FLOOR_TRADER = 4;
-		static int ACCOUNT_IS_CARRIED_ON_NON_CUSTOMER_SIDE_OF_BOOKS_AND_IS_CROSS_MARGINED = 6;
-		static int ACCOUNT_IS_HOUSE_TRADER_AND_IS_CROSS_MARGINED = 7;
-		static int JOINT_BACKOFFICE_ACCOUNT = 8;
-	};
-
-	namespace CustOrderCapacity_val {
-		static int MEMBER_TRADING_FOR_THEIR_OWN_ACCOUNT = 1;
-		static int CLEARING_FIRM_TRADING_FOR_ITS_PROPRIETARY_ACCOUNT = 2;
-		static int MEMBER_TRADING_FOR_ANOTHER_MEMBER = 3;
-		static int ALL_OTHER = 4;
-	};
-
-	namespace ClOrdLinkID_val {
-	};
-
-	namespace MassStatusReqID_val {
-	};
-
-	namespace MassStatusReqType_val {
-		static int STATUS_FOR_ORDERS_FOR_A_SECURITY = 1;
-		static int STATUS_FOR_ORDERS_FOR_AN_UNDERLYING_SECURITY = 2;
-		static int STATUS_FOR_ORDERS_FOR_A_PRODUCT = 3;
-		static int STATUS_FOR_ORDERS_FOR_A_CFICODE = 4;
-		static int STATUS_FOR_ORDERS_FOR_A_SECURITYTYPE = 5;
-		static int STATUS_FOR_ORDERS_FOR_A_TRADING_SESSION = 6;
-		static int STATUS_FOR_ALL_ORDERS = 7;
-		static int STATUS_FOR_ORDERS_FOR_A_PARTYID = 8;
-	};
-
-	namespace LegSettlType_val {
-	};
-
-	namespace DayBookingInst_val {
-		static const char CAN_TRIGGER_BOOKING_WITHOUT_REFERENCE_TO_THE_ORDER_INITIATOR[] = "0";
-		static const char SPEAK_WITH_ORDER_INITIATOR_BEFORE_BOOKING[] = "1";
-		static const char ACCUMULATE[] = "2";
-	};
-
-	namespace BookingUnit_val {
-		static const char EACH_PARTIAL_EXECUTION_IS_A_BOOKABLE_UNIT[] = "0";
-		static const char AGGREGATE_PARTIAL_EXECUTIONS_ON_THIS_ORDER_AND_BOOK_ONE_TRADE_PER_ORDER[] = "1";
-		static const char AGGREGATE_EXECUTIONS_FOR_THIS_SYMBOL_SIDE_AND_SETTLEMENT_DATE[] = "2";
-	};
-
-	namespace PreallocMethod_val {
-		static const char PRO_RATA[] = "0";
-		static const char DO_NOT_PRO_RATA[] = "1";
-	};
-
-	namespace UnderlyingStateOrProvinceOfIssue_val {
-	};
-
-	namespace UnderlyingLocaleOfIssue_val {
-	};
-
-	namespace UnderlyingInstrRegistry_val {
-	};
-
-	namespace LegStateOrProvinceOfIssue_val {
-	};
-
-	namespace LegLocaleOfIssue_val {
-	};
-
-	namespace LegInstrRegistry_val {
-	};
-
-	namespace LegSymbol_val {
-	};
-
-	namespace LegSymbolSfx_val {
-	};
-
-	namespace LegSecurityID_val {
-	};
-
-	namespace LegSecurityIDSource_val {
-	};
-
-	namespace NoLegSecurityAltID_val {
-	};
-
-	namespace LegSecurityAltID_val {
-	};
-
-	namespace LegSecurityAltIDSource_val {
-	};
-
-	namespace LegProduct_val {
-	};
-
-	namespace LegCFICode_val {
-	};
-
-	namespace LegSecurityType_val {
-	};
-
-	namespace LegOptAttribute_val {
-	};
-
-	namespace LegIssuer_val {
-	};
-
-	namespace LegSecurityDesc_val {
-	};
-
-	namespace LegSide_val {
-	};
-
-	namespace TradingSessionSubID_val {
-	};
-
-	namespace AllocType_val {
-		static int CALCULATED = 1;
-		static int PRELIMINARY = 2;
-		static int READY_TO_BOOK_SINGLE_ORDER = 5;
-		static int WAREHOUSE_INSTRUCTION = 7;
-		static int REQUEST_TO_INTERMEDIARY = 8;
-	};
-
-	namespace HopCompID_val {
-	};
-
-	namespace ClearingFeeIndicator_val {
-		static const char CBOE_MEMBER[] = "B";
-		static const char NON_MEMBER_AND_CUSTOMER[] = "C";
-		static const char EQUITY_MEMBER_AND_CLEARING_MEMBER[] = "E";
-		static const char FULL_AND_ASSOCIATE_MEMBER_TRADING_FOR_OWN_ACCOUNT_AND_AS_FLOOR_BROKERS[] = "F";
-		static const char FIRMS_106H_AND_106J[] = "H";
-		static const char GIM_IDEM_AND_COM_MEMBERSHIP_INTEREST_HOLDERS[] = "I";
-		static const char LESSEE_AND_106F_EMPLOYEES[] = "L";
-		static const char ALL_OTHER_OWNERSHIP_TYPES[] = "M";
-	};
-
-	namespace PriorityIndicator_val {
-		static int PRIORITY_UNCHANGED = 0;
-		static int LOST_PRIORITY_AS_RESULT_OF_ORDER_CHANGE = 1;
-	};
-
-	namespace RFQReqID_val {
-	};
-
-	namespace QuoteStatusReqID_val {
-	};
-
-	namespace LegRefID_val {
-	};
-
-	namespace ContraLegRefID_val {
-	};
-
-	namespace QuoteRequestRejectReason_val {
-		static int UNKNOWN_SYMBOL = 1;
-		static int EXCHANGE_CLOSED = 2;
-		static int QUOTE_REQUEST_EXCEEDS_LIMIT = 3;
-		static int TOO_LATE_TO_ENTER = 4;
-		static int INVALID_PRICE = 5;
-		static int NOT_AUTHORIZED_TO_REQUEST_QUOTE = 6;
-		static int NO_MATCH_FOR_INQUIRY = 7;
-		static int NO_MARKET_FOR_INSTRUMENT = 8;
-		static int NO_INVENTORY = 9;
-		static int PASS = 10;
-		static int OTHER = 99;
-	};
-
-	namespace SideComplianceID_val {
-	};
-
-	namespace AcctIDSource_val {
-		static int BIC = 1;
-		static int SID_CODE = 2;
-		static int TFM = 3;
-		static int OMGEO = 4;
-		static int DTCC_CODE = 5;
-		static int OTHER = 99;
-	};
-
-	namespace AllocAcctIDSource_val {
-	};
-
-	namespace BenchmarkPriceType_val {
-	};
-
-	namespace ConfirmID_val {
-	};
-
-	namespace ConfirmStatus_val {
-		static int RECEIVED = 1;
-		static int MISMATCHED_ACCOUNT = 2;
-		static int MISSING_SETTLEMENT_INSTRUCTIONS = 3;
-		static int CONFIRMED = 4;
-		static int REQUEST_REJECTED = 5;
-	};
-
-	namespace ConfirmTransType_val {
-		static int NEW = 0;
-		static int REPLACE = 1;
-		static int CANCEL = 2;
-	};
-
-	namespace DeliveryForm_val {
-		static int BOOKENTRY = 1;
-		static int BEARER = 2;
-	};
-
-	namespace LegAllocAccount_val {
-	};
-
-	namespace LegIndividualAllocID_val {
-	};
-
-	namespace LegAllocAcctIDSource_val {
-	};
-
-	namespace LegBenchmarkCurveName_val {
-	};
-
-	namespace LegBenchmarkCurvePoint_val {
-	};
-
-	namespace LegBenchmarkPriceType_val {
-	};
-
-	namespace LegIOIQty_val {
-	};
-
-	namespace LegPriceType_val {
-	};
-
-	namespace LegStipulationType_val {
-	};
-
-	namespace LegStipulationValue_val {
-	};
-
-	namespace LegSwapType_val {
-		static int PAR_FOR_PAR = 1;
-		static int MODIFIED_DURATION = 2;
-		static int RISK = 4;
-		static int PROCEEDS = 5;
-	};
-
-	namespace Pool_val {
-	};
-
-	namespace QuotePriceType_val {
-		static int PERCENT = 1;
-		static int PER_SHARE = 2;
-		static int FIXED_AMOUNT = 3;
-		static int DISCOUNT = 4;
-		static int PREMIUM = 5;
-		static int BASIS_POINTS_RELATIVE_TO_BENCHMARK = 6;
-		static int TED_PRICE = 7;
-		static int TED_YIELD = 8;
-		static int YIELD_SPREAD = 9;
-		static int YIELD = 10;
-	};
-
-	namespace QuoteRespID_val {
-	};
-
-	namespace QuoteRespType_val {
-		static int HIT_LIFT = 1;
-		static int COUNTER = 2;
-		static int EXPIRED = 3;
-		static int COVER = 4;
-		static int DONE_AWAY = 5;
-		static int PASS = 6;
-	};
-
-	namespace QuoteQualifier_val {
-	};
-
-	namespace YieldRedemptionPriceType_val {
-	};
-
-	namespace BenchmarkSecurityID_val {
-	};
-
-	namespace PosType_val {
-		static const char TRANSACTION_QUANTITY[] = "TQ";
-		static const char INTRA_SPREAD_QTY[] = "IAS";
-		static const char INTER_SPREAD_QTY[] = "IES";
-		static const char END_OF_DAY_QTY[] = "FIN";
-		static const char START_OF_DAY_QTY[] = "SOD";
-		static const char OPTION_EXERCISE_QTY[] = "EX";
-		static const char OPTION_ASSIGNMENT[] = "AS";
-		static const char TRANSACTION_FROM_EXERCISE[] = "TX";
-		static const char TRANSACTION_FROM_ASSIGNMENT[] = "TA";
-		static const char PIT_TRADE_QTY[] = "PIT";
-		static const char TRANSFER_TRADE_QTY[] = "TRF";
-		static const char ELECTRONIC_TRADE_QTY[] = "ETR";
-		static const char ALLOCATION_TRADE_QTY[] = "ALC";
-		static const char ADJUSTMENT_QTY[] = "PA";
-		static const char AS_OF_TRADE_QTY[] = "ASF";
-		static const char DELIVERY_QTY[] = "DLV";
-		static const char TOTAL_TRANSACTION_QTY[] = "TOT";
-		static const char CROSS_MARGIN_QTY[] = "XM";
-		static const char INTEGRAL_SPLIT[] = "SPL";
-	};
-
-	namespace PosQtyStatus_val {
-		static int SUBMITTED = 0;
-		static int ACCEPTED = 1;
-		static int REJECTED = 2;
-	};
-
-	namespace PosAmtType_val {
-		static const char FINAL_MARK_TO_MARKET_AMOUNT[] = "FMTM";
-		static const char INCREMENTAL_MARK_TO_MARKET_AMOUNT[] = "IMTM";
-		static const char TRADE_VARIATION_AMOUNT[] = "TVAR";
-		static const char START_OF_DAY_MARK_TO_MARKET_AMOUNT[] = "SMTM";
-		static const char PREMIUM_AMOUNT[] = "PREM";
-		static const char CASH_RESIDUAL_AMOUNT[] = "CRES";
-		static const char CASH_AMOUNT[] = "CASH";
-		static const char VALUE_ADJUSTED_AMOUNT[] = "VADJ";
-	};
-
-	namespace PosTransType_val {
-		static int EXERCISE = 1;
-		static int DO_NOT_EXERCISE = 2;
-		static int POSITION_ADJUSTMENT = 3;
-		static int POSITION_CHANGE_SUBMISSION_MARGIN_DISPOSITION = 4;
-		static int PLEDGE = 5;
-	};
-
-	namespace PosReqID_val {
-	};
-
-	namespace PosMaintAction_val {
-		static int NEW = 1;
-		static int REPLACE = 2;
-		static int CANCEL = 3;
-	};
-
-	namespace OrigPosReqRefID_val {
-	};
-
-	namespace PosMaintRptRefID_val {
-	};
-
-	namespace SettlSessID_val {
-	};
-
-	namespace SettlSessSubID_val {
-	};
-
-	namespace AdjustmentType_val {
-		static int PROCESS_REQUEST_AS_MARGIN_DISPOSITION = 0;
-		static int DELTA_PLUS = 1;
-		static int DELTA_MINUS = 2;
-		static int FINAL = 3;
-	};
-
-	namespace PosMaintRptID_val {
-	};
-
-	namespace PosMaintStatus_val {
-		static int ACCEPTED = 0;
-		static int ACCEPTED_WITH_WARNINGS = 1;
-		static int REJECTED = 2;
-		static int COMPLETED = 3;
-		static int COMPLETED_WITH_WARNINGS = 4;
-	};
-
-	namespace PosMaintResult_val {
-		static int SUCCESSFUL_COMPLETION_NO_WARNINGS_OR_ERRORS = 0;
-		static int REJECTED = 1;
-		static int OTHER = 99;
-	};
-
-	namespace PosReqType_val {
-		static int POSITIONS = 0;
-		static int TRADES = 1;
-		static int EXERCISES = 2;
-		static int ASSIGNMENTS = 3;
-	};
-
-	namespace ResponseTransportType_val {
-		static int INBAND = 0;
-		static int OUT_OF_BAND = 1;
-	};
-
-	namespace ResponseDestination_val {
-	};
-
-	namespace TotalNumPosReports_val {
-	};
-
-	namespace PosReqResult_val {
-		static int VALID_REQUEST = 0;
-		static int INVALID_OR_UNSUPPORTED_REQUEST = 1;
-		static int NO_POSITIONS_FOUND_THAT_MATCH_CRITERIA = 2;
-		static int NOT_AUTHORIZED_TO_REQUEST_POSITIONS = 3;
-		static int REQUEST_FOR_POSITION_NOT_SUPPORTED = 4;
-		static int OTHER = 99;
-	};
-
-	namespace PosReqStatus_val {
-		static int COMPLETED = 0;
-		static int COMPLETED_WITH_WARNINGS = 1;
-		static int REJECTED = 2;
-	};
-
-	namespace SettlPriceType_val {
-		static int FINAL = 1;
-		static int THEORETICAL = 2;
-	};
-
-	namespace UnderlyingSettlPriceType_val {
-	};
-
-	namespace LegPool_val {
-	};
-
-	namespace AssignmentMethod_val {
-		static const char RANDOM[] = "R";
-		static const char PRORATA[] = "P";
-	};
-
-	namespace ExerciseMethod_val {
-		static const char AUTOMATIC[] = "A";
-		static const char MANUAL[] = "M";
-	};
-
-	namespace TotNumTradeReports_val {
-	};
-
-	namespace TradeRequestResult_val {
-		static int SUCCESSFUL = 0;
-		static int INVALID_OR_UNKNOWN_INSTRUMENT = 1;
-		static int INVALID_TYPE_OF_TRADE_REQUESTED = 2;
-		static int INVALID_PARTIES = 3;
-		static int INVALID_TRANSPORT_TYPE_REQUESTED = 4;
-		static int INVALID_DESTINATION_REQUESTED = 5;
-		static int TRADEREQUESTTYPE_NOT_SUPPORTED = 8;
-		static int UNAUTHORIZED_FOR_TRADE_CAPTURE_REPORT_REQUEST = 9;
-		static int OTHER = 99;
-	};
-
-	namespace TradeRequestStatus_val {
-		static int ACCEPTED = 0;
-		static int COMPLETED = 1;
-		static int REJECTED = 2;
-	};
-
-	namespace TradeReportRejectReason_val {
-		static int SUCCESSFUL = 0;
-		static int INVALID_PARTY_INFORMATION = 1;
-		static int UNKNOWN_INSTRUMENT = 2;
-		static int UNAUTHORIZED_TO_REPORT_TRADES = 3;
-		static int INVALID_TRADE_TYPE = 4;
-		static int OTHER = 99;
-	};
-
-	namespace SideMultiLegReportingType_val {
-		static int SINGLE_SECURITY = 1;
-		static int INDIVIDUAL_LEG_OF_A_MULTI_LEG_SECURITY = 2;
-		static int MULTI_LEG_SECURITY = 3;
-	};
-
-	namespace AllocReportID_val {
-	};
-
-	namespace Nested2PartyID_val {
-	};
-
-	namespace Nested2PartyIDSource_val {
-	};
-
-	namespace Nested2PartyRole_val {
-	};
-
-	namespace Nested2PartySubID_val {
-	};
-
-	namespace BenchmarkSecurityIDSource_val {
-		static const char CUSIP[] = "1";
-		static const char SEDOL[] = "2";
-		static const char QUIK[] = "3";
-		static const char ISIN_NUMBER[] = "4";
-		static const char RIC_CODE[] = "5";
-		static const char ISO_CURRENCY_CODE[] = "6";
-		static const char ISO_COUNTRY_CODE[] = "7";
-		static const char EXCHANGE_SYMBOL[] = "8";
-		static const char CONSOLIDATED_TAPE_ASSOCIATION[] = "9";
-		static const char BLOOMBERG_SYMBOL[] = "A";
-		static const char WERTPAPIER[] = "B";
-		static const char DUTCH[] = "C";
-		static const char VALOREN[] = "D";
-		static const char SICOVAM[] = "E";
-		static const char BELGIAN[] = "F";
-		static const char COMMON[] = "G";
-		static const char CLEARING_HOUSE_CLEARING_ORGANIZATION[] = "H";
-		static const char ISDA_FPML_PRODUCT_SPECIFICATION[] = "I";
-		static const char OPTIONS_PRICE_REPORTING_AUTHORITY[] = "J";
-	};
-
-	namespace SecuritySubType_val {
-	};
-
-	namespace UnderlyingSecuritySubType_val {
-	};
-
-	namespace LegSecuritySubType_val {
-	};
-
-	namespace TrdRegTimestampType_val {
-		static int EXECUTION_TIME = 1;
-		static int TIME_IN = 2;
-		static int TIME_OUT = 3;
-		static int BROKER_RECEIPT = 4;
-		static int BROKER_EXECUTION = 5;
-	};
-
-	namespace TrdRegTimestampOrigin_val {
-	};
-
-	namespace ConfirmRefID_val {
-	};
-
-	namespace ConfirmType_val {
-		static int STATUS = 1;
-		static int CONFIRMATION = 2;
-		static int CONFIRMATION_REQUEST_REJECTED = 3;
-	};
-
-	namespace ConfirmRejReason_val {
-		static int MISMATCHED_ACCOUNT = 1;
-		static int MISSING_SETTLEMENT_INSTRUCTIONS = 2;
-		static int OTHER = 99;
-	};
-
-	namespace BookingType_val {
-		static int REGULAR_BOOKING = 0;
-		static int CFD = 1;
-		static int TOTAL_RETURN_SWAP = 2;
-	};
-
-	namespace IndividualAllocRejCode_val {
-	};
-
-	namespace SettlInstMsgID_val {
-	};
-
-	namespace AllocSettlInstType_val {
-		static int USE_DEFAULT_INSTRUCTIONS = 0;
-		static int DERIVE_FROM_PARAMETERS_PROVIDED = 1;
-		static int FULL_DETAILS_PROVIDED = 2;
-		static int SSI_DB_IDS_PROVIDED = 3;
-		static int PHONE_FOR_INSTRUCTIONS = 4;
-	};
-
-	namespace SettlPartyID_val {
-	};
-
-	namespace SettlPartyIDSource_val {
-	};
-
-	namespace SettlPartyRole_val {
-	};
-
-	namespace SettlPartySubID_val {
-	};
-
-	namespace SettlPartySubIDType_val {
-	};
-
-	namespace DlvyInstType_val {
-		static const char SECURITIES[] = "S";
-		static const char CASH[] = "C";
-	};
-
-	namespace TerminationType_val {
-		static int OVERNIGHT = 1;
-		static int TERM = 2;
-		static int FLEXIBLE = 3;
-		static int OPEN = 4;
-	};
-
-	namespace OrdStatusReqID_val {
-	};
-
-	namespace SettlInstReqID_val {
-	};
-
-	namespace SettlInstReqRejCode_val {
-		static int UNABLE_TO_PROCESS_REQUEST = 0;
-		static int UNKNOWN_ACCOUNT = 1;
-		static int NO_MATCHING_SETTLEMENT_INSTRUCTIONS_FOUND = 2;
-		static int OTHER = 99;
-	};
-
-	namespace SecondaryAllocID_val {
-	};
-
-	namespace AllocReportType_val {
-		static int SELLSIDE_CALCULATED_USING_PRELIMINARY = 3;
-		static int SELLSIDE_CALCULATED_WITHOUT_PRELIMINARY = 4;
-		static int WAREHOUSE_RECAP = 5;
-		static int REQUEST_TO_INTERMEDIARY = 8;
-	};
-
-	namespace AllocReportRefID_val {
-	};
-
-	namespace AllocCancReplaceReason_val {
-		static int ORIGINAL_DETAILS_INCOMPLETE_INCORRECT = 1;
-		static int CHANGE_IN_UNDERLYING_ORDER_DETAILS = 2;
-	};
-
-	namespace AllocAccountType_val {
-		static int ACCOUNT_IS_CARRIED_ON_CUSTOMER_SIDE_OF_BOOKS = 1;
-		static int ACCOUNT_IS_CARRIED_ON_NON_CUSTOMER_SIDE_OF_BOOKS = 2;
-		static int HOUSE_TRADER = 3;
-		static int FLOOR_TRADER = 4;
-		static int ACCOUNT_IS_CARRIED_ON_NON_CUSTOMER_SIDE_OF_BOOKS_AND_IS_CROSS_MARGINED = 6;
-		static int ACCOUNT_IS_HOUSE_TRADER_AND_IS_CROSS_MARGINED = 7;
-		static int JOINT_BACKOFFICE_ACCOUNT = 8;
-	};
-
-	namespace PartySubIDType_val {
-	};
-
-	namespace NestedPartySubIDType_val {
-	};
-
-	namespace Nested2PartySubIDType_val {
-	};
-
-	namespace AllocIntermedReqType_val {
-		static int PENDING_ACCEPT = 1;
-		static int PENDING_RELEASE = 2;
-		static int PENDING_REVERSAL = 3;
-		static int ACCEPT = 4;
-		static int BLOCK_LEVEL_REJECT = 5;
-		static int ACCOUNT_LEVEL_REJECT = 6;
-	};
-
-	namespace ApplQueueMax_val {
-	};
-
-	namespace ApplQueueDepth_val {
-	};
-
-	namespace ApplQueueResolution_val {
-		static int NO_ACTION_TAKEN = 0;
-		static int QUEUE_FLUSHED = 1;
-		static int OVERLAY_LAST = 2;
-		static int END_SESSION = 3;
-	};
-
-	namespace ApplQueueAction_val {
-		static int NO_ACTION_TAKEN = 0;
-		static int QUEUE_FLUSHED = 1;
-		static int OVERLAY_LAST = 2;
-		static int END_SESSION = 3;
-	};
-
-	namespace AltMDSourceID_val {
-	};
-
-	namespace SecondaryTradeReportID_val {
-	};
-
-	namespace AvgPxIndicator_val {
-		static int NO_AVERAGE_PRICING = 0;
-		static int TRADE_IS_PART_OF_AN_AVERAGE_PRICE_GROUP_IDENTIFIED_BY_THE_TRADELINKID = 1;
-		static int LAST_TRADE_IN_THE_AVERAGE_PRICE_GROUP_IDENTIFIED_BY_THE_TRADELINKID = 2;
-	};
-
-	namespace TradeLinkID_val {
-	};
-
-	namespace OrderInputDevice_val {
-	};
-
-	namespace UnderlyingTradingSessionID_val {
-	};
-
-	namespace UnderlyingTradingSessionSubID_val {
-	};
-
-	namespace TradeLegRefID_val {
-	};
-
-	namespace ExchangeRule_val {
-	};
-
-	namespace TradeAllocIndicator_val {
-		static int ALLOCATION_NOT_REQUIRED = 0;
-		static int ALLOCATION_REQUIRED = 1;
-		static int USE_ALLOCATION_PROVIDED_WITH_THE_TRADE = 2;
-	};
-
-	namespace ExpirationCycle_val {
-		static int EXPIRE_ON_TRADING_SESSION_CLOSE = 0;
-		static int EXPIRE_ON_TRADING_SESSION_OPEN = 1;
-	};
-
-	namespace TrdType_val {
-		static int REGULAR_TRADE = 0;
-		static int BLOCK_TRADE = 1;
-		static int EFP = 2;
-		static int TRANSFER = 3;
-		static int LATE_TRADE = 4;
-		static int T_TRADE = 5;
-		static int WEIGHTED_AVERAGE_PRICE_TRADE = 6;
-		static int BUNCHED_TRADE = 7;
-		static int LATE_BUNCHED_TRADE = 8;
-		static int PRIOR_REFERENCE_PRICE_TRADE = 9;
-		static int AFTER_HOURS_TRADE = 10;
-	};
-
-	namespace TrdSubType_val {
-	};
-
-	namespace TransferReason_val {
-	};
-
-	namespace AsgnReqID_val {
-	};
-
-	namespace TotNumAssignmentReports_val {
-	};
-
-	namespace AsgnRptID_val {
-	};
-
-	namespace PegMoveType_val {
-		static int FLOATING = 0;
-		static int FIXED = 1;
-	};
-
-	namespace PegOffsetType_val {
-		static int PRICE = 0;
-		static int BASIS_POINTS = 1;
-		static int TICKS = 2;
-		static int PRICE_TIER_LEVEL = 3;
-	};
-
-	namespace PegLimitType_val {
-		static int OR_BETTER = 0;
-		static int STRICT = 1;
-		static int OR_WORSE = 2;
-	};
-
-	namespace PegRoundDirection_val {
-		static int MORE_AGGRESSIVE = 1;
-		static int MORE_PASSIVE = 2;
-	};
-
-	namespace PegScope_val {
-		static int LOCAL = 1;
-		static int NATIONAL = 2;
-		static int GLOBAL = 3;
-		static int NATIONAL_EXCLUDING_LOCAL = 4;
-	};
-
-	namespace DiscretionMoveType_val {
-		static int FLOATING = 0;
-		static int FIXED = 1;
-	};
-
-	namespace DiscretionOffsetType_val {
-		static int PRICE = 0;
-		static int BASIS_POINTS = 1;
-		static int TICKS = 2;
-		static int PRICE_TIER_LEVEL = 3;
-	};
-
-	namespace DiscretionLimitType_val {
-		static int OR_BETTER = 0;
-		static int STRICT = 1;
-		static int OR_WORSE = 2;
-	};
-
-	namespace DiscretionRoundDirection_val {
-		static int MORE_AGGRESSIVE = 1;
-		static int MORE_PASSIVE = 2;
-	};
-
-	namespace DiscretionScope_val {
-		static int LOCAL = 1;
-		static int NATIONAL = 2;
-		static int GLOBAL = 3;
-		static int NATIONAL_EXCLUDING_LOCAL = 4;
-	};
-
-	namespace TargetStrategy_val {
-	};
-
-	namespace TargetStrategyParameters_val {
-	};
-
-	namespace LastLiquidityInd_val {
-		static int ADDED_LIQUIDITY = 1;
-		static int REMOVED_LIQUIDITY = 2;
-		static int LIQUIDITY_ROUTED_OUT = 3;
-	};
-
-	namespace ShortSaleReason_val {
-		static int DEALER_SOLD_SHORT = 0;
-		static int DEALER_SOLD_SHORT_EXEMPT = 1;
-		static int SELLING_CUSTOMER_SOLD_SHORT = 2;
-		static int SELLING_CUSTOMER_SOLD_SHORT_EXEMPT = 3;
-		static int QUALIFED_SERVICE_REPRESENTATIVE_OR_AUTOMATIC_GIVEUP_CONTRA_SIDE_SOLD_SHORT = 4;
-		static int QSR_OR_AGU_CONTRA_SIDE_SOLD_SHORT_EXEMPT = 5;
-	};
-
-	namespace QtyType_val {
-		static int UNITS = 0;
-		static int CONTRACTS = 1;
-	};
-
-	namespace SecondaryTrdType_val {
-	};
-
-	namespace TradeReportType_val {
-		static int SUBMIT = 0;
-		static int ALLEGED = 1;
-		static int ACCEPT = 2;
-		static int DECLINE = 3;
-		static int ADDENDUM = 4;
-		static int NO_WAS = 5;
-		static int TRADE_REPORT_CANCEL = 6;
-		static int LOCKED_IN_TRADE_BREAK = 7;
-	};
-
-	namespace AllocNoOrdersType_val {
-		static int NOT_SPECIFIED = 0;
-		static int EXPLICIT_LIST_PROVIDED = 1;
-	};
-
-	namespace ConfirmReqID_val {
-	};
-
-	namespace EventType_val {
-		static int PUT = 1;
-		static int CALL = 2;
-		static int TENDER = 3;
-		static int SINKING_FUND_CALL = 4;
-		static int OTHER = 99;
-	};
-
-	namespace EventText_val {
-	};
-
-	namespace InstrAttribType_val {
-		static int FLAT = 1;
-		static int ZERO_COUPON = 2;
-		static int INTEREST_BEARING = 3;
-		static int NO_PERIODIC_PAYMENTS = 4;
-		static int VARIABLE_RATE = 5;
-		static int LESS_FEE_FOR_PUT = 6;
-		static int STEPPED_COUPON = 7;
-		static int COUPON_PERIOD = 8;
-		static int WHEN_AND_IF_ISSUED = 9;
-		static int ORIGINAL_ISSUE_DISCOUNT = 10;
-		static int CALLABLE_PUTTABLE = 11;
-		static int ESCROWED_TO_MATURITY = 12;
-		static int ESCROWED_TO_REDEMPTION_DATE = 13;
-		static int PRE_REFUNDED = 14;
-		static int IN_DEFAULT = 15;
-		static int UNRATED = 16;
-		static int TAXABLE = 17;
-		static int INDEXED = 18;
-		static int SUBJECT_TO_ALTERNATIVE_MINIMUM_TAX = 19;
-		static int ORIGINAL_ISSUE_DISCOUNT_PRICE = 20;
-		static int CALLABLE_BELOW_MATURITY_VALUE = 21;
-		static int CALLABLE_WITHOUT_NOTICE_BY_MAIL_TO_HOLDER_UNLESS_REGISTERED = 22;
-		static int TEXT = 99;
-	};
-
-	namespace InstrAttribValue_val {
-	};
-
-	namespace CPProgram_val {
-	};
-
-	namespace CPRegType_val {
-	};
-
-	namespace UnderlyingCPProgram_val {
-	};
-
-	namespace UnderlyingCPRegType_val {
-	};
-
-	namespace TrdMatchID_val {
-	};
-
-	namespace SecondaryTradeReportRefID_val {
-	};
-
-	namespace UnderlyingStipType_val {
-	};
-
-	namespace UnderlyingStipValue_val {
-	};
-
-	namespace MiscFeeBasis_val {
-		static int ABSOLUTE = 0;
-		static int PER_UNIT = 1;
-		static int PERCENTAGE = 2;
-	};
-
-	namespace TotNoAllocs_val {
-	};
-
-	namespace CollReqID_val {
-	};
-
-	namespace CollAsgnReason_val {
-		static int INITIAL = 0;
-		static int SCHEDULED = 1;
-		static int TIME_WARNING = 2;
-		static int MARGIN_DEFICIENCY = 3;
-		static int MARGIN_EXCESS = 4;
-		static int FORWARD_COLLATERAL_DEMAND = 5;
-		static int EVENT_OF_DEFAULT = 6;
-		static int ADVERSE_TAX_EVENT = 7;
-	};
-
-	namespace CollInquiryQualifier_val {
-		static int TRADEDATE = 0;
-		static int GC_INSTRUMENT = 1;
-		static int COLLATERALINSTRUMENT = 2;
-		static int SUBSTITUTION_ELIGIBLE = 3;
-		static int NOT_ASSIGNED = 4;
-		static int PARTIALLY_ASSIGNED = 5;
-		static int FULLY_ASSIGNED = 6;
-		static int OUTSTANDING_TRADES = 7;
-	};
-
-	namespace CollAsgnID_val {
-	};
-
-	namespace CollAsgnTransType_val {
-		static int NEW = 0;
-		static int REPLACE = 1;
-		static int CANCEL = 2;
-		static int RELEASE = 3;
-		static int REVERSE = 4;
-	};
-
-	namespace CollRespID_val {
-	};
-
-	namespace CollAsgnRespType_val {
-		static int RECEIVED = 0;
-		static int ACCEPTED = 1;
-		static int DECLINED = 2;
-		static int REJECTED = 3;
-	};
-
-	namespace CollAsgnRejectReason_val {
-		static int UNKNOWN_DEAL = 0;
-		static int UNKNOWN_OR_INVALID_INSTRUMENT = 1;
-		static int UNAUTHORIZED_TRANSACTION = 2;
-		static int INSUFFICIENT_COLLATERAL = 3;
-		static int INVALID_TYPE_OF_COLLATERAL = 4;
-		static int EXCESSIVE_SUBSTITUTION = 5;
-		static int OTHER = 99;
-	};
-
-	namespace CollAsgnRefID_val {
-	};
-
-	namespace CollRptID_val {
-	};
-
-	namespace CollInquiryID_val {
-	};
-
-	namespace CollStatus_val {
-		static int UNASSIGNED = 0;
-		static int PARTIALLY_ASSIGNED = 1;
-		static int ASSIGNMENT_PROPOSED = 2;
-		static int ASSIGNED = 3;
-		static int CHALLENGED = 4;
-	};
-
-	namespace TotNumReports_val {
-	};
-
-	namespace AgreementDesc_val {
-	};
-
-	namespace AgreementID_val {
-	};
-
-	namespace DeliveryType_val {
-		static int VERSUS_PAYMENT = 0;
-		static int FREE = 1;
-		static int TRI_PARTY = 2;
-		static int HOLD_IN_CUSTODY = 3;
-	};
-
-	namespace UserRequestID_val {
-	};
-
-	namespace UserRequestType_val {
-		static int LOGONUSER = 1;
-		static int LOGOFFUSER = 2;
-		static int CHANGEPASSWORDFORUSER = 3;
-		static int REQUEST_INDIVIDUAL_USER_STATUS = 4;
-	};
-
-	namespace NewPassword_val {
-	};
-
-	namespace UserStatus_val {
-		static int LOGGED_IN = 1;
-		static int NOT_LOGGED_IN = 2;
-		static int USER_NOT_RECOGNISED = 3;
-		static int PASSWORD_INCORRECT = 4;
-		static int PASSWORD_CHANGED = 5;
-		static int OTHER = 6;
-	};
-
-	namespace UserStatusText_val {
-	};
-
-	namespace StatusValue_val {
-		static int CONNECTED = 1;
-		static int NOT_CONNECTED_DOWN_EXPECTED_UP = 2;
-		static int NOT_CONNECTED_DOWN_EXPECTED_DOWN = 3;
-		static int IN_PROCESS = 4;
-	};
-
-	namespace StatusText_val {
-	};
-
-	namespace RefCompID_val {
-	};
-
-	namespace RefSubID_val {
-	};
-
-	namespace NetworkResponseID_val {
-	};
-
-	namespace NetworkRequestID_val {
-	};
-
-	namespace LastNetworkResponseID_val {
-	};
-
-	namespace NetworkRequestType_val {
-		static int SNAPSHOT = 1;
-		static int SUBSCRIBE = 2;
-		static int STOP_SUBSCRIBING = 4;
-		static int LEVEL_OF_DETAIL = 8;
-	};
-
-	namespace NetworkStatusResponseType_val {
-		static int FULL = 1;
-		static int INCREMENTAL_UPDATE = 2;
-	};
-
-	namespace TrdRptStatus_val {
-		static int ACCEPTED = 0;
-		static int REJECTED = 1;
-	};
-
-	namespace AffirmStatus_val {
-		static int RECEIVED = 1;
-		static int CONFIRM_REJECTED = 2;
-		static int AFFIRMED = 3;
-	};
-
-	namespace TimeBracket_val {
-	};
-
-	namespace CollAction_val {
-		static int RETAIN = 0;
-		static int ADD = 1;
-		static int REMOVE = 2;
-	};
-
-	namespace CollInquiryStatus_val {
-		static int ACCEPTED = 0;
-		static int ACCEPTED_WITH_WARNINGS = 1;
-		static int COMPLETED = 2;
-		static int COMPLETED_WITH_WARNINGS = 3;
-		static int REJECTED = 4;
-	};
-
-	namespace CollInquiryResult_val {
-		static int SUCCESSFUL = 0;
-		static int INVALID_OR_UNKNOWN_INSTRUMENT = 1;
-		static int INVALID_OR_UNKNOWN_COLLATERAL_TYPE = 2;
-		static int INVALID_PARTIES = 3;
-		static int INVALID_TRANSPORT_TYPE_REQUESTED = 4;
-		static int INVALID_DESTINATION_REQUESTED = 5;
-		static int NO_COLLATERAL_FOUND_FOR_THE_TRADE_SPECIFIED = 6;
-		static int NO_COLLATERAL_FOUND_FOR_THE_ORDER_SPECIFIED = 7;
-		static int COLLATERAL_INQUIRY_TYPE_NOT_SUPPORTED = 8;
-		static int UNAUTHORIZED_FOR_COLLATERAL_INQUIRY = 9;
-		static int OTHER = 99;
-	};
-
-	namespace Nested3PartyID_val {
-	};
-
-	namespace Nested3PartyIDSource_val {
-	};
-
-	namespace Nested3PartyRole_val {
-	};
-
-	namespace Nested3PartySubID_val {
-	};
-
-	namespace Nested3PartySubIDType_val {
-	};
-
-	namespace MDEntryMakerSide_val {
-		static const char BUY[] = "1";
-		static const char SELL[] = "2";
-	};
-
+	constexpr char AdvSide_BUY = 'B';
+	constexpr char AdvSide_SELL = 'S';
+	constexpr char AdvSide_CROSS = 'X';
+	constexpr char AdvSide_TRADE = 'T';
+	constexpr char CommType_PER_UNIT = '1';
+	constexpr char CommType_PERCENTAGE = '2';
+	constexpr char CommType_ABSOLUTE = '3';
+	constexpr char CommType_PERCENTAGE_WAIVED_CASH_DISCOUNT = '4';
+	constexpr char CommType_PERCENTAGE_WAIVED_ENHANCED_UNITS = '5';
+	constexpr char CommType_POINTS_PER_BOND_OR_OR_CONTRACT = '6';
+	constexpr char HandlInst_AUTOMATED_EXECUTION_ORDER_PRIVATE = '1';
+	constexpr char HandlInst_AUTOMATED_EXECUTION_ORDER_PUBLIC = '2';
+	constexpr char HandlInst_MANUAL_ORDER = '3';
+	constexpr char IOIQltyInd_LOW = 'L';
+	constexpr char IOIQltyInd_MEDIUM = 'M';
+	constexpr char IOIQltyInd_HIGH = 'H';
+	constexpr char IOITransType_NEW = 'N';
+	constexpr char IOITransType_CANCEL = 'C';
+	constexpr char IOITransType_REPLACE = 'R';
+	constexpr char LastCapacity_AGENT = '1';
+	constexpr char LastCapacity_CROSS_AS_AGENT = '2';
+	constexpr char LastCapacity_CROSS_AS_PRINCIPAL = '3';
+	constexpr char LastCapacity_PRINCIPAL = '4';
+	constexpr char OrdStatus_NEW = '0';
+	constexpr char OrdStatus_PARTIALLY_FILLED = '1';
+	constexpr char OrdStatus_FILLED = '2';
+	constexpr char OrdStatus_DONE_FOR_DAY = '3';
+	constexpr char OrdStatus_CANCELED = '4';
+	constexpr char OrdStatus_REPLACED = '5';
+	constexpr char OrdStatus_PENDING_CANCEL = '6';
+	constexpr char OrdStatus_STOPPED = '7';
+	constexpr char OrdStatus_REJECTED = '8';
+	constexpr char OrdStatus_SUSPENDED = '9';
+	constexpr char OrdStatus_PENDING_NEW = 'A';
+	constexpr char OrdStatus_CALCULATED = 'B';
+	constexpr char OrdStatus_EXPIRED = 'C';
+	constexpr char OrdStatus_ACCEPTED_FOR_BIDDING = 'D';
+	constexpr char OrdStatus_PENDING_REPLACE = 'E';
+	constexpr char OrdType_MARKET = '1';
+	constexpr char OrdType_LIMIT = '2';
+	constexpr char OrdType_STOP = '3';
+	constexpr char OrdType_STOP_LIMIT = '4';
+	constexpr char OrdType_MARKET_ON_CLOSE = '5';
+	constexpr char OrdType_WITH_OR_WITHOUT = '6';
+	constexpr char OrdType_LIMIT_OR_BETTER = '7';
+	constexpr char OrdType_LIMIT_WITH_OR_WITHOUT = '8';
+	constexpr char OrdType_ON_BASIS = '9';
+	constexpr char OrdType_ON_CLOSE = 'A';
+	constexpr char OrdType_LIMIT_ON_CLOSE = 'B';
+	constexpr char OrdType_FOREX_MARKET = 'C';
+	constexpr char OrdType_PREVIOUSLY_QUOTED = 'D';
+	constexpr char OrdType_PREVIOUSLY_INDICATED = 'E';
+	constexpr char OrdType_FOREX_LIMIT = 'F';
+	constexpr char OrdType_FOREX_SWAP = 'G';
+	constexpr char OrdType_FOREX_PREVIOUSLY_QUOTED = 'H';
+	constexpr char OrdType_FUNARI = 'I';
+	constexpr char OrdType_MARKET_IF_TOUCHED = 'J';
+	constexpr char OrdType_MARKET_WITH_LEFTOVER_AS_LIMIT = 'K';
+	constexpr char OrdType_PREVIOUS_FUND_VALUATION_POINT = 'L';
+	constexpr char OrdType_NEXT_FUND_VALUATION_POINT = 'M';
+	constexpr char OrdType_PEGGED = 'P';
+	constexpr char Side_BUY = '1';
+	constexpr char Side_SELL = '2';
+	constexpr char Side_BUY_MINUS = '3';
+	constexpr char Side_SELL_PLUS = '4';
+	constexpr char Side_SELL_SHORT = '5';
+	constexpr char Side_SELL_SHORT_EXEMPT = '6';
+	constexpr char Side_UNDISCLOSED = '7';
+	constexpr char Side_CROSS = '8';
+	constexpr char Side_CROSS_SHORT = '9';
+	constexpr char Side_CROSS_SHORT_EXEMPT = 'A';
+	constexpr char Side_AS_DEFINED = 'B';
+	constexpr char Side_OPPOSITE = 'C';
+	constexpr char Side_SUBSCRIBE = 'D';
+	constexpr char Side_REDEEM = 'E';
+	constexpr char Side_LEND = 'F';
+	constexpr char Side_BORROW = 'G';
+	constexpr char TimeInForce_DAY = '0';
+	constexpr char TimeInForce_GOOD_TILL_CANCEL = '1';
+	constexpr char TimeInForce_AT_THE_OPENING = '2';
+	constexpr char TimeInForce_IMMEDIATE_OR_CANCEL = '3';
+	constexpr char TimeInForce_FILL_OR_KILL = '4';
+	constexpr char TimeInForce_GOOD_TILL_CROSSING = '5';
+	constexpr char TimeInForce_GOOD_TILL_DATE = '6';
+	constexpr char TimeInForce_AT_THE_CLOSE = '7';
+	constexpr char Urgency_NORMAL = '0';
+	constexpr char Urgency_FLASH = '1';
+	constexpr char Urgency_BACKGROUND = '2';
+	constexpr char SettlType_REGULAR = '0';
+	constexpr char SettlType_CASH = '1';
+	constexpr char SettlType_NEXT_DAY = '2';
+	constexpr char SettlType_T_PLUS_2 = '3';
+	constexpr char SettlType_T_PLUS_3 = '4';
+	constexpr char SettlType_T_PLUS_4 = '5';
+	constexpr char SettlType_FUTURE = '6';
+	constexpr char SettlType_WHEN_AND_IF_ISSUED = '7';
+	constexpr char SettlType_SELLERS_OPTION = '8';
+	constexpr char SettlType_T_PLUS_5 = '9';
+	constexpr char AllocTransType_NEW = '0';
+	constexpr char AllocTransType_REPLACE = '1';
+	constexpr char AllocTransType_CANCEL = '2';
+	constexpr char AllocTransType_PRELIMINARY = '3';
+	constexpr char AllocTransType_CALCULATED = '4';
+	constexpr char AllocTransType_CALCULATED_WITHOUT_PRELIMINARY = '5';
+	constexpr char PositionEffect_OPEN = 'O';
+	constexpr char PositionEffect_CLOSE = 'C';
+	constexpr char PositionEffect_ROLLED = 'R';
+	constexpr char PositionEffect_FIFO = 'F';
+	constexpr char ProcessCode_REGULAR = '0';
+	constexpr char ProcessCode_SOFT_DOLLAR = '1';
+	constexpr char ProcessCode_STEP_IN = '2';
+	constexpr char ProcessCode_STEP_OUT = '3';
+	constexpr char ProcessCode_SOFT_DOLLAR_STEP_IN = '4';
+	constexpr char ProcessCode_SOFT_DOLLAR_STEP_OUT = '5';
+	constexpr char ProcessCode_PLAN_SPONSOR = '6';
+	constexpr int AllocStatus_ACCEPTED = 0;
+	constexpr int AllocStatus_BLOCK_LEVEL_REJECT = 1;
+	constexpr int AllocStatus_ACCOUNT_LEVEL_REJECT = 2;
+	constexpr int AllocStatus_RECEIVED = 3;
+	constexpr int AllocStatus_INCOMPLETE = 4;
+	constexpr int AllocStatus_REJECTED_BY_INTERMEDIARY = 5;
+	constexpr int AllocRejCode_UNKNOWN_ACCOUNT = 0;
+	constexpr int AllocRejCode_INCORRECT_QUANTITY = 1;
+	constexpr int AllocRejCode_INCORRECT_AVERAGE_PRICE = 2;
+	constexpr int AllocRejCode_UNKNOWN_EXECUTING_BROKER_MNEMONIC = 3;
+	constexpr int AllocRejCode_COMMISSION_DIFFERENCE = 4;
+	constexpr int AllocRejCode_UNKNOWN_ORDERID = 5;
+	constexpr int AllocRejCode_UNKNOWN_LISTID = 6;
+	constexpr int AllocRejCode_OTHER = 7;
+	constexpr int AllocRejCode_INCORRECT_ALLOCATED_QUANTITY = 8;
+	constexpr int AllocRejCode_CALCULATION_DIFFERENCE = 9;
+	constexpr int AllocRejCode_UNKNOWN_OR_STALE_EXEC_ID = 10;
+	constexpr int AllocRejCode_MISMATCHED_DATA_VALUE = 11;
+	constexpr int AllocRejCode_UNKNOWN_CLORDID = 12;
+	constexpr int AllocRejCode_WAREHOUSE_REQUEST_REJECTED = 13;
+	constexpr char EmailType_NEW = '0';
+	constexpr char EmailType_REPLY = '1';
+	constexpr char EmailType_ADMIN_REPLY = '2';
+	constexpr int EncryptMethod_NONE_OTHER = 0;
+	constexpr int EncryptMethod_PKCS = 1;
+	constexpr int EncryptMethod_DES = 2;
+	constexpr int EncryptMethod_PKCS_DES = 3;
+	constexpr int EncryptMethod_PGP_DES = 4;
+	constexpr int EncryptMethod_PGP_DES_MD5 = 5;
+	constexpr int EncryptMethod_PEM_DES_MD5 = 6;
+	constexpr int CxlRejReason_TOO_LATE_TO_CANCEL = 0;
+	constexpr int CxlRejReason_UNKNOWN_ORDER = 1;
+	constexpr int CxlRejReason_BROKER_EXCHANGE_OPTION = 2;
+	constexpr int CxlRejReason_ORDER_ALREADY_IN_PENDING_CANCEL_OR_PENDING_REPLACE_STATUS = 3;
+	constexpr int CxlRejReason_UNABLE_TO_PROCESS_ORDER_MASS_CANCEL_REQUEST = 4;
+	constexpr int CxlRejReason_ORIGORDMODTIME_DID_NOT_MATCH_LAST_TRANSACTTIME_OF_ORDER = 5;
+	constexpr int CxlRejReason_DUPLICATE_CLORDID_RECEIVED = 6;
+	constexpr int CxlRejReason_OTHER = 99;
+	constexpr int OrdRejReason_BROKER_EXCHANGE_OPTION = 0;
+	constexpr int OrdRejReason_UNKNOWN_SYMBOL = 1;
+	constexpr int OrdRejReason_EXCHANGE_CLOSED = 2;
+	constexpr int OrdRejReason_ORDER_EXCEEDS_LIMIT = 3;
+	constexpr int OrdRejReason_TOO_LATE_TO_ENTER = 4;
+	constexpr int OrdRejReason_UNKNOWN_ORDER = 5;
+	constexpr int OrdRejReason_DUPLICATE_ORDER = 6;
+	constexpr int OrdRejReason_DUPLICATE_OF_A_VERBALLY_COMMUNICATED_ORDER = 7;
+	constexpr int OrdRejReason_STALE_ORDER = 8;
+	constexpr int OrdRejReason_TRADE_ALONG_REQUIRED = 9;
+	constexpr int OrdRejReason_INVALID_INVESTOR_ID = 10;
+	constexpr int OrdRejReason_UNSUPPORTED_ORDER_CHARACTERISTIC = 11;
+	constexpr int OrdRejReason_SURVEILLENCE_OPTION = 12;
+	constexpr int OrdRejReason_INCORRECT_QUANTITY = 13;
+	constexpr int OrdRejReason_INCORRECT_ALLOCATED_QUANTITY = 14;
+	constexpr int OrdRejReason_UNKNOWN_ACCOUNT = 15;
+	constexpr int OrdRejReason_OTHER = 99;
+	constexpr char IOIQualifier_ALL_OR_NONE = 'A';
+	constexpr char IOIQualifier_MARKET_ON_CLOSE = 'B';
+	constexpr char IOIQualifier_AT_THE_CLOSE = 'C';
+	constexpr char IOIQualifier_VWAP = 'D';
+	constexpr char IOIQualifier_IN_TOUCH_WITH = 'I';
+	constexpr char IOIQualifier_LIMIT = 'L';
+	constexpr char IOIQualifier_MORE_BEHIND = 'M';
+	constexpr char IOIQualifier_AT_THE_OPEN = 'O';
+	constexpr char IOIQualifier_TAKING_A_POSITION = 'P';
+	constexpr char IOIQualifier_AT_THE_MARKET = 'Q';
+	constexpr char IOIQualifier_READY_TO_TRADE = 'R';
+	constexpr char IOIQualifier_PORTFOLIO_SHOWN = 'S';
+	constexpr char IOIQualifier_THROUGH_THE_DAY = 'T';
+	constexpr char IOIQualifier_VERSUS = 'V';
+	constexpr char IOIQualifier_INDICATION_WORKING_AWAY = 'W';
+	constexpr char IOIQualifier_CROSSING_OPPORTUNITY = 'X';
+	constexpr char IOIQualifier_AT_THE_MIDPOINT = 'Y';
+	constexpr char IOIQualifier_PRE_OPEN = 'Z';
+	constexpr char DKReason_UNKNOWN_SYMBOL = 'A';
+	constexpr char DKReason_WRONG_SIDE = 'B';
+	constexpr char DKReason_QUANTITY_EXCEEDS_ORDER = 'C';
+	constexpr char DKReason_NO_MATCHING_ORDER = 'D';
+	constexpr char DKReason_PRICE_EXCEEDS_LIMIT = 'E';
+	constexpr char DKReason_CALCULATION_DIFFERENCE = 'F';
+	constexpr char DKReason_OTHER = 'Z';
+	constexpr char MiscFeeType_REGULATORY = '1';
+	constexpr char MiscFeeType_TAX = '2';
+	constexpr char MiscFeeType_LOCAL_COMMISSION = '3';
+	constexpr char MiscFeeType_EXCHANGE_FEES = '4';
+	constexpr char MiscFeeType_STAMP = '5';
+	constexpr char MiscFeeType_LEVY = '6';
+	constexpr char MiscFeeType_OTHER = '7';
+	constexpr char MiscFeeType_MARKUP = '8';
+	constexpr char MiscFeeType_CONSUMPTION_TAX = '9';
+	constexpr char MiscFeeType_PER_TRANSACTION = '10';
+	constexpr char MiscFeeType_CONVERSION = '11';
+	constexpr char MiscFeeType_AGENT = '12';
+	constexpr char ExecType_NEW = '0';
+	constexpr char ExecType_PARTIAL_FILL = '1';
+	constexpr char ExecType_FILL = '2';
+	constexpr char ExecType_DONE_FOR_DAY = '3';
+	constexpr char ExecType_CANCELED = '4';
+	constexpr char ExecType_REPLACE = '5';
+	constexpr char ExecType_PENDING_CANCEL = '6';
+	constexpr char ExecType_STOPPED = '7';
+	constexpr char ExecType_REJECTED = '8';
+	constexpr char ExecType_SUSPENDED = '9';
+	constexpr char ExecType_PENDING_NEW = 'A';
+	constexpr char ExecType_CALCULATED = 'B';
+	constexpr char ExecType_EXPIRED = 'C';
+	constexpr char ExecType_RESTATED = 'D';
+	constexpr char ExecType_PENDING_REPLACE = 'E';
+	constexpr char ExecType_TRADE = 'F';
+	constexpr char ExecType_TRADE_CORRECT = 'G';
+	constexpr char ExecType_TRADE_CANCEL = 'H';
+	constexpr char ExecType_ORDER_STATUS = 'I';
+	constexpr char SettlCurrFxRateCalc_MULTIPLY = 'M';
+	constexpr char SettlCurrFxRateCalc_DIVIDE = 'D';
+	constexpr char SettlInstMode_DEFAULT = '0';
+	constexpr char SettlInstMode_STANDING_INSTRUCTIONS_PROVIDED = '1';
+	constexpr char SettlInstMode_SPECIFIC_ORDER_FOR_A_SINGLE_ACCOUNT = '4';
+	constexpr char SettlInstMode_REQUEST_REJECT = '5';
+	constexpr char SettlInstTransType_NEW = 'N';
+	constexpr char SettlInstTransType_CANCEL = 'C';
+	constexpr char SettlInstTransType_REPLACE = 'R';
+	constexpr char SettlInstTransType_RESTATE = 'T';
+	constexpr char SettlInstSource_BROKERS_INSTRUCTIONS = '1';
+	constexpr char SettlInstSource_INSTITUTIONS_INSTRUCTIONS = '2';
+	constexpr char SettlInstSource_INVESTOR = '3';
+	constexpr int StandInstDbType_OTHER = 0;
+	constexpr int StandInstDbType_DTC_SID = 1;
+	constexpr int StandInstDbType_THOMSON_ALERT = 2;
+	constexpr int StandInstDbType_A_GLOBAL_CUSTODIAN = 3;
+	constexpr int StandInstDbType_ACCOUNTNET = 4;
+	constexpr int SettlDeliveryType_VERSUS_PAYMENT = 0;
+	constexpr int SettlDeliveryType_FREE = 1;
+	constexpr int SettlDeliveryType_TRI_PARTY = 2;
+	constexpr int SettlDeliveryType_HOLD_IN_CUSTODY = 3;
+	constexpr int AllocLinkType_F_X_NETTING = 0;
+	constexpr int AllocLinkType_F_X_SWAP = 1;
+	constexpr int PutOrCall_PUT = 0;
+	constexpr int PutOrCall_CALL = 1;
+	constexpr int CoveredOrUncovered_COVERED = 0;
+	constexpr int CoveredOrUncovered_UNCOVERED = 1;
+	constexpr int AllocHandlInst_MATCH = 1;
+	constexpr int AllocHandlInst_FORWARD = 2;
+	constexpr int AllocHandlInst_FORWARD_AND_MATCH = 3;
+	constexpr int RoutingType_TARGET_FIRM = 1;
+	constexpr int RoutingType_TARGET_LIST = 2;
+	constexpr int RoutingType_BLOCK_FIRM = 3;
+	constexpr int RoutingType_BLOCK_LIST = 4;
+	constexpr char SubscriptionRequestType_SNAPSHOT = '0';
+	constexpr char SubscriptionRequestType_SNAPSHOT_PLUS_UPDATES = '1';
+	constexpr char SubscriptionRequestType_DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST = '2';
+	constexpr int MarketDepth_FULL_BOOK = 0;
+	constexpr int MarketDepth_TOP_OF_BOOK = 1;
+	constexpr int MDUpdateType_FULL_REFRESH = 0;
+	constexpr int MDUpdateType_INCREMENTAL_REFRESH = 1;
+	constexpr char MDEntryType_BID = '0';
+	constexpr char MDEntryType_OFFER = '1';
+	constexpr char MDEntryType_TRADE = '2';
+	constexpr char MDEntryType_INDEX_VALUE = '3';
+	constexpr char MDEntryType_OPENING_PRICE = '4';
+	constexpr char MDEntryType_CLOSING_PRICE = '5';
+	constexpr char MDEntryType_SETTLEMENT_PRICE = '6';
+	constexpr char MDEntryType_TRADING_SESSION_HIGH_PRICE = '7';
+	constexpr char MDEntryType_TRADING_SESSION_LOW_PRICE = '8';
+	constexpr char MDEntryType_TRADING_SESSION_VWAP_PRICE = '9';
+	constexpr char MDEntryType_IMBALANCE = 'A';
+	constexpr char MDEntryType_TRADE_VOLUME = 'B';
+	constexpr char MDEntryType_OPEN_INTEREST = 'C';
+	constexpr char MDEntryType_AUCTION_CLEARING_PRICE = 'Q';
+	constexpr char TickDirection_PLUS_TICK = '0';
+	constexpr char TickDirection_ZERO_PLUS_TICK = '1';
+	constexpr char TickDirection_MINUS_TICK = '2';
+	constexpr char TickDirection_ZERO_MINUS_TICK = '3';
+	constexpr char MDUpdateAction_NEW = '0';
+	constexpr char MDUpdateAction_CHANGE = '1';
+	constexpr char MDUpdateAction_DELETE = '2';
+	constexpr char MDReqRejReason_UNKNOWN_SYMBOL = '0';
+	constexpr char MDReqRejReason_DUPLICATE_MDREQID = '1';
+	constexpr char MDReqRejReason_INSUFFICIENT_BANDWIDTH = '2';
+	constexpr char MDReqRejReason_INSUFFICIENT_PERMISSIONS = '3';
+	constexpr char MDReqRejReason_UNSUPPORTED_SUBSCRIPTIONREQUESTTYPE = '4';
+	constexpr char MDReqRejReason_UNSUPPORTED_MARKETDEPTH = '5';
+	constexpr char MDReqRejReason_UNSUPPORTED_MDUPDATETYPE = '6';
+	constexpr char MDReqRejReason_UNSUPPORTED_AGGREGATEDBOOK = '7';
+	constexpr char MDReqRejReason_UNSUPPORTED_MDENTRYTYPE = '8';
+	constexpr char MDReqRejReason_UNSUPPORTED_TRADINGSESSIONID = '9';
+	constexpr char MDReqRejReason_UNSUPPORTED_SCOPE = 'A';
+	constexpr char MDReqRejReason_UNSUPPORTED_OPENCLOSESETTLEFLAG = 'B';
+	constexpr char MDReqRejReason_UNSUPPORTED_MDIMPLICITDELETE = 'C';
+	constexpr char DeleteReason_CANCELATION_TRADE_BUST = '0';
+	constexpr char DeleteReason_ERROR = '1';
+	constexpr int QuoteStatus_ACCEPTED = 0;
+	constexpr int QuoteStatus_CANCELED_FOR_SYMBOL = 1;
+	constexpr int QuoteStatus_CANCELED_FOR_SECURITY_TYPE = 2;
+	constexpr int QuoteStatus_CANCELED_FOR_UNDERLYING = 3;
+	constexpr int QuoteStatus_CANCELED_ALL = 4;
+	constexpr int QuoteStatus_REJECTED = 5;
+	constexpr int QuoteStatus_REMOVED_FROM_MARKET = 6;
+	constexpr int QuoteStatus_EXPIRED = 7;
+	constexpr int QuoteStatus_QUERY = 8;
+	constexpr int QuoteStatus_QUOTE_NOT_FOUND = 9;
+	constexpr int QuoteStatus_PENDING = 10;
+	constexpr int QuoteStatus_PASS = 11;
+	constexpr int QuoteStatus_LOCKED_MARKET_WARNING = 12;
+	constexpr int QuoteStatus_CROSS_MARKET_WARNING = 13;
+	constexpr int QuoteStatus_CANCELED_DUE_TO_LOCK_MARKET = 14;
+	constexpr int QuoteStatus_CANCELED_DUE_TO_CROSS_MARKET = 15;
+	constexpr int QuoteCancelType_CANCEL_FOR_SYMBOL = 1;
+	constexpr int QuoteCancelType_CANCEL_FOR_SECURITY_TYPE = 2;
+	constexpr int QuoteCancelType_CANCEL_FOR_UNDERLYING_SYMBOL = 3;
+	constexpr int QuoteCancelType_CANCEL_ALL_QUOTES = 4;
+	constexpr int QuoteRejectReason_UNKNOWN_SYMBOL = 1;
+	constexpr int QuoteRejectReason_EXCHANGE_CLOSED = 2;
+	constexpr int QuoteRejectReason_QUOTE_REQUEST_EXCEEDS_LIMIT = 3;
+	constexpr int QuoteRejectReason_TOO_LATE_TO_ENTER = 4;
+	constexpr int QuoteRejectReason_UNKNOWN_QUOTE = 5;
+	constexpr int QuoteRejectReason_DUPLICATE_QUOTE = 6;
+	constexpr int QuoteRejectReason_INVALID_BID_ASK_SPREAD = 7;
+	constexpr int QuoteRejectReason_INVALID_PRICE = 8;
+	constexpr int QuoteRejectReason_NOT_AUTHORIZED_TO_QUOTE_SECURITY = 9;
+	constexpr int QuoteRejectReason_OTHER = 99;
+	constexpr int QuoteResponseLevel_NO_ACKNOWLEDGEMENT = 0;
+	constexpr int QuoteResponseLevel_ACKNOWLEDGE_ONLY_NEGATIVE_OR_ERRONEOUS_QUOTES = 1;
+	constexpr int QuoteResponseLevel_ACKNOWLEDGE_EACH_QUOTE_MESSAGES = 2;
+	constexpr int QuoteRequestType_MANUAL = 1;
+	constexpr int QuoteRequestType_AUTOMATIC = 2;
+	constexpr int UnderlyingPutOrCall_PUT = 0;
+	constexpr int UnderlyingPutOrCall_CALL = 1;
+	constexpr int SecurityRequestType_REQUEST_SECURITY_IDENTITY_AND_SPECIFICATIONS = 0;
+	constexpr int SecurityRequestType_REQUEST_SECURITY_IDENTITY_FOR_THE_SPECIFICATIONS_PROVIDED = 1;
+	constexpr int SecurityRequestType_REQUEST_LIST_SECURITY_TYPES = 2;
+	constexpr int SecurityRequestType_REQUEST_LIST_SECURITIES = 3;
+	constexpr int SecurityResponseType_ACCEPT_SECURITY_PROPOSAL_AS_IS = 1;
+	constexpr int SecurityResponseType_ACCEPT_SECURITY_PROPOSAL_WITH_REVISIONS_AS_INDICATED_IN_THE_MESSAGE = 2;
+	constexpr int SecurityResponseType_LIST_OF_SECURITY_TYPES_RETURNED_PER_REQUEST = 3;
+	constexpr int SecurityResponseType_LIST_OF_SECURITIES_RETURNED_PER_REQUEST = 4;
+	constexpr int SecurityResponseType_REJECT_SECURITY_PROPOSAL = 5;
+	constexpr int SecurityResponseType_CAN_NOT_MATCH_SELECTION_CRITERIA = 6;
+	constexpr int SecurityTradingStatus_OPENING_DELAY = 1;
+	constexpr int SecurityTradingStatus_TRADING_HALT = 2;
+	constexpr int SecurityTradingStatus_RESUME = 3;
+	constexpr int SecurityTradingStatus_NO_OPEN_NO_RESUME = 4;
+	constexpr int SecurityTradingStatus_PRICE_INDICATION = 5;
+	constexpr int SecurityTradingStatus_TRADING_RANGE_INDICATION = 6;
+	constexpr int SecurityTradingStatus_MARKET_IMBALANCE_BUY = 7;
+	constexpr int SecurityTradingStatus_MARKET_IMBALANCE_SELL = 8;
+	constexpr int SecurityTradingStatus_MARKET_ON_CLOSE_IMBALANCE_BUY = 9;
+	constexpr int SecurityTradingStatus_MARKET_ON_CLOSE_IMBALANCE_SELL = 10;
+	constexpr int SecurityTradingStatus_NOT_ASSIGNED = 11;
+	constexpr int SecurityTradingStatus_NO_MARKET_IMBALANCE = 12;
+	constexpr int SecurityTradingStatus_NO_MARKET_ON_CLOSE_IMBALANCE = 13;
+	constexpr int SecurityTradingStatus_ITS_PRE_OPENING = 14;
+	constexpr int SecurityTradingStatus_NEW_PRICE_INDICATION = 15;
+	constexpr int SecurityTradingStatus_TRADE_DISSEMINATION_TIME = 16;
+	constexpr int SecurityTradingStatus_READY_TO_TRADE_START_OF_SESSION = 17;
+	constexpr int SecurityTradingStatus_NOT_AVAILABLE_FOR_TRADING_END_OF_SESSION = 18;
+	constexpr int SecurityTradingStatus_NOT_TRADED_ON_THIS_MARKET = 19;
+	constexpr int SecurityTradingStatus_UNKNOWN_OR_INVALID = 20;
+	constexpr int SecurityTradingStatus_PRE_OPEN = 21;
+	constexpr int SecurityTradingStatus_OPENING_ROTATION = 22;
+	constexpr int SecurityTradingStatus_FAST_MARKET = 23;
+	constexpr char HaltReason_ORDER_IMBALANCE = 'I';
+	constexpr char HaltReason_EQUIPMENT_CHANGEOVER = 'X';
+	constexpr char HaltReason_NEWS_PENDING = 'P';
+	constexpr char HaltReason_NEWS_DISSEMINATION = 'D';
+	constexpr char HaltReason_ORDER_INFLUX = 'E';
+	constexpr char HaltReason_ADDITIONAL_INFORMATION = 'M';
+	constexpr int Adjustment_CANCEL = 1;
+	constexpr int Adjustment_ERROR = 2;
+	constexpr int Adjustment_CORRECTION = 3;
+	constexpr int TradSesMethod_ELECTRONIC = 1;
+	constexpr int TradSesMethod_OPEN_OUTCRY = 2;
+	constexpr int TradSesMethod_TWO_PARTY = 3;
+	constexpr int TradSesMode_TESTING = 1;
+	constexpr int TradSesMode_SIMULATED = 2;
+	constexpr int TradSesMode_PRODUCTION = 3;
+	constexpr int TradSesStatus_UNKNOWN = 0;
+	constexpr int TradSesStatus_HALTED = 1;
+	constexpr int TradSesStatus_OPEN = 2;
+	constexpr int TradSesStatus_CLOSED = 3;
+	constexpr int TradSesStatus_PRE_OPEN = 4;
+	constexpr int TradSesStatus_PRE_CLOSE = 5;
+	constexpr int TradSesStatus_REQUEST_REJECTED = 6;
+	constexpr int QuoteEntryRejectReason_UNKNOWN_SYMBOL = 1;
+	constexpr int QuoteEntryRejectReason_EXCHANGE_CLOSED = 2;
+	constexpr int QuoteEntryRejectReason_QUOTE_EXCEEDS_LIMIT = 3;
+	constexpr int QuoteEntryRejectReason_TOO_LATE_TO_ENTER = 4;
+	constexpr int QuoteEntryRejectReason_UNKNOWN_QUOTE = 5;
+	constexpr int QuoteEntryRejectReason_DUPLICATE_QUOTE = 6;
+	constexpr int QuoteEntryRejectReason_INVALID_BID_ASK_SPREAD = 7;
+	constexpr int QuoteEntryRejectReason_INVALID_PRICE = 8;
+	constexpr int QuoteEntryRejectReason_NOT_AUTHORIZED_TO_QUOTE_SECURITY = 9;
+	constexpr int SessionRejectReason_INVALID_TAG_NUMBER = 0;
+	constexpr int SessionRejectReason_REQUIRED_TAG_MISSING = 1;
+	constexpr int SessionRejectReason_TAG_NOT_DEFINED_FOR_THIS_MESSAGE_TYPE = 2;
+	constexpr int SessionRejectReason_UNDEFINED_TAG = 3;
+	constexpr int SessionRejectReason_TAG_SPECIFIED_WITHOUT_A_VALUE = 4;
+	constexpr int SessionRejectReason_VALUE_IS_INCORRECT = 5;
+	constexpr int SessionRejectReason_INCORRECT_DATA_FORMAT_FOR_VALUE = 6;
+	constexpr int SessionRejectReason_DECRYPTION_PROBLEM = 7;
+	constexpr int SessionRejectReason_SIGNATURE_PROBLEM = 8;
+	constexpr int SessionRejectReason_COMPID_PROBLEM = 9;
+	constexpr int SessionRejectReason_SENDINGTIME_ACCURACY_PROBLEM = 10;
+	constexpr int SessionRejectReason_INVALID_MSGTYPE = 11;
+	constexpr int SessionRejectReason_XML_VALIDATION_ERROR = 12;
+	constexpr int SessionRejectReason_TAG_APPEARS_MORE_THAN_ONCE = 13;
+	constexpr int SessionRejectReason_TAG_SPECIFIED_OUT_OF_REQUIRED_ORDER = 14;
+	constexpr int SessionRejectReason_REPEATING_GROUP_FIELDS_OUT_OF_ORDER = 15;
+	constexpr int SessionRejectReason_INCORRECT_NUMINGROUP_COUNT_FOR_REPEATING_GROUP = 16;
+	constexpr int SessionRejectReason_NON_DATA_VALUE_INCLUDES_FIELD_DELIMITER = 17;
+	constexpr int SessionRejectReason_OTHER = 99;
+	constexpr char BidRequestTransType_NEW = 'N';
+	constexpr char BidRequestTransType_CANCEL = 'C';
+	constexpr int ExecRestatementReason_GT_CORPORATE_ACTION = 0;
+	constexpr int ExecRestatementReason_GT_RENEWAL_RESTATEMENT = 1;
+	constexpr int ExecRestatementReason_VERBAL_CHANGE = 2;
+	constexpr int ExecRestatementReason_REPRICING_OF_ORDER = 3;
+	constexpr int ExecRestatementReason_BROKER_OPTION = 4;
+	constexpr int ExecRestatementReason_PARTIAL_DECLINE_OF_ORDERQTY = 5;
+	constexpr int ExecRestatementReason_CANCEL_ON_TRADING_HALT = 6;
+	constexpr int ExecRestatementReason_CANCEL_ON_SYSTEM_FAILURE = 7;
+	constexpr int ExecRestatementReason_MARKET_OPTION = 8;
+	constexpr int ExecRestatementReason_CANCELED_NOT_BEST = 9;
+	constexpr int ExecRestatementReason_WAREHOUSE_RECAP = 10;
+	constexpr int ExecRestatementReason_OTHER = 99;
+	constexpr int BusinessRejectReason_OTHER = 0;
+	constexpr int BusinessRejectReason_UNKOWN_ID = 1;
+	constexpr int BusinessRejectReason_UNKNOWN_SECURITY = 2;
+	constexpr int BusinessRejectReason_UNSUPPORTED_MESSAGE_TYPE = 3;
+	constexpr int BusinessRejectReason_APPLICATION_NOT_AVAILABLE = 4;
+	constexpr int BusinessRejectReason_CONDITIONALLY_REQUIRED_FIELD_MISSING = 5;
+	constexpr int BusinessRejectReason_NOT_AUTHORIZED = 6;
+	constexpr int BusinessRejectReason_DELIVERTO_FIRM_NOT_AVAILABLE_AT_THIS_TIME = 7;
+	constexpr char MsgDirection_SEND = 'S';
+	constexpr char MsgDirection_RECEIVE = 'R';
+	constexpr char DiscretionInst_RELATED_TO_DISPLAYED_PRICE = '0';
+	constexpr char DiscretionInst_RELATED_TO_MARKET_PRICE = '1';
+	constexpr char DiscretionInst_RELATED_TO_PRIMARY_PRICE = '2';
+	constexpr char DiscretionInst_RELATED_TO_LOCAL_PRIMARY_PRICE = '3';
+	constexpr char DiscretionInst_RELATED_TO_MIDPOINT_PRICE = '4';
+	constexpr char DiscretionInst_RELATED_TO_LAST_TRADE_PRICE = '5';
+	constexpr char DiscretionInst_RELATED_TO_VWAP = '6';
+	constexpr int BidType_NON_DISCLOSED = 1;
+	constexpr int BidType_DISCLOSED_STYLE = 2;
+	constexpr int BidType_NO_BIDDING_PROCESS = 3;
+	constexpr int BidDescriptorType_SECTOR = 1;
+	constexpr int BidDescriptorType_COUNTRY = 2;
+	constexpr int BidDescriptorType_INDEX = 3;
+	constexpr int SideValueInd_SIDEVALUE1 = 1;
+	constexpr int SideValueInd_SIDEVALUE2 = 2;
+	constexpr int LiquidityIndType_FIVEDAY_MOVING_AVERAGE = 1;
+	constexpr int LiquidityIndType_TWENTYDAY_MOVING_AVERAGE = 2;
+	constexpr int LiquidityIndType_NORMAL_MARKET_SIZE = 3;
+	constexpr int LiquidityIndType_OTHER = 4;
+	constexpr int ProgRptReqs_BUYSIDE_EXPLICITLY_REQUESTS_STATUS_USING_STATUSREQUEST = 1;
+	constexpr int ProgRptReqs_SELLSIDE_PERIODICALLY_SENDS_STATUS_USING_LISTSTATUS = 2;
+	constexpr int ProgRptReqs_REAL_TIME_EXECUTION_REPORTS = 3;
+	constexpr int IncTaxInd_NET = 1;
+	constexpr int IncTaxInd_GROSS = 2;
+	constexpr char BidTradeType_RISK_TRADE = 'R';
+	constexpr char BidTradeType_VWAP_GUARANTEE = 'G';
+	constexpr char BidTradeType_AGENCY = 'A';
+	constexpr char BidTradeType_GUARANTEED_CLOSE = 'J';
+	constexpr char BasisPxType_CLOSING_PRICE_AT_MORNING_SESSION = '2';
+	constexpr char BasisPxType_CLOSING_PRICE = '3';
+	constexpr char BasisPxType_CURRENT_PRICE = '4';
+	constexpr char BasisPxType_SQ = '5';
+	constexpr char BasisPxType_VWAP_THROUGH_A_DAY = '6';
+	constexpr char BasisPxType_VWAP_THROUGH_A_MORNING_SESSION = '7';
+	constexpr char BasisPxType_VWAP_THROUGH_AN_AFTERNOON_SESSION = '8';
+	constexpr char BasisPxType_VWAP_THROUGH_A_DAY_EXCEPT_YORI = '9';
+	constexpr char BasisPxType_VWAP_THROUGH_A_MORNING_SESSION_EXCEPT_YORI = 'A';
+	constexpr char BasisPxType_VWAP_THROUGH_AN_AFTERNOON_SESSION_EXCEPT_YORI = 'B';
+	constexpr char BasisPxType_STRIKE = 'C';
+	constexpr char BasisPxType_OPEN = 'D';
+	constexpr char BasisPxType_OTHERS = 'Z';
+	constexpr int PriceType_PERCENTAGE = 1;
+	constexpr int PriceType_PER_UNIT = 2;
+	constexpr int PriceType_FIXED_AMOUNT = 3;
+	constexpr int PriceType_DISCOUNT = 4;
+	constexpr int PriceType_PREMIUM = 5;
+	constexpr int PriceType_SPREAD = 6;
+	constexpr int PriceType_TED_PRICE = 7;
+	constexpr int PriceType_TED_YIELD = 8;
+	constexpr int PriceType_YIELD = 9;
+	constexpr int PriceType_FIXED_CABINET_TRADE_PRICE = 10;
+	constexpr int PriceType_VARIABLE_CABINET_TRADE_PRICE = 11;
+	constexpr int GTBookingInst_BOOK_OUT_ALL_TRADES_ON_DAY_OF_EXECUTION = 0;
+	constexpr int GTBookingInst_ACCUMULATE_EXECUTIONS_UNTIL_ORDER_IS_FILLED_OR_EXPIRES = 1;
+	constexpr int GTBookingInst_ACCUMULATE_UNTIL_VERBALLY_NOTIFIED_OTHERWISE = 2;
+	constexpr int ListStatusType_ACK = 1;
+	constexpr int ListStatusType_RESPONSE = 2;
+	constexpr int ListStatusType_TIMED = 3;
+	constexpr int ListStatusType_EXECSTARTED = 4;
+	constexpr int ListStatusType_ALLDONE = 5;
+	constexpr int ListStatusType_ALERT = 6;
+	constexpr int NetGrossInd_NET = 1;
+	constexpr int NetGrossInd_GROSS = 2;
+	constexpr int ListOrderStatus_INBIDDINGPROCESS = 1;
+	constexpr int ListOrderStatus_RECEIVEDFOREXECUTION = 2;
+	constexpr int ListOrderStatus_EXECUTING = 3;
+	constexpr int ListOrderStatus_CANCELING = 4;
+	constexpr int ListOrderStatus_ALERT = 5;
+	constexpr int ListOrderStatus_ALL_DONE = 6;
+	constexpr int ListOrderStatus_REJECT = 7;
+	constexpr char ListExecInstType_IMMEDIATE = '1';
+	constexpr char ListExecInstType_WAIT_FOR_EXECUTE_INSTRUCTION = '2';
+	constexpr char ListExecInstType_EXCHANGE_SWITCH_CIV_ORDER_SELL_DRIVEN = '3';
+	constexpr char ListExecInstType_EXCHANGE_SWITCH_CIV_ORDER_BUY_DRIVEN_CASH_TOP_UP = '4';
+	constexpr char ListExecInstType_EXCHANGE_SWITCH_CIV_ORDER_BUY_DRIVEN_CASH_WITHDRAW = '5';
+	constexpr char CxlRejResponseTo_ORDER_CANCEL_REQUEST = '1';
+	constexpr char CxlRejResponseTo_ORDER_CANCEL_REPLACE_REQUEST = '2';
+	constexpr char MultiLegReportingType_SINGLE_SECURITY = '1';
+	constexpr char MultiLegReportingType_INDIVIDUAL_LEG_OF_A_MULTI_LEG_SECURITY = '2';
+	constexpr char MultiLegReportingType_MULTI_LEG_SECURITY = '3';
+	constexpr char PartyIDSource_BIC = 'B';
+	constexpr char PartyIDSource_GENERALLY_ACCEPTED_MARKET_PARTICIPANT_IDENTIFIER = 'C';
+	constexpr char PartyIDSource_PROPRIETARY_CUSTOM_CODE = 'D';
+	constexpr char PartyIDSource_ISO_COUNTRY_CODE = 'E';
+	constexpr char PartyIDSource_SETTLEMENT_ENTITY_LOCATION = 'F';
+	constexpr char PartyIDSource_MIC = 'G';
+	constexpr char PartyIDSource_CSD_PARTICIPANT_MEMBER_CODE = 'H';
+	constexpr char PartyIDSource_KOREAN_INVESTOR_ID = '1';
+	constexpr char PartyIDSource_TAIWANESE_QUALIFIED_FOREIGN_INVESTOR_ID_QFII_FID = '2';
+	constexpr char PartyIDSource_TAIWANESE_TRADING_ACCOUNT = '3';
+	constexpr char PartyIDSource_MALAYSIAN_CENTRAL_DEPOSITORY_NUMBER = '4';
+	constexpr char PartyIDSource_CHINESE_B_SHARE = '5';
+	constexpr char PartyIDSource_UK_NATIONAL_INSURANCE_OR_PENSION_NUMBER = '6';
+	constexpr char PartyIDSource_US_SOCIAL_SECURITY_NUMBER = '7';
+	constexpr char PartyIDSource_US_EMPLOYER_IDENTIFICATION_NUMBER = '8';
+	constexpr char PartyIDSource_AUSTRALIAN_BUSINESS_NUMBER = '9';
+	constexpr char PartyIDSource_AUSTRALIAN_TAX_FILE_NUMBER = 'A';
+	constexpr char PartyIDSource_DIRECTED_BROKER = 'I';
+	constexpr int PartyRole_EXECUTING_FIRM = 1;
+	constexpr int PartyRole_BROKER_OF_CREDIT = 2;
+	constexpr int PartyRole_CLIENT_ID = 3;
+	constexpr int PartyRole_CLEARING_FIRM = 4;
+	constexpr int PartyRole_INVESTOR_ID = 5;
+	constexpr int PartyRole_INTRODUCING_FIRM = 6;
+	constexpr int PartyRole_ENTERING_FIRM = 7;
+	constexpr int PartyRole_LOCATE_LENDING_FIRM = 8;
+	constexpr int PartyRole_FUND_MANAGER_CLIENT_ID = 9;
+	constexpr int PartyRole_SETTLEMENT_LOCATION = 10;
+	constexpr int PartyRole_ORDER_ORIGINATION_TRADER = 11;
+	constexpr int PartyRole_EXECUTING_TRADER = 12;
+	constexpr int PartyRole_ORDER_ORIGINATION_FIRM = 13;
+	constexpr int PartyRole_GIVEUP_CLEARING_FIRM = 14;
+	constexpr int PartyRole_CORRESPONDANT_CLEARING_FIRM = 15;
+	constexpr int PartyRole_EXECUTING_SYSTEM = 16;
+	constexpr int PartyRole_CONTRA_FIRM = 17;
+	constexpr int PartyRole_CONTRA_CLEARING_FIRM = 18;
+	constexpr int PartyRole_SPONSORING_FIRM = 19;
+	constexpr int PartyRole_UNDERLYING_CONTRA_FIRM = 20;
+	constexpr int PartyRole_CLEARING_ORGANIZATION = 21;
+	constexpr int PartyRole_EXCHANGE = 22;
+	constexpr int PartyRole_CUSTOMER_ACCOUNT = 24;
+	constexpr int PartyRole_CORRESPONDENT_CLEARING_ORGANIZATION = 25;
+	constexpr int PartyRole_CORRESPONDENT_BROKER = 26;
+	constexpr int PartyRole_BUYER_SELLER = 27;
+	constexpr int PartyRole_CUSTODIAN = 28;
+	constexpr int PartyRole_INTERMEDIARY = 29;
+	constexpr int PartyRole_AGENT = 30;
+	constexpr int PartyRole_SUB_CUSTODIAN = 31;
+	constexpr int PartyRole_BENEFICIARY = 32;
+	constexpr int PartyRole_INTERESTED_PARTY = 33;
+	constexpr int PartyRole_REGULATORY_BODY = 34;
+	constexpr int PartyRole_LIQUIDITY_PROVIDER = 35;
+	constexpr int PartyRole_ENTERING_TRADER = 36;
+	constexpr int PartyRole_CONTRA_TRADER = 37;
+	constexpr int PartyRole_POSITION_ACCOUNT = 38;
+	constexpr int Product_AGENCY = 1;
+	constexpr int Product_COMMODITY = 2;
+	constexpr int Product_CORPORATE = 3;
+	constexpr int Product_CURRENCY = 4;
+	constexpr int Product_EQUITY = 5;
+	constexpr int Product_GOVERNMENT = 6;
+	constexpr int Product_INDEX = 7;
+	constexpr int Product_LOAN = 8;
+	constexpr int Product_MONEYMARKET = 9;
+	constexpr int Product_MORTGAGE = 10;
+	constexpr int Product_MUNICIPAL = 11;
+	constexpr int Product_OTHER = 12;
+	constexpr int Product_FINANCING = 13;
+	constexpr int QuantityType_SHARES = 1;
+	constexpr int QuantityType_BONDS = 2;
+	constexpr int QuantityType_CURRENTFACE = 3;
+	constexpr int QuantityType_ORIGINALFACE = 4;
+	constexpr int QuantityType_CURRENCY = 5;
+	constexpr int QuantityType_CONTRACTS = 6;
+	constexpr int QuantityType_OTHER = 7;
+	constexpr int QuantityType_PAR = 8;
+	constexpr char RoundingDirection_ROUND_TO_NEAREST = '0';
+	constexpr char RoundingDirection_ROUND_DOWN = '1';
+	constexpr char RoundingDirection_ROUND_UP = '2';
+	constexpr int DistribPaymentMethod_CREST = 1;
+	constexpr int DistribPaymentMethod_NSCC = 2;
+	constexpr int DistribPaymentMethod_EUROCLEAR = 3;
+	constexpr int DistribPaymentMethod_CLEARSTREAM = 4;
+	constexpr int DistribPaymentMethod_CHEQUE = 5;
+	constexpr int DistribPaymentMethod_TELEGRAPHIC_TRANSFER = 6;
+	constexpr int DistribPaymentMethod_FEDWIRE = 7;
+	constexpr int DistribPaymentMethod_DIRECT_CREDIT = 8;
+	constexpr int DistribPaymentMethod_ACH_CREDIT = 9;
+	constexpr int DistribPaymentMethod_BPAY = 10;
+	constexpr int DistribPaymentMethod_HIGH_VALUE_CLEARING_SYSTEM = 11;
+	constexpr int DistribPaymentMethod_REINVEST_IN_FUND = 12;
+	constexpr char CancellationRights_YES = 'Y';
+	constexpr char CancellationRights_NO_EXECUTION_ONLY = 'N';
+	constexpr char CancellationRights_NO_WAIVER_AGREEMENT = 'M';
+	constexpr char CancellationRights_NO_INSTITUTIONAL = 'O';
+	constexpr char MoneyLaunderingStatus_PASSED = 'Y';
+	constexpr char MoneyLaunderingStatus_NOT_CHECKED = 'N';
+	constexpr char MoneyLaunderingStatus_EXEMPT_BELOW_THE_LIMIT = '1';
+	constexpr char MoneyLaunderingStatus_EXEMPT_CLIENT_MONEY_TYPE_EXEMPTION = '2';
+	constexpr char MoneyLaunderingStatus_EXEMPT_AUTHORISED_CREDIT_OR_FINANCIAL_INSTITUTION = '3';
+	constexpr char ExecPriceType_BID_PRICE = 'B';
+	constexpr char ExecPriceType_CREATION_PRICE = 'C';
+	constexpr char ExecPriceType_CREATION_PRICE_PLUS_ADJUSTMENT_PERCENT = 'D';
+	constexpr char ExecPriceType_CREATION_PRICE_PLUS_ADJUSTMENT_AMOUNT = 'E';
+	constexpr char ExecPriceType_OFFER_PRICE = 'O';
+	constexpr char ExecPriceType_OFFER_PRICE_MINUS_ADJUSTMENT_PERCENT = 'P';
+	constexpr char ExecPriceType_OFFER_PRICE_MINUS_ADJUSTMENT_AMOUNT = 'Q';
+	constexpr char ExecPriceType_SINGLE_PRICE = 'S';
+	constexpr int TradeReportTransType_NEW = 0;
+	constexpr int TradeReportTransType_CANCEL = 1;
+	constexpr int TradeReportTransType_REPLACE = 2;
+	constexpr int TradeReportTransType_RELEASE = 3;
+	constexpr int TradeReportTransType_REVERSE = 4;
+	constexpr int PaymentMethod_CREST = 1;
+	constexpr int PaymentMethod_NSCC = 2;
+	constexpr int PaymentMethod_EUROCLEAR = 3;
+	constexpr int PaymentMethod_CLEARSTREAM = 4;
+	constexpr int PaymentMethod_CHEQUE = 5;
+	constexpr int PaymentMethod_TELEGRAPHIC_TRANSFER = 6;
+	constexpr int PaymentMethod_FEDWIRE = 7;
+	constexpr int PaymentMethod_DEBIT_CARD = 8;
+	constexpr int PaymentMethod_DIRECT_DEBIT = 9;
+	constexpr int PaymentMethod_DIRECT_CREDIT = 10;
+	constexpr int PaymentMethod_CREDIT_CARD = 11;
+	constexpr int PaymentMethod_ACH_DEBIT = 12;
+	constexpr int PaymentMethod_ACH_CREDIT = 13;
+	constexpr int PaymentMethod_BPAY = 14;
+	constexpr int PaymentMethod_HIGH_VALUE_CLEARING_SYSTEM = 15;
+	constexpr int TaxAdvantageType_NONE = 0;
+	constexpr int TaxAdvantageType_MAXI_ISA = 1;
+	constexpr int TaxAdvantageType_TESSA = 2;
+	constexpr int TaxAdvantageType_MINI_CASH_ISA = 3;
+	constexpr int TaxAdvantageType_MINI_STOCKS_AND_SHARES_ISA = 4;
+	constexpr int TaxAdvantageType_MINI_INSURANCE_ISA = 5;
+	constexpr int TaxAdvantageType_CURRENT_YEAR_PAYMENT = 6;
+	constexpr int TaxAdvantageType_PRIOR_YEAR_PAYMENT = 7;
+	constexpr int TaxAdvantageType_ASSET_TRANSFER = 8;
+	constexpr int TaxAdvantageType_EMPLOYEE_PRIOR_YEAR = 9;
+	constexpr int TaxAdvantageType_OTHER = 999;
+	constexpr char FundRenewWaiv_YES = 'Y';
+	constexpr char FundRenewWaiv_NO = 'N';
+	constexpr char RegistStatus_ACCEPTED = 'A';
+	constexpr char RegistStatus_REJECTED = 'R';
+	constexpr char RegistStatus_HELD = 'H';
+	constexpr char RegistStatus_REMINDER = 'N';
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_ACCOUNT_TYPE = 1;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_TAX_EXEMPT_TYPE = 2;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_OWNERSHIP_TYPE = 3;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_NO_REG_DETLS = 4;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_REG_SEQ_NO = 5;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_REG_DTLS = 6;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_MAILING_DTLS = 7;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_MAILING_INST = 8;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_INVESTOR_ID = 9;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_INVESTOR_ID_SOURCE = 10;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_DATE_OF_BIRTH = 11;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_INVESTOR_COUNTRY_OF_RESIDENCE = 12;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_NODISTRIBINSTNS = 13;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_DISTRIB_PERCENTAGE = 14;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_DISTRIB_PAYMENT_METHOD = 15;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_CASH_DISTRIB_AGENT_ACCT_NAME = 16;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_CASH_DISTRIB_AGENT_CODE = 17;
+	constexpr int RegistRejReasonCode_INVALID_UNACCEPTABLE_CASH_DISTRIB_AGENT_ACCT_NUM = 18;
+	constexpr int RegistRejReasonCode_OTHER = 99;
+	constexpr char RegistTransType_NEW = '0';
+	constexpr char RegistTransType_REPLACE = '1';
+	constexpr char RegistTransType_CANCEL = '2';
+	constexpr char OwnershipType_JOINT_INVESTORS = 'J';
+	constexpr char OwnershipType_TENANTS_IN_COMMON = 'T';
+	constexpr char OwnershipType_JOINT_TRUSTEES = '2';
+	constexpr int ContAmtType_COMMISSION_AMOUNT = 1;
+	constexpr int ContAmtType_COMMISSION_PERCENT = 2;
+	constexpr int ContAmtType_INITIAL_CHARGE_AMOUNT = 3;
+	constexpr int ContAmtType_INITIAL_CHARGE_PERCENT = 4;
+	constexpr int ContAmtType_DISCOUNT_AMOUNT = 5;
+	constexpr int ContAmtType_DISCOUNT_PERCENT = 6;
+	constexpr int ContAmtType_DILUTION_LEVY_AMOUNT = 7;
+	constexpr int ContAmtType_DILUTION_LEVY_PERCENT = 8;
+	constexpr int ContAmtType_EXIT_CHARGE_AMOUNT = 9;
+	constexpr int OwnerType_INDIVIDUAL_INVESTOR = 1;
+	constexpr int OwnerType_PUBLIC_COMPANY = 2;
+	constexpr int OwnerType_PRIVATE_COMPANY = 3;
+	constexpr int OwnerType_INDIVIDUAL_TRUSTEE = 4;
+	constexpr int OwnerType_COMPANY_TRUSTEE = 5;
+	constexpr int OwnerType_PENSION_PLAN = 6;
+	constexpr int OwnerType_CUSTODIAN_UNDER_GIFTS_TO_MINORS_ACT = 7;
+	constexpr int OwnerType_TRUSTS = 8;
+	constexpr int OwnerType_FIDUCIARIES = 9;
+	constexpr int OwnerType_NETWORKING_SUB_ACCOUNT = 10;
+	constexpr int OwnerType_NON_PROFIT_ORGANIZATION = 11;
+	constexpr int OwnerType_CORPORATE_BODY = 12;
+	constexpr int OwnerType_NOMINEE = 13;
+	constexpr char OrderCapacity_AGENCY = 'A';
+	constexpr char OrderCapacity_PROPRIETARY = 'G';
+	constexpr char OrderCapacity_INDIVIDUAL = 'I';
+	constexpr char OrderCapacity_PRINCIPAL = 'P';
+	constexpr char OrderCapacity_RISKLESS_PRINCIPAL = 'R';
+	constexpr char OrderCapacity_AGENT_FOR_OTHER_MEMBER = 'W';
+	constexpr char MassCancelRequestType_CANCEL_ORDERS_FOR_A_SECURITY = '1';
+	constexpr char MassCancelRequestType_CANCEL_ORDERS_FOR_AN_UNDERLYING_SECURITY = '2';
+	constexpr char MassCancelRequestType_CANCEL_ORDERS_FOR_A_PRODUCT = '3';
+	constexpr char MassCancelRequestType_CANCEL_ORDERS_FOR_A_CFICODE = '4';
+	constexpr char MassCancelRequestType_CANCEL_ORDERS_FOR_A_SECURITYTYPE = '5';
+	constexpr char MassCancelRequestType_CANCEL_ORDERS_FOR_A_TRADING_SESSION = '6';
+	constexpr char MassCancelRequestType_CANCEL_ALL_ORDERS = '7';
+	constexpr char MassCancelResponse_CANCEL_REQUEST_REJECTED = '0';
+	constexpr char MassCancelResponse_CANCEL_ORDERS_FOR_A_SECURITY = '1';
+	constexpr char MassCancelResponse_CANCEL_ORDERS_FOR_AN_UNDERLYING_SECURITY = '2';
+	constexpr char MassCancelResponse_CANCEL_ORDERS_FOR_A_PRODUCT = '3';
+	constexpr char MassCancelResponse_CANCEL_ORDERS_FOR_A_CFICODE = '4';
+	constexpr char MassCancelResponse_CANCEL_ORDERS_FOR_A_SECURITYTYPE = '5';
+	constexpr char MassCancelResponse_CANCEL_ORDERS_FOR_A_TRADING_SESSION = '6';
+	constexpr char MassCancelResponse_CANCEL_ALL_ORDERS = '7';
+	constexpr char MassCancelRejectReason_MASS_CANCEL_NOT_SUPPORTED = '0';
+	constexpr char MassCancelRejectReason_INVALID_OR_UNKNOWN_SECURITY = '1';
+	constexpr char MassCancelRejectReason_INVALID_OR_UNKNOWN_UNDERLYING = '2';
+	constexpr char MassCancelRejectReason_INVALID_OR_UNKNOWN_PRODUCT = '3';
+	constexpr char MassCancelRejectReason_INVALID_OR_UNKNOWN_CFICODE = '4';
+	constexpr char MassCancelRejectReason_INVALID_OR_UNKNOWN_SECURITY_TYPE = '5';
+	constexpr char MassCancelRejectReason_INVALID_OR_UNKNOWN_TRADING_SESSION = '6';
+	constexpr char MassCancelRejectReason_OTHER = '99';
+	constexpr int QuoteType_INDICATIVE = 0;
+	constexpr int QuoteType_TRADEABLE = 1;
+	constexpr int QuoteType_RESTRICTED_TRADEABLE = 2;
+	constexpr int QuoteType_COUNTER = 3;
+	constexpr char CashMargin_CASH = '1';
+	constexpr char CashMargin_MARGIN_OPEN = '2';
+	constexpr char CashMargin_MARGIN_CLOSE = '3';
+	constexpr int CrossType_CROSS_TRADE_WHICH_IS_EXECUTED_COMPLETELY_OR_NOT = 1;
+	constexpr int CrossType_CROSS_TRADE_WHICH_IS_EXECUTED_PARTIALLY_AND_THE_REST_IS_CANCELLED = 2;
+	constexpr int CrossType_CROSS_TRADE_WHICH_IS_PARTIALLY_EXECUTED_WITH_THE_UNFILLED_PORTIONS_REMAINING_ACTIVE = 3;
+	constexpr int CrossType_CROSS_TRADE_IS_EXECUTED_WITH_EXISTING_ORDERS_WITH_THE_SAME_PRICE = 4;
+	constexpr int CrossPrioritization_NONE = 0;
+	constexpr int CrossPrioritization_BUY_SIDE_IS_PRIORITIZED = 1;
+	constexpr int CrossPrioritization_SELL_SIDE_IS_PRIORITIZED = 2;
+	constexpr int SecurityListRequestType_SYMBOL = 0;
+	constexpr int SecurityListRequestType_SECURITYTYPE_AND_OR_CFICODE = 1;
+	constexpr int SecurityListRequestType_PRODUCT = 2;
+	constexpr int SecurityListRequestType_TRADINGSESSIONID = 3;
+	constexpr int SecurityListRequestType_ALL_SECURITIES = 4;
+	constexpr int SecurityRequestResult_VALID_REQUEST = 0;
+	constexpr int SecurityRequestResult_INVALID_OR_UNSUPPORTED_REQUEST = 1;
+	constexpr int SecurityRequestResult_NO_INSTRUMENTS_FOUND_THAT_MATCH_SELECTION_CRITERIA = 2;
+	constexpr int SecurityRequestResult_NOT_AUTHORIZED_TO_RETRIEVE_INSTRUMENT_DATA = 3;
+	constexpr int SecurityRequestResult_INSTRUMENT_DATA_TEMPORARILY_UNAVAILABLE = 4;
+	constexpr int SecurityRequestResult_REQUEST_FOR_INSTRUMENT_DATA_NOT_SUPPORTED = 5;
+	constexpr int MultiLegRptTypeReq_REPORT_BY_MULITLEG_SECURITY_ONLY = 0;
+	constexpr int MultiLegRptTypeReq_REPORT_BY_MULTILEG_SECURITY_AND_BY_INSTRUMENT_LEGS_BELONGING_TO_THE_MULTILEG_SECURITY = 1;
+	constexpr int MultiLegRptTypeReq_REPORT_BY_INSTRUMENT_LEGS_BELONGING_TO_THE_MULTILEG_SECURITY_ONLY = 2;
+	constexpr int TradSesStatusRejReason_UNKNOWN_OR_INVALID_TRADINGSESSIONID = 1;
+	constexpr int TradeRequestType_ALL_TRADES = 0;
+	constexpr int TradeRequestType_MATCHED_TRADES_MATCHING_CRITERIA_PROVIDED_ON_REQUEST = 1;
+	constexpr int TradeRequestType_UNMATCHED_TRADES_THAT_MATCH_CRITERIA = 2;
+	constexpr int TradeRequestType_UNREPORTED_TRADES_THAT_MATCH_CRITERIA = 3;
+	constexpr int TradeRequestType_ADVISORIES_THAT_MATCH_CRITERIA = 4;
+	constexpr char MatchStatus_COMPARED_MATCHED_OR_AFFIRMED = '0';
+	constexpr char MatchStatus_UNCOMPARED_UNMATCHED_OR_UNAFFIRMED = '1';
+	constexpr char MatchStatus_ADVISORY_OR_ALERT = '2';
+	constexpr int ClearingInstruction_PROCESS_NORMALLY = 0;
+	constexpr int ClearingInstruction_EXCLUDE_FROM_ALL_NETTING = 1;
+	constexpr int ClearingInstruction_BILATERAL_NETTING_ONLY = 2;
+	constexpr int ClearingInstruction_EX_CLEARING = 3;
+	constexpr int ClearingInstruction_SPECIAL_TRADE = 4;
+	constexpr int ClearingInstruction_MULTILATERAL_NETTING = 5;
+	constexpr int ClearingInstruction_CLEAR_AGAINST_CENTRAL_COUNTERPARTY = 6;
+	constexpr int ClearingInstruction_EXCLUDE_FROM_CENTRAL_COUNTERPARTY = 7;
+	constexpr int ClearingInstruction_MANUAL_MODE = 8;
+	constexpr int ClearingInstruction_AUTOMATIC_POSTING_MODE = 9;
+	constexpr int ClearingInstruction_AUTOMATIC_GIVE_UP_MODE = 10;
+	constexpr int ClearingInstruction_QUALIFIED_SERVICE_REPRESENTATIVE = 11;
+	constexpr int ClearingInstruction_CUSTOMER_TRADE = 12;
+	constexpr int ClearingInstruction_SELF_CLEARING = 13;
+	constexpr int AccountType_ACCOUNT_IS_CARRIED_ON_CUSTOMER_SIDE_OF_BOOKS = 1;
+	constexpr int AccountType_ACCOUNT_IS_CARRIED_ON_NON_CUSTOMER_SIDE_OF_BOOKS = 2;
+	constexpr int AccountType_HOUSE_TRADER = 3;
+	constexpr int AccountType_FLOOR_TRADER = 4;
+	constexpr int AccountType_ACCOUNT_IS_CARRIED_ON_NON_CUSTOMER_SIDE_OF_BOOKS_AND_IS_CROSS_MARGINED = 6;
+	constexpr int AccountType_ACCOUNT_IS_HOUSE_TRADER_AND_IS_CROSS_MARGINED = 7;
+	constexpr int AccountType_JOINT_BACKOFFICE_ACCOUNT = 8;
+	constexpr int CustOrderCapacity_MEMBER_TRADING_FOR_THEIR_OWN_ACCOUNT = 1;
+	constexpr int CustOrderCapacity_CLEARING_FIRM_TRADING_FOR_ITS_PROPRIETARY_ACCOUNT = 2;
+	constexpr int CustOrderCapacity_MEMBER_TRADING_FOR_ANOTHER_MEMBER = 3;
+	constexpr int CustOrderCapacity_ALL_OTHER = 4;
+	constexpr int MassStatusReqType_STATUS_FOR_ORDERS_FOR_A_SECURITY = 1;
+	constexpr int MassStatusReqType_STATUS_FOR_ORDERS_FOR_AN_UNDERLYING_SECURITY = 2;
+	constexpr int MassStatusReqType_STATUS_FOR_ORDERS_FOR_A_PRODUCT = 3;
+	constexpr int MassStatusReqType_STATUS_FOR_ORDERS_FOR_A_CFICODE = 4;
+	constexpr int MassStatusReqType_STATUS_FOR_ORDERS_FOR_A_SECURITYTYPE = 5;
+	constexpr int MassStatusReqType_STATUS_FOR_ORDERS_FOR_A_TRADING_SESSION = 6;
+	constexpr int MassStatusReqType_STATUS_FOR_ALL_ORDERS = 7;
+	constexpr int MassStatusReqType_STATUS_FOR_ORDERS_FOR_A_PARTYID = 8;
+	constexpr char DayBookingInst_CAN_TRIGGER_BOOKING_WITHOUT_REFERENCE_TO_THE_ORDER_INITIATOR = '0';
+	constexpr char DayBookingInst_SPEAK_WITH_ORDER_INITIATOR_BEFORE_BOOKING = '1';
+	constexpr char DayBookingInst_ACCUMULATE = '2';
+	constexpr char BookingUnit_EACH_PARTIAL_EXECUTION_IS_A_BOOKABLE_UNIT = '0';
+	constexpr char BookingUnit_AGGREGATE_PARTIAL_EXECUTIONS_ON_THIS_ORDER_AND_BOOK_ONE_TRADE_PER_ORDER = '1';
+	constexpr char BookingUnit_AGGREGATE_EXECUTIONS_FOR_THIS_SYMBOL_SIDE_AND_SETTLEMENT_DATE = '2';
+	constexpr char PreallocMethod_PRO_RATA = '0';
+	constexpr char PreallocMethod_DO_NOT_PRO_RATA = '1';
+	constexpr int AllocType_CALCULATED = 1;
+	constexpr int AllocType_PRELIMINARY = 2;
+	constexpr int AllocType_READY_TO_BOOK_SINGLE_ORDER = 5;
+	constexpr int AllocType_WAREHOUSE_INSTRUCTION = 7;
+	constexpr int AllocType_REQUEST_TO_INTERMEDIARY = 8;
+	constexpr int PriorityIndicator_PRIORITY_UNCHANGED = 0;
+	constexpr int PriorityIndicator_LOST_PRIORITY_AS_RESULT_OF_ORDER_CHANGE = 1;
+	constexpr int QuoteRequestRejectReason_UNKNOWN_SYMBOL = 1;
+	constexpr int QuoteRequestRejectReason_EXCHANGE_CLOSED = 2;
+	constexpr int QuoteRequestRejectReason_QUOTE_REQUEST_EXCEEDS_LIMIT = 3;
+	constexpr int QuoteRequestRejectReason_TOO_LATE_TO_ENTER = 4;
+	constexpr int QuoteRequestRejectReason_INVALID_PRICE = 5;
+	constexpr int QuoteRequestRejectReason_NOT_AUTHORIZED_TO_REQUEST_QUOTE = 6;
+	constexpr int QuoteRequestRejectReason_NO_MATCH_FOR_INQUIRY = 7;
+	constexpr int QuoteRequestRejectReason_NO_MARKET_FOR_INSTRUMENT = 8;
+	constexpr int QuoteRequestRejectReason_NO_INVENTORY = 9;
+	constexpr int QuoteRequestRejectReason_PASS = 10;
+	constexpr int QuoteRequestRejectReason_OTHER = 99;
+	constexpr int AcctIDSource_BIC = 1;
+	constexpr int AcctIDSource_SID_CODE = 2;
+	constexpr int AcctIDSource_TFM = 3;
+	constexpr int AcctIDSource_OMGEO = 4;
+	constexpr int AcctIDSource_DTCC_CODE = 5;
+	constexpr int AcctIDSource_OTHER = 99;
+	constexpr int ConfirmStatus_RECEIVED = 1;
+	constexpr int ConfirmStatus_MISMATCHED_ACCOUNT = 2;
+	constexpr int ConfirmStatus_MISSING_SETTLEMENT_INSTRUCTIONS = 3;
+	constexpr int ConfirmStatus_CONFIRMED = 4;
+	constexpr int ConfirmStatus_REQUEST_REJECTED = 5;
+	constexpr int ConfirmTransType_NEW = 0;
+	constexpr int ConfirmTransType_REPLACE = 1;
+	constexpr int ConfirmTransType_CANCEL = 2;
+	constexpr int DeliveryForm_BOOKENTRY = 1;
+	constexpr int DeliveryForm_BEARER = 2;
+	constexpr int LegSwapType_PAR_FOR_PAR = 1;
+	constexpr int LegSwapType_MODIFIED_DURATION = 2;
+	constexpr int LegSwapType_RISK = 4;
+	constexpr int LegSwapType_PROCEEDS = 5;
+	constexpr int QuotePriceType_PERCENT = 1;
+	constexpr int QuotePriceType_PER_SHARE = 2;
+	constexpr int QuotePriceType_FIXED_AMOUNT = 3;
+	constexpr int QuotePriceType_DISCOUNT = 4;
+	constexpr int QuotePriceType_PREMIUM = 5;
+	constexpr int QuotePriceType_BASIS_POINTS_RELATIVE_TO_BENCHMARK = 6;
+	constexpr int QuotePriceType_TED_PRICE = 7;
+	constexpr int QuotePriceType_TED_YIELD = 8;
+	constexpr int QuotePriceType_YIELD_SPREAD = 9;
+	constexpr int QuotePriceType_YIELD = 10;
+	constexpr int QuoteRespType_HIT_LIFT = 1;
+	constexpr int QuoteRespType_COUNTER = 2;
+	constexpr int QuoteRespType_EXPIRED = 3;
+	constexpr int QuoteRespType_COVER = 4;
+	constexpr int QuoteRespType_DONE_AWAY = 5;
+	constexpr int QuoteRespType_PASS = 6;
+	constexpr int PosQtyStatus_SUBMITTED = 0;
+	constexpr int PosQtyStatus_ACCEPTED = 1;
+	constexpr int PosQtyStatus_REJECTED = 2;
+	constexpr int PosTransType_EXERCISE = 1;
+	constexpr int PosTransType_DO_NOT_EXERCISE = 2;
+	constexpr int PosTransType_POSITION_ADJUSTMENT = 3;
+	constexpr int PosTransType_POSITION_CHANGE_SUBMISSION_MARGIN_DISPOSITION = 4;
+	constexpr int PosTransType_PLEDGE = 5;
+	constexpr int PosMaintAction_NEW = 1;
+	constexpr int PosMaintAction_REPLACE = 2;
+	constexpr int PosMaintAction_CANCEL = 3;
+	constexpr int AdjustmentType_PROCESS_REQUEST_AS_MARGIN_DISPOSITION = 0;
+	constexpr int AdjustmentType_DELTA_PLUS = 1;
+	constexpr int AdjustmentType_DELTA_MINUS = 2;
+	constexpr int AdjustmentType_FINAL = 3;
+	constexpr int PosMaintStatus_ACCEPTED = 0;
+	constexpr int PosMaintStatus_ACCEPTED_WITH_WARNINGS = 1;
+	constexpr int PosMaintStatus_REJECTED = 2;
+	constexpr int PosMaintStatus_COMPLETED = 3;
+	constexpr int PosMaintStatus_COMPLETED_WITH_WARNINGS = 4;
+	constexpr int PosMaintResult_SUCCESSFUL_COMPLETION_NO_WARNINGS_OR_ERRORS = 0;
+	constexpr int PosMaintResult_REJECTED = 1;
+	constexpr int PosMaintResult_OTHER = 99;
+	constexpr int PosReqType_POSITIONS = 0;
+	constexpr int PosReqType_TRADES = 1;
+	constexpr int PosReqType_EXERCISES = 2;
+	constexpr int PosReqType_ASSIGNMENTS = 3;
+	constexpr int ResponseTransportType_INBAND = 0;
+	constexpr int ResponseTransportType_OUT_OF_BAND = 1;
+	constexpr int PosReqResult_VALID_REQUEST = 0;
+	constexpr int PosReqResult_INVALID_OR_UNSUPPORTED_REQUEST = 1;
+	constexpr int PosReqResult_NO_POSITIONS_FOUND_THAT_MATCH_CRITERIA = 2;
+	constexpr int PosReqResult_NOT_AUTHORIZED_TO_REQUEST_POSITIONS = 3;
+	constexpr int PosReqResult_REQUEST_FOR_POSITION_NOT_SUPPORTED = 4;
+	constexpr int PosReqResult_OTHER = 99;
+	constexpr int PosReqStatus_COMPLETED = 0;
+	constexpr int PosReqStatus_COMPLETED_WITH_WARNINGS = 1;
+	constexpr int PosReqStatus_REJECTED = 2;
+	constexpr int SettlPriceType_FINAL = 1;
+	constexpr int SettlPriceType_THEORETICAL = 2;
+	constexpr char AssignmentMethod_RANDOM = 'R';
+	constexpr char AssignmentMethod_PRORATA = 'P';
+	constexpr char ExerciseMethod_AUTOMATIC = 'A';
+	constexpr char ExerciseMethod_MANUAL = 'M';
+	constexpr int TradeRequestResult_SUCCESSFUL = 0;
+	constexpr int TradeRequestResult_INVALID_OR_UNKNOWN_INSTRUMENT = 1;
+	constexpr int TradeRequestResult_INVALID_TYPE_OF_TRADE_REQUESTED = 2;
+	constexpr int TradeRequestResult_INVALID_PARTIES = 3;
+	constexpr int TradeRequestResult_INVALID_TRANSPORT_TYPE_REQUESTED = 4;
+	constexpr int TradeRequestResult_INVALID_DESTINATION_REQUESTED = 5;
+	constexpr int TradeRequestResult_TRADEREQUESTTYPE_NOT_SUPPORTED = 8;
+	constexpr int TradeRequestResult_UNAUTHORIZED_FOR_TRADE_CAPTURE_REPORT_REQUEST = 9;
+	constexpr int TradeRequestResult_OTHER = 99;
+	constexpr int TradeRequestStatus_ACCEPTED = 0;
+	constexpr int TradeRequestStatus_COMPLETED = 1;
+	constexpr int TradeRequestStatus_REJECTED = 2;
+	constexpr int TradeReportRejectReason_SUCCESSFUL = 0;
+	constexpr int TradeReportRejectReason_INVALID_PARTY_INFORMATION = 1;
+	constexpr int TradeReportRejectReason_UNKNOWN_INSTRUMENT = 2;
+	constexpr int TradeReportRejectReason_UNAUTHORIZED_TO_REPORT_TRADES = 3;
+	constexpr int TradeReportRejectReason_INVALID_TRADE_TYPE = 4;
+	constexpr int TradeReportRejectReason_OTHER = 99;
+	constexpr int SideMultiLegReportingType_SINGLE_SECURITY = 1;
+	constexpr int SideMultiLegReportingType_INDIVIDUAL_LEG_OF_A_MULTI_LEG_SECURITY = 2;
+	constexpr int SideMultiLegReportingType_MULTI_LEG_SECURITY = 3;
+	constexpr int TrdRegTimestampType_EXECUTION_TIME = 1;
+	constexpr int TrdRegTimestampType_TIME_IN = 2;
+	constexpr int TrdRegTimestampType_TIME_OUT = 3;
+	constexpr int TrdRegTimestampType_BROKER_RECEIPT = 4;
+	constexpr int TrdRegTimestampType_BROKER_EXECUTION = 5;
+	constexpr int ConfirmType_STATUS = 1;
+	constexpr int ConfirmType_CONFIRMATION = 2;
+	constexpr int ConfirmType_CONFIRMATION_REQUEST_REJECTED = 3;
+	constexpr int ConfirmRejReason_MISMATCHED_ACCOUNT = 1;
+	constexpr int ConfirmRejReason_MISSING_SETTLEMENT_INSTRUCTIONS = 2;
+	constexpr int ConfirmRejReason_OTHER = 99;
+	constexpr int BookingType_REGULAR_BOOKING = 0;
+	constexpr int BookingType_CFD = 1;
+	constexpr int BookingType_TOTAL_RETURN_SWAP = 2;
+	constexpr int AllocSettlInstType_USE_DEFAULT_INSTRUCTIONS = 0;
+	constexpr int AllocSettlInstType_DERIVE_FROM_PARAMETERS_PROVIDED = 1;
+	constexpr int AllocSettlInstType_FULL_DETAILS_PROVIDED = 2;
+	constexpr int AllocSettlInstType_SSI_DB_IDS_PROVIDED = 3;
+	constexpr int AllocSettlInstType_PHONE_FOR_INSTRUCTIONS = 4;
+	constexpr char DlvyInstType_SECURITIES = 'S';
+	constexpr char DlvyInstType_CASH = 'C';
+	constexpr int TerminationType_OVERNIGHT = 1;
+	constexpr int TerminationType_TERM = 2;
+	constexpr int TerminationType_FLEXIBLE = 3;
+	constexpr int TerminationType_OPEN = 4;
+	constexpr int SettlInstReqRejCode_UNABLE_TO_PROCESS_REQUEST = 0;
+	constexpr int SettlInstReqRejCode_UNKNOWN_ACCOUNT = 1;
+	constexpr int SettlInstReqRejCode_NO_MATCHING_SETTLEMENT_INSTRUCTIONS_FOUND = 2;
+	constexpr int SettlInstReqRejCode_OTHER = 99;
+	constexpr int AllocReportType_SELLSIDE_CALCULATED_USING_PRELIMINARY = 3;
+	constexpr int AllocReportType_SELLSIDE_CALCULATED_WITHOUT_PRELIMINARY = 4;
+	constexpr int AllocReportType_WAREHOUSE_RECAP = 5;
+	constexpr int AllocReportType_REQUEST_TO_INTERMEDIARY = 8;
+	constexpr int AllocCancReplaceReason_ORIGINAL_DETAILS_INCOMPLETE_INCORRECT = 1;
+	constexpr int AllocCancReplaceReason_CHANGE_IN_UNDERLYING_ORDER_DETAILS = 2;
+	constexpr int AllocAccountType_ACCOUNT_IS_CARRIED_ON_CUSTOMER_SIDE_OF_BOOKS = 1;
+	constexpr int AllocAccountType_ACCOUNT_IS_CARRIED_ON_NON_CUSTOMER_SIDE_OF_BOOKS = 2;
+	constexpr int AllocAccountType_HOUSE_TRADER = 3;
+	constexpr int AllocAccountType_FLOOR_TRADER = 4;
+	constexpr int AllocAccountType_ACCOUNT_IS_CARRIED_ON_NON_CUSTOMER_SIDE_OF_BOOKS_AND_IS_CROSS_MARGINED = 6;
+	constexpr int AllocAccountType_ACCOUNT_IS_HOUSE_TRADER_AND_IS_CROSS_MARGINED = 7;
+	constexpr int AllocAccountType_JOINT_BACKOFFICE_ACCOUNT = 8;
+	constexpr int AllocIntermedReqType_PENDING_ACCEPT = 1;
+	constexpr int AllocIntermedReqType_PENDING_RELEASE = 2;
+	constexpr int AllocIntermedReqType_PENDING_REVERSAL = 3;
+	constexpr int AllocIntermedReqType_ACCEPT = 4;
+	constexpr int AllocIntermedReqType_BLOCK_LEVEL_REJECT = 5;
+	constexpr int AllocIntermedReqType_ACCOUNT_LEVEL_REJECT = 6;
+	constexpr int ApplQueueResolution_NO_ACTION_TAKEN = 0;
+	constexpr int ApplQueueResolution_QUEUE_FLUSHED = 1;
+	constexpr int ApplQueueResolution_OVERLAY_LAST = 2;
+	constexpr int ApplQueueResolution_END_SESSION = 3;
+	constexpr int ApplQueueAction_NO_ACTION_TAKEN = 0;
+	constexpr int ApplQueueAction_QUEUE_FLUSHED = 1;
+	constexpr int ApplQueueAction_OVERLAY_LAST = 2;
+	constexpr int ApplQueueAction_END_SESSION = 3;
+	constexpr int AvgPxIndicator_NO_AVERAGE_PRICING = 0;
+	constexpr int AvgPxIndicator_TRADE_IS_PART_OF_AN_AVERAGE_PRICE_GROUP_IDENTIFIED_BY_THE_TRADELINKID = 1;
+	constexpr int AvgPxIndicator_LAST_TRADE_IN_THE_AVERAGE_PRICE_GROUP_IDENTIFIED_BY_THE_TRADELINKID = 2;
+	constexpr int TradeAllocIndicator_ALLOCATION_NOT_REQUIRED = 0;
+	constexpr int TradeAllocIndicator_ALLOCATION_REQUIRED = 1;
+	constexpr int TradeAllocIndicator_USE_ALLOCATION_PROVIDED_WITH_THE_TRADE = 2;
+	constexpr int ExpirationCycle_EXPIRE_ON_TRADING_SESSION_CLOSE = 0;
+	constexpr int ExpirationCycle_EXPIRE_ON_TRADING_SESSION_OPEN = 1;
+	constexpr int TrdType_REGULAR_TRADE = 0;
+	constexpr int TrdType_BLOCK_TRADE = 1;
+	constexpr int TrdType_EFP = 2;
+	constexpr int TrdType_TRANSFER = 3;
+	constexpr int TrdType_LATE_TRADE = 4;
+	constexpr int TrdType_T_TRADE = 5;
+	constexpr int TrdType_WEIGHTED_AVERAGE_PRICE_TRADE = 6;
+	constexpr int TrdType_BUNCHED_TRADE = 7;
+	constexpr int TrdType_LATE_BUNCHED_TRADE = 8;
+	constexpr int TrdType_PRIOR_REFERENCE_PRICE_TRADE = 9;
+	constexpr int TrdType_AFTER_HOURS_TRADE = 10;
+	constexpr int PegMoveType_FLOATING = 0;
+	constexpr int PegMoveType_FIXED = 1;
+	constexpr int PegOffsetType_PRICE = 0;
+	constexpr int PegOffsetType_BASIS_POINTS = 1;
+	constexpr int PegOffsetType_TICKS = 2;
+	constexpr int PegOffsetType_PRICE_TIER_LEVEL = 3;
+	constexpr int PegLimitType_OR_BETTER = 0;
+	constexpr int PegLimitType_STRICT = 1;
+	constexpr int PegLimitType_OR_WORSE = 2;
+	constexpr int PegRoundDirection_MORE_AGGRESSIVE = 1;
+	constexpr int PegRoundDirection_MORE_PASSIVE = 2;
+	constexpr int PegScope_LOCAL = 1;
+	constexpr int PegScope_NATIONAL = 2;
+	constexpr int PegScope_GLOBAL = 3;
+	constexpr int PegScope_NATIONAL_EXCLUDING_LOCAL = 4;
+	constexpr int DiscretionMoveType_FLOATING = 0;
+	constexpr int DiscretionMoveType_FIXED = 1;
+	constexpr int DiscretionOffsetType_PRICE = 0;
+	constexpr int DiscretionOffsetType_BASIS_POINTS = 1;
+	constexpr int DiscretionOffsetType_TICKS = 2;
+	constexpr int DiscretionOffsetType_PRICE_TIER_LEVEL = 3;
+	constexpr int DiscretionLimitType_OR_BETTER = 0;
+	constexpr int DiscretionLimitType_STRICT = 1;
+	constexpr int DiscretionLimitType_OR_WORSE = 2;
+	constexpr int DiscretionRoundDirection_MORE_AGGRESSIVE = 1;
+	constexpr int DiscretionRoundDirection_MORE_PASSIVE = 2;
+	constexpr int DiscretionScope_LOCAL = 1;
+	constexpr int DiscretionScope_NATIONAL = 2;
+	constexpr int DiscretionScope_GLOBAL = 3;
+	constexpr int DiscretionScope_NATIONAL_EXCLUDING_LOCAL = 4;
+	constexpr int LastLiquidityInd_ADDED_LIQUIDITY = 1;
+	constexpr int LastLiquidityInd_REMOVED_LIQUIDITY = 2;
+	constexpr int LastLiquidityInd_LIQUIDITY_ROUTED_OUT = 3;
+	constexpr int ShortSaleReason_DEALER_SOLD_SHORT = 0;
+	constexpr int ShortSaleReason_DEALER_SOLD_SHORT_EXEMPT = 1;
+	constexpr int ShortSaleReason_SELLING_CUSTOMER_SOLD_SHORT = 2;
+	constexpr int ShortSaleReason_SELLING_CUSTOMER_SOLD_SHORT_EXEMPT = 3;
+	constexpr int ShortSaleReason_QUALIFED_SERVICE_REPRESENTATIVE_OR_AUTOMATIC_GIVEUP_CONTRA_SIDE_SOLD_SHORT = 4;
+	constexpr int ShortSaleReason_QSR_OR_AGU_CONTRA_SIDE_SOLD_SHORT_EXEMPT = 5;
+	constexpr int QtyType_UNITS = 0;
+	constexpr int QtyType_CONTRACTS = 1;
+	constexpr int TradeReportType_SUBMIT = 0;
+	constexpr int TradeReportType_ALLEGED = 1;
+	constexpr int TradeReportType_ACCEPT = 2;
+	constexpr int TradeReportType_DECLINE = 3;
+	constexpr int TradeReportType_ADDENDUM = 4;
+	constexpr int TradeReportType_NO_WAS = 5;
+	constexpr int TradeReportType_TRADE_REPORT_CANCEL = 6;
+	constexpr int TradeReportType_LOCKED_IN_TRADE_BREAK = 7;
+	constexpr int AllocNoOrdersType_NOT_SPECIFIED = 0;
+	constexpr int AllocNoOrdersType_EXPLICIT_LIST_PROVIDED = 1;
+	constexpr int EventType_PUT = 1;
+	constexpr int EventType_CALL = 2;
+	constexpr int EventType_TENDER = 3;
+	constexpr int EventType_SINKING_FUND_CALL = 4;
+	constexpr int EventType_OTHER = 99;
+	constexpr int InstrAttribType_FLAT = 1;
+	constexpr int InstrAttribType_ZERO_COUPON = 2;
+	constexpr int InstrAttribType_INTEREST_BEARING = 3;
+	constexpr int InstrAttribType_NO_PERIODIC_PAYMENTS = 4;
+	constexpr int InstrAttribType_VARIABLE_RATE = 5;
+	constexpr int InstrAttribType_LESS_FEE_FOR_PUT = 6;
+	constexpr int InstrAttribType_STEPPED_COUPON = 7;
+	constexpr int InstrAttribType_COUPON_PERIOD = 8;
+	constexpr int InstrAttribType_WHEN_AND_IF_ISSUED = 9;
+	constexpr int InstrAttribType_ORIGINAL_ISSUE_DISCOUNT = 10;
+	constexpr int InstrAttribType_CALLABLE_PUTTABLE = 11;
+	constexpr int InstrAttribType_ESCROWED_TO_MATURITY = 12;
+	constexpr int InstrAttribType_ESCROWED_TO_REDEMPTION_DATE = 13;
+	constexpr int InstrAttribType_PRE_REFUNDED = 14;
+	constexpr int InstrAttribType_IN_DEFAULT = 15;
+	constexpr int InstrAttribType_UNRATED = 16;
+	constexpr int InstrAttribType_TAXABLE = 17;
+	constexpr int InstrAttribType_INDEXED = 18;
+	constexpr int InstrAttribType_SUBJECT_TO_ALTERNATIVE_MINIMUM_TAX = 19;
+	constexpr int InstrAttribType_ORIGINAL_ISSUE_DISCOUNT_PRICE = 20;
+	constexpr int InstrAttribType_CALLABLE_BELOW_MATURITY_VALUE = 21;
+	constexpr int InstrAttribType_CALLABLE_WITHOUT_NOTICE_BY_MAIL_TO_HOLDER_UNLESS_REGISTERED = 22;
+	constexpr int InstrAttribType_TEXT = 99;
+	constexpr int MiscFeeBasis_ABSOLUTE = 0;
+	constexpr int MiscFeeBasis_PER_UNIT = 1;
+	constexpr int MiscFeeBasis_PERCENTAGE = 2;
+	constexpr int CollAsgnReason_INITIAL = 0;
+	constexpr int CollAsgnReason_SCHEDULED = 1;
+	constexpr int CollAsgnReason_TIME_WARNING = 2;
+	constexpr int CollAsgnReason_MARGIN_DEFICIENCY = 3;
+	constexpr int CollAsgnReason_MARGIN_EXCESS = 4;
+	constexpr int CollAsgnReason_FORWARD_COLLATERAL_DEMAND = 5;
+	constexpr int CollAsgnReason_EVENT_OF_DEFAULT = 6;
+	constexpr int CollAsgnReason_ADVERSE_TAX_EVENT = 7;
+	constexpr int CollInquiryQualifier_TRADEDATE = 0;
+	constexpr int CollInquiryQualifier_GC_INSTRUMENT = 1;
+	constexpr int CollInquiryQualifier_COLLATERALINSTRUMENT = 2;
+	constexpr int CollInquiryQualifier_SUBSTITUTION_ELIGIBLE = 3;
+	constexpr int CollInquiryQualifier_NOT_ASSIGNED = 4;
+	constexpr int CollInquiryQualifier_PARTIALLY_ASSIGNED = 5;
+	constexpr int CollInquiryQualifier_FULLY_ASSIGNED = 6;
+	constexpr int CollInquiryQualifier_OUTSTANDING_TRADES = 7;
+	constexpr int CollAsgnTransType_NEW = 0;
+	constexpr int CollAsgnTransType_REPLACE = 1;
+	constexpr int CollAsgnTransType_CANCEL = 2;
+	constexpr int CollAsgnTransType_RELEASE = 3;
+	constexpr int CollAsgnTransType_REVERSE = 4;
+	constexpr int CollAsgnRespType_RECEIVED = 0;
+	constexpr int CollAsgnRespType_ACCEPTED = 1;
+	constexpr int CollAsgnRespType_DECLINED = 2;
+	constexpr int CollAsgnRespType_REJECTED = 3;
+	constexpr int CollAsgnRejectReason_UNKNOWN_DEAL = 0;
+	constexpr int CollAsgnRejectReason_UNKNOWN_OR_INVALID_INSTRUMENT = 1;
+	constexpr int CollAsgnRejectReason_UNAUTHORIZED_TRANSACTION = 2;
+	constexpr int CollAsgnRejectReason_INSUFFICIENT_COLLATERAL = 3;
+	constexpr int CollAsgnRejectReason_INVALID_TYPE_OF_COLLATERAL = 4;
+	constexpr int CollAsgnRejectReason_EXCESSIVE_SUBSTITUTION = 5;
+	constexpr int CollAsgnRejectReason_OTHER = 99;
+	constexpr int CollStatus_UNASSIGNED = 0;
+	constexpr int CollStatus_PARTIALLY_ASSIGNED = 1;
+	constexpr int CollStatus_ASSIGNMENT_PROPOSED = 2;
+	constexpr int CollStatus_ASSIGNED = 3;
+	constexpr int CollStatus_CHALLENGED = 4;
+	constexpr int DeliveryType_VERSUS_PAYMENT = 0;
+	constexpr int DeliveryType_FREE = 1;
+	constexpr int DeliveryType_TRI_PARTY = 2;
+	constexpr int DeliveryType_HOLD_IN_CUSTODY = 3;
+	constexpr int UserRequestType_LOGONUSER = 1;
+	constexpr int UserRequestType_LOGOFFUSER = 2;
+	constexpr int UserRequestType_CHANGEPASSWORDFORUSER = 3;
+	constexpr int UserRequestType_REQUEST_INDIVIDUAL_USER_STATUS = 4;
+	constexpr int UserStatus_LOGGED_IN = 1;
+	constexpr int UserStatus_NOT_LOGGED_IN = 2;
+	constexpr int UserStatus_USER_NOT_RECOGNISED = 3;
+	constexpr int UserStatus_PASSWORD_INCORRECT = 4;
+	constexpr int UserStatus_PASSWORD_CHANGED = 5;
+	constexpr int UserStatus_OTHER = 6;
+	constexpr int StatusValue_CONNECTED = 1;
+	constexpr int StatusValue_NOT_CONNECTED_DOWN_EXPECTED_UP = 2;
+	constexpr int StatusValue_NOT_CONNECTED_DOWN_EXPECTED_DOWN = 3;
+	constexpr int StatusValue_IN_PROCESS = 4;
+	constexpr int NetworkRequestType_SNAPSHOT = 1;
+	constexpr int NetworkRequestType_SUBSCRIBE = 2;
+	constexpr int NetworkRequestType_STOP_SUBSCRIBING = 4;
+	constexpr int NetworkRequestType_LEVEL_OF_DETAIL = 8;
+	constexpr int NetworkStatusResponseType_FULL = 1;
+	constexpr int NetworkStatusResponseType_INCREMENTAL_UPDATE = 2;
+	constexpr int TrdRptStatus_ACCEPTED = 0;
+	constexpr int TrdRptStatus_REJECTED = 1;
+	constexpr int AffirmStatus_RECEIVED = 1;
+	constexpr int AffirmStatus_CONFIRM_REJECTED = 2;
+	constexpr int AffirmStatus_AFFIRMED = 3;
+	constexpr int CollAction_RETAIN = 0;
+	constexpr int CollAction_ADD = 1;
+	constexpr int CollAction_REMOVE = 2;
+	constexpr int CollInquiryStatus_ACCEPTED = 0;
+	constexpr int CollInquiryStatus_ACCEPTED_WITH_WARNINGS = 1;
+	constexpr int CollInquiryStatus_COMPLETED = 2;
+	constexpr int CollInquiryStatus_COMPLETED_WITH_WARNINGS = 3;
+	constexpr int CollInquiryStatus_REJECTED = 4;
+	constexpr int CollInquiryResult_SUCCESSFUL = 0;
+	constexpr int CollInquiryResult_INVALID_OR_UNKNOWN_INSTRUMENT = 1;
+	constexpr int CollInquiryResult_INVALID_OR_UNKNOWN_COLLATERAL_TYPE = 2;
+	constexpr int CollInquiryResult_INVALID_PARTIES = 3;
+	constexpr int CollInquiryResult_INVALID_TRANSPORT_TYPE_REQUESTED = 4;
+	constexpr int CollInquiryResult_INVALID_DESTINATION_REQUESTED = 5;
+	constexpr int CollInquiryResult_NO_COLLATERAL_FOUND_FOR_THE_TRADE_SPECIFIED = 6;
+	constexpr int CollInquiryResult_NO_COLLATERAL_FOUND_FOR_THE_ORDER_SPECIFIED = 7;
+	constexpr int CollInquiryResult_COLLATERAL_INQUIRY_TYPE_NOT_SUPPORTED = 8;
+	constexpr int CollInquiryResult_UNAUTHORIZED_FOR_COLLATERAL_INQUIRY = 9;
+	constexpr int CollInquiryResult_OTHER = 99;
+	constexpr char MDEntryMakerSide_BUY = '1';
+	constexpr char MDEntryMakerSide_SELL = '2';
 };

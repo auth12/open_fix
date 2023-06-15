@@ -64,12 +64,12 @@ namespace fix {
 			cur.val.end = nullptr;
 
 			for ( const char *i = cur.begin; *i; ++i ) {
-				if ( *i == '=' ) {
+				if ( *i == '=' && !cur.val.begin ) {
 					cur.val.begin = i + 1;
 					continue;
 				}
 
-				if ( *i == '\001' ) {
+				if ( *i == '\001' && !cur.val.end ) {
 					cur.val.end = i;
 					break;
 				}
@@ -172,15 +172,36 @@ namespace fix {
 			: m_buf{ begin }, m_len{ len }, m_cur_pos{ 0 }, m_body_len_pos{ 0 } {}
 
 		fix_writer &push_header( const int fix_maj, const int fix_min ) {
-			return push_field( fix_spec::BeginString, fmt::format( "FIX.{}.{}", fix_maj, fix_min ) );
+			return push_str( fix_spec::BeginString, fmt::format( "FIX.{}.{}", fix_maj, fix_min ) );
 		}
 
-		fix_writer &push_field( const int &tag, const std::string_view val ) {
-			m_cur_pos += details::itoa( tag, m_buf, m_len - m_cur_pos );
+		fix_writer &push_char( const int &tag, const char c ) {
+			m_cur_pos += details::itoa( tag, m_buf + m_cur_pos, m_len - m_cur_pos );
+			m_buf[ m_cur_pos++ ] = '=';
+			m_buf[ m_cur_pos++ ] = c;
+			m_buf[ m_cur_pos++ ] = '\001';
+
+			return *this;
+		}
+
+		template < typename T > fix_writer &push_int( const int &tag, const T &num ) {
+			if constexpr ( std::is_arithmetic_v< T > ) {
+				m_cur_pos += details::itoa( tag, m_buf + m_cur_pos, m_len - m_cur_pos );
+				m_buf[ m_cur_pos++ ] = '=';
+				m_cur_pos += details::itoa( num, m_buf + m_cur_pos, m_len - m_cur_pos );
+				m_buf[ m_cur_pos++ ] = '\001';
+				return *this;
+			}
+
+			return *this;
+		}
+
+		fix_writer &push_str( const int &tag, const std::string_view val ) {
+			m_cur_pos += details::itoa( tag, m_buf + m_cur_pos, m_len - m_cur_pos );
 			m_buf[ m_cur_pos++ ] = '=';
 			memcpy( m_buf + m_cur_pos, val.data( ), val.size( ) );
 			m_cur_pos += val.size( );
-			m_buf[ m_cur_pos++ ] = '\001';
+			m_buf[ m_cur_pos++ ] = '\x01';
 
 			if ( tag == fix_spec::BeginString && !m_body_len_pos ) {
 				m_body_len_pos = m_cur_pos;
@@ -198,11 +219,12 @@ namespace fix {
 
 			m_cur_pos += len_str.size( );
 
-			size_t checksum = 0;
-			for ( int i = 0; i < m_cur_pos; ++i )
-				checksum += static_cast< int >( m_buf[ i ] );
+			long idx;
+			unsigned int cks;
 
-			auto checksum_field = fmt::format( "10={:03}\001", checksum % 256 );
+			for ( idx = 0L, cks = 0; idx < m_cur_pos; cks += ( unsigned int )m_buf[ idx++ ] );
+
+			auto checksum_field = fmt::format( "10={:03}\001", cks % 256 );
 
 			memcpy( m_buf + m_cur_pos, checksum_field.data( ), checksum_field.size( ) );
 
@@ -211,7 +233,7 @@ namespace fix {
 			return *this;
 		}
 
-		auto get_buf( ) const { return std::string_view{ m_buf, m_cur_pos }; }
+		auto size( ) const { return m_cur_pos; }
 
 	  private:
 		size_t m_cur_pos, m_body_len_pos, m_len;
