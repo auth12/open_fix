@@ -214,8 +214,8 @@ namespace fix {
 			const size_t body_len = m_cur_pos - m_body_len_pos;
 			auto len_str = fmt::format( "9={}\001", body_len );
 
-			memmove( m_buf + m_body_len_pos + len_str.size( ), m_buf + m_body_len_pos, body_len );
-			memcpy( m_buf + m_body_len_pos, len_str.data( ), len_str.size( ) );
+			std::memmove( m_buf + m_body_len_pos + len_str.size( ), m_buf + m_body_len_pos, m_cur_pos );
+			std::memcpy( m_buf + m_body_len_pos, len_str.data( ), len_str.size( ) );
 
 			m_cur_pos += len_str.size( );
 

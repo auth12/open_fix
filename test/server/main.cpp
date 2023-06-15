@@ -12,9 +12,7 @@ void consumer( net::tcp_server &srv ) {
 	auto &log = srv.log( );
 
 	while ( 1 ) {
-		uv_sem_wait( srv.get_sem( ) );
-
-		auto msg = srv.msg_queue( ).pop( );
+		auto msg = ctx->msg_queue.pop( );
 
 		auto session = msg->session;
 
@@ -23,7 +21,42 @@ void consumer( net::tcp_server &srv ) {
 			continue;
 		}
 
-		log->debug( "got msg from fd {}", session->fd() );
+		log->debug( "got msg from fd {}", session->fd( ) );
+
+		std::string_view buf{ msg->buf, msg->len };
+
+		fix::fix_message_t rd{ buf };
+
+		log->info( buf );
+		log->info( "{}", spdlog::to_hex( buf ) );
+
+		const char *checksum = nullptr;
+		int msg_checksum = 0;
+
+		for ( auto &f : rd ) {
+			if( f.tag == fix_spec::CheckSum ) {
+				checksum = f.begin;
+				msg_checksum = f.val.as_int( );
+			}
+			
+			log->info( "{}->{}", f.tag, f.val.as_str( ) );
+		}
+
+		// validate checksum
+		if( checksum ) {
+			unsigned int sum = 0;
+			for( const char *i = msg->buf; i < checksum; ++i ) {
+				sum += static_cast< unsigned int >( *i );
+			}
+
+			sum %= 256;
+			if( sum != msg_checksum ) {
+				log->warn( "checksum mistmatch, got {}, expected {}", msg_checksum, sum );
+			}
+
+			log->info( "checksum ok" );
+		}
+
 
 		ctx->bufpool.release( msg->buf );
 	}
@@ -38,13 +71,13 @@ void on_timer_cb( uv_timer_t *timer ) {
 
 	auto &ctx = srv->ctx( );
 	auto &log = srv->log( );
-	for( auto &[ fd, session ] : ctx->sessions ) {
+	for ( auto &[ fd, session ] : ctx->sessions ) {
 		session->write( fix_buf );
 	}
 }
 
 int main( ) {
-	net::tcp_server srv( "tcp_server", false, 1024 );
+	net::tcp_server srv( "tcp_server", false );
 	auto &ctx = srv.ctx( );
 	auto &log = srv.log( );
 

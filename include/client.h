@@ -22,6 +22,7 @@ namespace net {
 		details::object_pool< char, cli_buf_size, cli_bufpool_elements > bufpool;
 
 		tbb::concurrent_vector< std::shared_ptr< tcp_session > > targets;
+		atomic_queue::AtomicQueue2< std::unique_ptr< message::net_msg_t >, 1024 > msg_queue;
 
 		tcp_client_context_t( ) = default;
 	};
@@ -36,7 +37,6 @@ namespace net {
 
 		auto &log( ) { return m_log; }
 		auto &ctx( ) { return m_ctx; }
-		auto &msg_queue( ) { return m_queue; }
 		auto *loop( ) { return &m_loop; }
 
 		void set_on_connect( std::function< void( tcp_session * ) > &&fn ) { m_on_connect.swap( fn ); }
@@ -45,8 +45,6 @@ namespace net {
 
 	  private:
 		uv_loop_t m_loop;
-
-		atomic_queue::AtomicQueue2< std::unique_ptr< message::net_msg_t >, 1024 > m_queue;
 
 		std::shared_ptr< tcp_client_context_t > m_ctx;
 

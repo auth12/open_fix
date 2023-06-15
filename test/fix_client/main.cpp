@@ -12,13 +12,9 @@
 void consumer( fix::fix_client &cli ) {
 	auto &ctx = cli.ctx( );
 	auto &log = cli.log( );
-	auto &queue = cli.msg_queue( );
 
 	while ( 1 ) {
-		std::unique_ptr< message::net_msg_t > msg;
-		if ( !queue.try_pop( msg ) ) {
-			continue;
-		}
+		auto msg = ctx->msg_queue.pop( );
 
 		std::string_view buf{ msg->buf, msg->len };
 		const int fd = msg->session->fd( );
@@ -70,8 +66,6 @@ void con_cb( net::tcp_session *session ) {
 
 	const auto nonce64 = details::base64_encode( nonce, sizeof( nonce ) );
 
-	spdlog::info( "nonce64: {}", nonce64 );
-
 	const auto timestamp =
 		std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::system_clock::now( ).time_since_epoch( ) )
 			.count( );
@@ -79,42 +73,39 @@ void con_cb( net::tcp_session *session ) {
 	auto raw_data = fmt::format( "{}.{}", timestamp, nonce64 );
 	auto raw_data_and_secret = raw_data + secret;
 
-	spdlog::info( "raw data: {}, raw data + secret: {}", raw_data, raw_data_and_secret );
-
-	unsigned char hash[ 32 ];
-	/*SHA256_CTX sha256;
+	unsigned char hash[ SHA256_DIGEST_LENGTH ];
+	SHA256_CTX sha256;
 	SHA256_Init( &sha256 );
 	SHA256_Update( &sha256, raw_data_and_secret.c_str( ), raw_data_and_secret.size( ) );
-	SHA256_Final( hash, &sha256 );*/
-	int ret = mbedtls_sha256( ( unsigned char * )&raw_data_and_secret[ 0 ], raw_data_and_secret.size( ), hash, 0 );
+	SHA256_Final( hash, &sha256 );
+	//int ret = mbedtls_sha256( ( unsigned char * )&raw_data_and_secret[ 0 ], raw_data_and_secret.size( ), hash, 0 );
 
 	auto pass = details::base64_encode( &hash[ 0 ], sizeof( hash ) );
 
 	char out_buf[ 1024 ];
-	fix::fix_writer wr{ out_buf, sizeof( out_buf ) };
-	wr.push_header( 4, 4 );
-	wr.push_char( fix_spec::MsgType, 'A' );
-	// wr.push_int( fix_spec::EncryptMethod, 0 );
+	hffix::message_writer wr{ out_buf, sizeof( out_buf ) };
+	wr.push_back_header( "FIX.4.4" );
+	wr.push_back_char( hffix::tag::MsgType, *hffix::msg_type::Logon );
+	wr.push_back_int( fix_spec::EncryptMethod, 0 );
 	// wr.push_field( fix_spec::SenderCompID, user );
-	// wr.push_field( fix_spec::TargetCompID, "DERIBITSERVER" );
-	//  wr.push_field( fix_spec::HeartBtInt, "30" );
-	wr.push_str( fix_spec::Username, user );
-	wr.push_str( fix_spec::Password, pass );
-	wr.push_str( fix_spec::RawData, raw_data );
-	wr.push_char( fix_spec::ResetSeqNumFlag, 'Y' );
-	wr.push_trailer( );
+	wr.push_back_int( hffix::tag::MsgSeqNum, 1 );
+	wr.push_back_timestamp( hffix::tag::SendingTime, std::chrono::system_clock::now( ) );
+	wr.push_back_string( fix_spec::TargetCompID, "DERIBITSERVER" );
+	wr.push_back_int( fix_spec::HeartBtInt, 30 );
+	wr.push_back_string( hffix::tag::Username, user );
+	wr.push_back_string( hffix::tag::Password, pass );
+	wr.push_back_string( hffix::tag::RawData, raw_data );
+	wr.push_back_char( fix_spec::ResetSeqNumFlag, 'Y' );
+	wr.push_back_trailer( );
 
-	std::string_view buf{ out_buf, wr.size( ) };
+	std::string_view buf{ out_buf, wr.message_size( ) };
 	fix::fix_message_t rd{ buf };
 
-	for( auto &f : rd ) {
+	for ( auto &f : rd ) {
 		spdlog::info( "{}->{}", f.tag, f.val.as_str( ) );
 	}
-	std::cout << buf << std::endl;
 
-	spdlog::info( "buf: {}, len: {}", buf, buf.size( ) );
-
-	ret = session->write( buf );
+	int ret = session->write( buf );
 
 	spdlog::info( "wrote {} bytes", ret );
 }

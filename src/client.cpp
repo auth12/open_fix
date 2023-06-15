@@ -35,14 +35,14 @@ void net::client_cb::on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t
 		return;
 	}
 
-	log->info( "got msg {}", std::string_view{ buf->base, ( size_t )nread } );
-
 	auto msg = std::make_unique< message::net_msg_t >( );
 	msg->buf = buf->base;
 	msg->len = nread;
 	msg->session = session;
 
-	cli->msg_queue( ).push( std::move( msg ) );
+	if( !ctx->msg_queue.try_push( std::move( msg ) ) ) {
+		log->critical( "failed to push msg" );
+	}
 }
 
 void net::client_cb::on_connect( uv_connect_t *req, int status ) {

@@ -1,9 +1,7 @@
 #include "server.h"
 
-net::tcp_server::tcp_server( const std::string_view log_name, const bool to_file,
-							 const unsigned int msg_queue_elements )
-	: m_ctx{ std::make_shared< tcp_server_context_t >( ) }, m_log{ details::log::make_sync( log_name, to_file ) },
-	  m_queue{ msg_queue_elements } {
+net::tcp_server::tcp_server( const std::string_view log_name, const bool to_file )
+	: m_ctx{ std::make_shared< tcp_server_context_t >( ) }, m_log{ details::log::make_sync( log_name, to_file ) } {
 	m_log->flush_on( spdlog::level::n_levels );
 	m_log->set_level( spdlog::level::debug );
 	m_log->set_pattern( "[%t]%+" );
@@ -12,8 +10,6 @@ net::tcp_server::tcp_server( const std::string_view log_name, const bool to_file
 	m_loop.data = this;
 
 	m_ctx->server_session.init_handle( &m_loop );
-
-	uv_sem_init( &m_sem, 0 ); // add back server busy wait later
 }
 
 int net::tcp_server::bind( const std::string_view host, const uint16_t port ) {
@@ -82,7 +78,7 @@ void net::server_cb::on_session_connect( uv_stream_t *server_handle, int status 
 
 		session->close( );
 	}
-	
+
 	session->set_state( Idle );
 
 	ctx->sessions[ fd ].swap( session );
@@ -110,6 +106,7 @@ void net::server_cb::on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t
 	msg->len = nread;
 	msg->session = session;
 
-	srv->msg_queue( ).push( std::move( msg ) );
-	uv_sem_post( srv->get_sem( ) );
+	if ( !ctx->msg_queue.try_push( std::move( msg ) ) ) {
+		log->critical( "failed to push session message" );
+	}
 }

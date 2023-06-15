@@ -26,7 +26,7 @@ namespace net {
 		tcp_session server_session;
 
 		details::object_pool< char, server_buf_size, server_bufpool_elements > bufpool;
-		
+		atomic_queue::AtomicQueue2< std::unique_ptr< message::net_msg_t >, 1024 > msg_queue;
 		tbb::concurrent_unordered_map< int, std::shared_ptr< tcp_session > > sessions;
 
 		tcp_server_context_t( ) = default;
@@ -34,7 +34,7 @@ namespace net {
 
 	class tcp_server {
 	  public:
-		tcp_server( const std::string_view log_name, const bool to_file, const unsigned int msg_queue_elements = 1024 );
+		tcp_server( const std::string_view log_name, const bool to_file );
 
 		int bind( const std::string_view host, const uint16_t port );
 
@@ -43,17 +43,9 @@ namespace net {
 		auto &ctx( ) { return m_ctx; }
 		auto &log( ) { return m_log; }
 		auto *loop( ) { return &m_loop; }
-		auto &msg_queue( ) { return m_queue; }
-
-		auto get_sem( ) { return &m_sem; }
-
 	  private:
 		uv_loop_t m_loop;
-
 		details::log_ptr_t m_log;
-
-		uv_sem_t m_sem;
-		atomic_queue::AtomicQueueB2< std::unique_ptr< message::net_msg_t > > m_queue;
 
 		std::shared_ptr< tcp_server_context_t > m_ctx;
 	};
