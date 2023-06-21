@@ -5,7 +5,7 @@
 #include <fix_parse.h>
 
 #define HOST "127.0.0.1"
-#define PORT 1515
+#define PORT "1515"
 
 void consumer( net::tcp_server &srv ) {
 	auto &ctx = srv.ctx( );
@@ -20,8 +20,6 @@ void consumer( net::tcp_server &srv ) {
 			ctx->bufpool.release( msg->buf );
 			continue;
 		}
-
-		log->debug( "got msg from fd {}", session->fd( ) );
 
 		std::string_view buf{ msg->buf, msg->len };
 
@@ -45,7 +43,7 @@ void consumer( net::tcp_server &srv ) {
 		// validate checksum
 		if( checksum ) {
 			unsigned int sum = 0;
-			for( const char *i = msg->buf; i < checksum; ++i ) {
+			for( const char *i = msg->buf; i <= checksum; ++i ) {
 				sum += static_cast< unsigned int >( *i );
 			}
 

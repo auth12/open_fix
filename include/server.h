@@ -17,9 +17,8 @@ namespace net {
 	static constexpr int max_clients = 64;
 
 	namespace server_cb {
-		void on_session_connect( uv_stream_t *server, int status );
-		void on_read( uv_stream_t *handle, ssize_t nread, const uv_buf_t *buf );
-		void on_buf_alloc( uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf );
+		void on_connect( uv_poll_t *handle, int status, int events );
+		void on_read( uv_poll_t *handle, int status, int events );
 	} // namespace server_cb
 
 	struct tcp_server_context_t {
@@ -36,7 +35,7 @@ namespace net {
 	  public:
 		tcp_server( const std::string_view log_name, const bool to_file );
 
-		int bind( const std::string_view host, const uint16_t port );
+		int bind( const std::string_view host, const std::string_view port );
 
 		int run( const uv_run_mode run_mode = UV_RUN_DEFAULT ) { return uv_run( &m_loop, run_mode ); }
 

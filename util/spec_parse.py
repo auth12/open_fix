@@ -54,9 +54,9 @@ def parse_fix_spec():
                 desc = v.get('description')
                 ret = v.get('enum')
                 if field_type == 'INT' or field_type == 'QTY':
-                    header.write(f'\tconstexpr int {field_name}_{desc} = {ret};\n')
+                    header.write(f'\tstatic constexpr int {field_name}_{desc} = {ret};\n')
                 if field_type == 'CHAR':
-                    header.write(f"\tconstexpr char {field_name}_{desc} = '{ret}';\n")
+                    header.write(f"\tstatic const char {field_name}_{desc} = '{ret}';\n")
             
         
         header.write('};')
