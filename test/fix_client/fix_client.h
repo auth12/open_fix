@@ -39,7 +39,7 @@ namespace fix {
 	class fix_client : public net::tcp_client {
 	  public:
 		fix_client( const std::string_view log_name, bool to_file )
-			: net::tcp_client{ log_name, to_file }, m_fix_ctx{ std::make_shared< fix_client_context_t >( ) } { };
+			: net::tcp_client{ log_name }, m_fix_ctx{ std::make_shared< fix_client_context_t >( ) } { };
 
 		auto &fix_ctx( ) { return m_fix_ctx; }
 

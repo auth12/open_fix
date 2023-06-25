@@ -8,48 +8,61 @@
 
 #include "message.h"
 
+#include <unistd.h>
+#include <sys/poll.h>
+
 namespace net {
 	static constexpr int cli_bufpool_elements = 512;
 	static constexpr int cli_buf_size = 1024;
 
-	namespace client_cb {
-		void on_poll( uv_poll_t *handle, int status, int flags );
-	}; // namespace client_cb
+	struct client_context_t {
+		using pollfd_t = std::vector< pollfd >;
+		pollfd_t targets;
 
-	struct tcp_client_context_t {
 		details::object_pool< char, cli_buf_size, cli_bufpool_elements > bufpool;
-
-		tbb::concurrent_unordered_map< int, std::shared_ptr< tcp_session > > targets;
 		atomic_queue::AtomicQueue2< std::unique_ptr< message::net_msg_t >, 1024 > msg_queue;
 
-		tcp_client_context_t( ) = default;
-	};
-
-	enum callback_type : int { ON_CONNECT = 0, ON_READ, ON_DISCONNECT };
-
-	class tcp_client {
-	  public:
-		tcp_client( const std::string_view log_name, bool to_file );
-
-		int connect( const std::string_view host, const std::string_view port );
-
-		int run( const uv_run_mode run_mode = UV_RUN_DEFAULT ) { return uv_run( &m_loop, run_mode ); }
-
-		auto &log( ) { return m_log; }
-		auto &ctx( ) { return m_ctx; }
-		auto *loop( ) { return &m_loop; }
-
-		template < typename Fn > void register_callback( const int type, const Fn &&fn ) {
-			m_callbacks[ type ].emplace_back( fn );
+		void remove_target( const pollfd_t::const_iterator &it ) {
+			close( it->fd );
+			targets.erase( it );
 		}
 
+		bool remove_target( const int &fd ) {
+			auto it =
+				std::find_if( targets.begin( ), targets.end( ), [ fd ]( const pollfd &t ) { return t.fd == fd; } );
+
+			if ( it != targets.end( ) ) {
+				remove_target( it );
+				return true;
+			}
+
+			return false;
+		}
+	};
+
+	enum client_state : int { OFFLINE = 0, CONNECTING, ONLINE };
+
+	class tcp_client {
 	  private:
-		std::shared_ptr< tcp_client_context_t > m_ctx;
-		uv_loop_t m_loop;
-
-		std::unordered_map< int, std::list< std::function< void( tcp_session * ) > > > m_callbacks;
-
+		std::shared_ptr< client_context_t > m_ctx;
 		details::log_ptr_t m_log;
+		std::atomic_int m_state;
+
+	  public:
+		tcp_client( const std::string_view log_name )
+			: m_ctx{ std::make_shared< client_context_t >( ) }, m_log{ details::log::make_sync( log_name ) },
+			  m_state{ OFFLINE } {
+			m_log->set_level( spdlog::level::debug );
+		}
+
+		auto &ctx( ) { return m_ctx; }
+		auto &log( ) { return m_log; }
+
+		inline int state( ) { return m_state.load( std::memory_order_acquire ); }
+
+		int try_connect( const std::string_view host, const std::string_view port );
+
+		void run( );
 	};
 
 }; // namespace net
