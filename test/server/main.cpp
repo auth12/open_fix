@@ -13,8 +13,12 @@ void consumer( net::tcp_server &srv ) {
 
 	while ( 1 ) {
 		auto msg = ctx->msg_queue.pop( );
+		if( !msg ) {
+			log->critical( "invalid message popped from incoming queue." );
+			break;
+		}
 
-		auto session = msg->session;
+		auto session = ctx->sessions[ msg->fd ];
 
 		if ( session->state( ) < net::Idle ) {
 			ctx->bufpool.release( msg->buf );

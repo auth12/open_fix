@@ -6,45 +6,92 @@
 
 #include "fix_parse.h"
 
+#include "config.h"
+
 namespace fix {
 	enum fix_session_state : int { // extends tcp session state
 		LoggedOut = net::session_state::MaxNetstate,
+		AwaitingLogon,
 		LoggedIn
 	};
 
 	class fix_session {
 	  public:
 		fix_session( )
-			: m_state{ LoggedOut }, m_next_in{ 1 } {
+			: m_state{ LoggedOut }, m_next_out{ 1 }, m_target_id{ "" }, m_sender_id{ "" }, m_begin_string{ "" } { };
 
-			  };
+		fix_session( const std::string_view p_target_id, const std::string_view p_sender_id,
+					 const std::string_view p_begin_string )
+			: m_state{ AwaitingLogon }, m_begin_string{ p_begin_string }, m_sender_id{ p_sender_id },
+			  m_target_id{ p_target_id } { };
 
-		int next_seq( ) const { return m_next_in.load( std::memory_order_acquire ); }
-
+		int next_seq( ) const { return m_next_out.load( std::memory_order_acquire ); }
 		int state( ) const { return m_state.load( std::memory_order_acquire ); }
+		void set_state( const int &state ) { m_state.store( state, std::memory_order_release ); }
+
+		auto &target_id( ) const { return m_target_id; }
+
+		auto &sender_id( ) const { return m_sender_id; }
+
+		auto &begin_str( ) const { return m_begin_string; }
+
+		void set_sender_id( const std::string_view id ) { m_sender_id = id; }
+
+		void set_target_id( const std::string_view id ) { m_target_id = id; }
+
+		
 
 	  private:
-		std::atomic< int > m_state, m_next_in;
+		std::atomic< int > m_state, m_next_out;
+		std::string m_target_id, m_sender_id, m_begin_string;
 	};
 
 	struct fix_client_context_t {
-		tbb::concurrent_unordered_multimap< int, fix_session > active_sessions;
-
-		int fix_minor, fix_major;
-		std::atomic< int > next_in, state;
-
-		std::string sender_id, target_id;
+		tbb::concurrent_unordered_map< int, std::shared_ptr< fix_session > > active_sessions;
 	};
 
 	class fix_client : public net::tcp_client {
 	  public:
 		fix_client( const std::string_view log_name, bool to_file )
-			: net::tcp_client{ log_name }, m_fix_ctx{ std::make_shared< fix_client_context_t >( ) } { };
+			: net::tcp_client{ log_name, to_file }, m_fix_ctx{ std::make_shared< fix_client_context_t >( ) } { };
+
+		fix_client( const config::cli_fix_cfg_t &cfg )
+			: net::tcp_client{ cfg.log_name, cfg.to_file }, m_fix_ctx{ std::make_shared< fix_client_context_t >( ) },
+			  m_cfg{ cfg } { };
 
 		auto &fix_ctx( ) { return m_fix_ctx; }
+		auto &cfg( ) { return m_cfg; }
 
+		int connect( ) {
+			auto &logger = log( );
+
+			for ( auto &t : m_cfg.targets ) {
+				const auto cur = t.ip.find( ':' );
+				if ( cur == std::string::npos ) {
+					logger->warn( "invalid address specified in config file" );
+					continue;
+				}
+
+				auto host = t.ip.substr( 0, cur );
+				auto port = t.ip.substr( cur + 1 );
+
+				logger->info( "attempting to connect to {}:{}", host, port );
+
+				int ret = try_connect( host, port );
+				if ( ret < 0 ) {
+					logger->error( "failed to connect to {}:{}", host, port );
+					continue;
+				}
+
+				m_fix_ctx->active_sessions[ ret ] =
+					std::make_shared< fix_session >( t.target_id, t.sender_id, t.fix_ver );
+			}
+
+			return m_fix_ctx->active_sessions.size( );
+		}
 
 	  private:
 		std::shared_ptr< fix_client_context_t > m_fix_ctx;
+		config::cli_fix_cfg_t m_cfg;
 	};
 }; // namespace fix

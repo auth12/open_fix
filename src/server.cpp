@@ -105,7 +105,7 @@ void net::server_cb::on_read( uv_poll_t *handle, int status, int events ) {
 		auto msg = std::make_unique< message::net_msg_t >( );
 		msg->buf = buf;
 		msg->len = ret;
-		msg->session = session;
+		msg->fd = session->fd( );
 
 		if ( !ctx->msg_queue.try_push( std::move( msg ) ) ) {
 			log->critical( "failed to push msg" );

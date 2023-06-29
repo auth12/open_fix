@@ -1,4 +1,5 @@
 add_subdirectory(server)
 add_subdirectory(fix_client)
 add_subdirectory(fix_parse)
+add_subdirectory(xml_parse)
 add_subdirectory(benchmark)
