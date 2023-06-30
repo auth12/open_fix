@@ -11,10 +11,48 @@ net::tcp_server::tcp_server( const std::string_view log_name, const bool to_file
 }
 
 int net::tcp_server::bind( const std::string_view host, const std::string_view port ) {
-	int ret = mbedtls_net_bind( m_ctx->server_session.net_ctx( ), host.data( ), port.data( ), MBEDTLS_NET_PROTO_TCP );
+	addrinfo hints, *res;
+
+	memset( &hints, 0, sizeof hints );
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	int ret = getaddrinfo( host.data( ), port.data( ), &hints, &res );
 	if ( ret != 0 ) {
+		m_log->error( "failed to get address info, ret {}", ret );
 		return ret;
 	}
+
+	auto &session = m_ctx->server_session;
+
+	int fd = ::socket( res->ai_family, res->ai_socktype, res->ai_protocol );
+	if ( fd < 0 ) {
+		m_log->error( "failed to create socket" );
+
+		freeaddrinfo( res );
+		return -1;
+	}
+
+	ret = ::bind( fd, res->ai_addr, res->ai_addrlen );
+	if ( ret != 0 ) {
+		m_log->error( "failed to bind." );
+		session.reset( );
+
+		freeaddrinfo( res );
+		return ret;
+	}
+
+	freeaddrinfo( res );
+
+	ret = ::listen( fd, 128 );
+	if ( ret != 0 ) {
+		m_log->error( "failed to listen" );
+		session.reset( );
+		return ret;
+	}
+
+	session.set_fd( fd );
 
 	ret = m_ctx->server_session.poll_init( &m_loop );
 	if ( ret != 0 ) {
@@ -36,22 +74,21 @@ void net::server_cb::on_connect( uv_poll_t *server_handle, int status, int event
 
 	auto session = std::make_shared< tcp_session >( );
 
-	uint8_t ip[ 4 ];
-	size_t ip_len = 0;
-	int ret = mbedtls_net_accept( ctx->server_session.net_ctx( ), session->net_ctx( ), ip, sizeof( ip ), &ip_len );
-	if ( ret != 0 ) {
-		log->error( "failed to accept new session, {}", ret );
+	sockaddr_storage in_addr;
+	socklen_t addr_len = sizeof( sockaddr_storage );
+	int fd = accept( ctx->server_session.fd( ), ( sockaddr * )&in_addr, &addr_len );
+	if ( fd == -1 ) {
+		log->error( "failed to accept new session" );
 		return;
 	}
 
-	// ipv4 only
-	auto ip_str = fmt::format( "{}.{}.{}.{}", ip[ 0 ], ip[ 1 ], ip[ 2 ], ip[ 3 ] );
+	log->info( "new session, fd: {}", fd );
 
-	log->info( "new session, fd: {}, ip: {}", session->fd( ), ip_str );
+	session->set_fd( fd );
 
 	if ( session->poll_init( server_handle->loop ) != 0 ) {
 		log->error( "failed to initialize session poll handle." );
-		session->close( );
+		session->reset( );
 		return;
 	}
 
@@ -59,11 +96,9 @@ void net::server_cb::on_connect( uv_poll_t *server_handle, int status, int event
 
 	if ( session->poll_start( on_read, UV_READABLE | UV_DISCONNECT ) != 0 ) {
 		log->error( "failed to initialize session poll handle." );
-		session->close( );
+		session->reset( );
 		return;
 	}
-
-	session->set_state( Idle );
 
 	ctx->sessions[ session->fd( ) ].swap( session );
 }
@@ -76,8 +111,8 @@ void net::server_cb::on_read( uv_poll_t *handle, int status, int events ) {
 	auto session = ( tcp_session * )handle->data;
 
 	if ( events & UV_DISCONNECT ) {
-		log->warn( "session disconnected" );
-		session->close( );
+		log->warn( "session {} disconnected", session->fd( ) );
+		session->reset( );
 		session->poll_stop( );
 		return;
 	}
@@ -89,11 +124,11 @@ void net::server_cb::on_read( uv_poll_t *handle, int status, int events ) {
 			return;
 		}
 
-		int ret = mbedtls_net_recv( session->net_ctx( ), ( unsigned char * )buf, server_buf_size );
+		int ret = recv( session->fd( ), buf, server_buf_size, 0 );
 		if ( ret <= 0 ) {
 			log->warn( "failed to read from socket, {}", ret );
 
-			session->close( );
+			session->reset( );
 			session->poll_stop( );
 
 			ctx->bufpool.release( buf );

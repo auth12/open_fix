@@ -21,84 +21,91 @@ struct message_t {
 	std::vector< field_t > fields;
 };
 
-int main( ) {
-	pugi::xml_document doc;
-	if ( !doc.load_file( "fix.xml" ) ) {
-		spdlog::error( "failed to load file" );
-		return 0;
-	}
+class fix_dictionary : public pugi::xml_document {
+  private:
+	int m_fix_maj, m_fix_min;
 
-	auto fix = doc.child( "fix" );
-	if ( !fix ) {
-		spdlog::error( "xml document doesnt contain fix specifications" );
-		return 0;
-	}
+	std::vector< field_t > m_header;
+	std::vector< field_t > m_trailer;
 
-	auto header = fix.child( "header" );
-	auto trailer = fix.child( "trailer" );
-	auto fields = fix.child( "fields" );
+	std::unordered_map< std::string, std::vector< field_t > > m_message_fields;
+	std::unordered_map< std::string, std::string > m_message_desc;
 
-	auto messages = fix.child( "messages" );
+	std::unordered_map< int, std::string > m_field_dict;
+	std::unordered_map< std::string, int > m_field_desc; // ????
 
-	std::unordered_map< std::string, int > field_map;
+  public:
+	auto &messages( ) { return m_message_fields; };
+	auto &field_desc( ) { return m_field_desc; }
+	auto &field_dict( ) { return m_field_dict; }
 
-	header_t hdr;
-	trailer_t tr;
+	auto begin_str( ) { return fmt::format( "FIX.{}.{}", m_fix_maj, m_fix_min ); }
 
-	for ( auto &f : fields ) {
-		auto name = f.attribute( "name" ).as_string( );
-		auto num = f.attribute( "number" ).as_int( );
-
-		field_map[ name ] = num;
-	}
-
-	for ( auto &e : header.children( ) ) {
-		auto name = e.attribute( "name" ).as_string( );
-		auto required = e.attribute( "required" ).as_string( );
-
-		hdr.fields.emplace_back( field_t{ field_map[ name ], strcmp( required, "Y" ) == 0 } );
-
-		spdlog::info( "{}->{}", name, required );
-	}
-
-	for ( auto &e : trailer.children( ) ) {
-		auto name = e.attribute( "name" ).as_string( );
-		auto required = e.attribute( "required" ).as_string( );
-
-		tr.fields.emplace_back( field_t{ field_map[ name ], strcmp( required, "Y" ) > 0 } );
-	}
-
-	std::unordered_map< std::string, std::string > msg_type_desc;
-	std::unordered_map< std::string, std::vector< int > > msg_types;
-
-	for ( auto &m : messages.children( ) ) {
-		auto name = m.attribute( "name" ).as_string( );
-		auto id = m.attribute( "msgtype" ).as_string( );
-		spdlog::info( "{}:{}", name, id );
-
-		msg_type_desc[ name ] = id;
-
-		auto &entries = msg_types[ name ];
-
-		for ( auto &f : m.children( ) ) {
-			auto name = f.attribute( "name" ).as_string( );
-			auto required = f.attribute( "required" ).as_string( );
-
-			entries.emplace_back( field_map[ name ] );
-			spdlog::info( "=> {}->{}", name, required );
+	bool load( const std::string_view dict ) {
+		auto ret = load_file( dict.data( ) );
+		if ( !ret ) {
+			return false;
 		}
-	}
 
-	spdlog::info( "header fields:" );
-	for ( auto &f : hdr.fields ) {
-		spdlog::info( "{}->{}", f.id, f.required );
-	}
+		auto fix_data = child( "fix" );
+		if ( !fix_data ) {
+			return false;
+		}
 
-	spdlog::info( "logon" );
+		m_fix_maj = fix_data.attribute( "major" ).as_int( );
+		m_fix_min = fix_data.attribute( "minor" ).as_int( );
 
-	for( auto &f : msg_types[ "Logon" ] ) {
-		spdlog::info( "{}", f );
+		auto fields = fix_data.child( "fields" );
+		for ( auto &f : fields.children( ) ) {
+			auto name = f.attribute( "name" ).as_string( );
+			int id = f.attribute( "number" ).as_int( );
+
+			m_field_dict[ id ] = name;
+			m_field_desc[ name ] = id;
+		}
+
+		auto header = fix_data.child( "header" );
+		for ( auto &c : header.children( ) ) {
+			auto name = c.attribute( "name" ).as_string( );
+			auto req = c.attribute( "required" ).as_string( );
+
+			m_header.emplace_back( field_t{ m_field_desc[ name ], strcmp( req, "Y" ) > 0 } );
+		}
+
+		auto messages = fix_data.child( "messages" );
+		for ( auto &m : messages.children( ) ) {
+			auto msg_name = m.attribute( "name" ).as_string( );
+			auto type = m.attribute( "msgtype" ).as_string( );
+
+			m_message_desc[ msg_name ] = type;
+
+			for ( auto &f : m.children( ) ) {
+				auto name = f.attribute( "name" ).as_string( );
+				auto req = f.attribute( "required" ).as_string( );
+
+				m_message_fields[ msg_name ].emplace_back( field_t{ m_field_desc[ name ], strcmp( req, "Y" ) == 0 } );
+			}
+		}
+
+		return true;
 	}
+};
+
+int main( ) {
+	fix_dictionary dic{ };
+	if ( !dic.load( "fix.xml" ) ) {
+		spdlog::error( "failed to load fix dictionary" );
+
+		return 0;
+	}
+	auto field_dic = dic.field_dict( );
+
+	// create logon
+	char buf[ 1024 ];
+	hffix::message_writer wr{ buf };
+	wr.push_back_header( dic.begin_str( ).c_str( ) );
+
+	
 
 	return 0;
 };

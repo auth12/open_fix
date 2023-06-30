@@ -4,8 +4,6 @@
 
 #include <atomic_queue/atomic_queue.h>
 
-#include <tbb/cache_aligned_allocator.h>
-
 namespace details {
 	using log_ptr_t = std::shared_ptr< spdlog::logger >;
 
@@ -102,7 +100,7 @@ namespace details {
 
 	  private:
 		atomic_queue::AtomicQueue< uintptr_t, N > m_pool;
-		tbb::cache_aligned_allocator< T > m_allocator;
+		std::allocator< char > m_allocator;
 	};
 
 	static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

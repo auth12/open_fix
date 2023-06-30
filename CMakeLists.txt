@@ -7,17 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(modules/spdlog)
 
-set(BUILD_SHARED_LIBS OFF)
+set(LIBUV_BUILD_SHARED OFF)
 set(BUILD_TESTS OFF)
 add_subdirectory(modules/libuv)
-
-set(ENABLE_PROGRAMS OFF)
-set(ENABLE_TESTING OFF)
-add_subdirectory(modules/mbedtls)
-
-set(TBB_TEST OFF)
-set(BUILD_SHARED_LIBS OFF)
-add_subdirectory(modules/oneTBB)
 
 project(fix_lib CXX)
 
@@ -37,8 +29,6 @@ add_library(
 
 set(include_dirs "${PROJECT_SOURCE_DIR}/modules/spdlog/include/"
 "${PROJECT_SOURCE_DIR}/modules/libuv/include/"
-"${PROJECT_SOURCE_DIR}/modules/mbedtls/include/"
-"${PROJECT_SOURCE_DIR}/modules/oneTBB/include/"
 "${PROJECT_SOURCE_DIR}/modules/hffix/include/"
 "${PROJECT_SOURCE_DIR}/modules/atomic_queue/include/"
 "${PROJECT_SOURCE_DIR}/modules/cppbenchmark/include/"
@@ -46,8 +36,8 @@ set(include_dirs "${PROJECT_SOURCE_DIR}/modules/spdlog/include/"
 
 target_include_directories(fix PUBLIC ${include_dirs})
 
-target_precompile_headers(fix PUBLIC "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix.hpp" "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix_fields.hpp" "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix.hpp" "${PROJECT_SOURCE_DIR}/include/fix_spec.h" )
+target_precompile_headers(fix PUBLIC "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix.hpp" "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix_fields.hpp" "${PROJECT_SOURCE_DIR}/include/fix_spec.h" )
 
-target_link_libraries(fix PUBLIC uv_a spdlog mbedtls mbedcrypto mbedx509 tbb tbbmalloc cppbenchmark) 
+target_link_libraries(fix PUBLIC uv_a spdlog cppbenchmark) 
 
 add_subdirectory(test)

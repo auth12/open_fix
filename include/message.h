@@ -4,9 +4,6 @@
 
 #include <session.h>
 
-#include <tbb/tbb.h>
-#include <tbb/flow_graph.h>
-
 namespace message {
 	struct net_msg_t {
 		net_msg_t( ) : buf{ nullptr }, len{ 0 }, fd{ -1 } {}
@@ -26,14 +23,4 @@ namespace message {
 	inline static std::unique_ptr< net_msg_t > make_msg( const int fd, char *buf, const size_t len ) {
 		return std::make_unique< net_msg_t >( fd, buf, len );
 	}
-
-	class fix_rule {};
-	struct fix_message_t {
-		int fd = 0;
-
-		int seq = 0;
-		int body_len = 0;
-
-		int fix_major, fix_minor = 0;
-	};
 }; // namespace message

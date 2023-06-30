@@ -2,10 +2,10 @@
 
 #include "client.h"
 
-int net::tcp_client::try_connect( const std::string_view host, const std::string_view port ) {
+int net::tcp_client::connect( const std::string_view host, const std::string_view port ) {
 	struct addrinfo hints;
 	struct addrinfo *info;
-	
+
 	memset( &hints, 0, sizeof( hints ) );
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
@@ -26,9 +26,9 @@ int net::tcp_client::try_connect( const std::string_view host, const std::string
 			continue;
 		}
 
-		ret = connect( sockfd, cur->ai_addr, cur->ai_addrlen );
+		ret = ::connect( sockfd, cur->ai_addr, cur->ai_addrlen );
 		if ( ret < 0 ) {
-			sock::reset( sockfd );
+			close( sockfd );
 			sockfd = -1;
 			continue;
 		}
@@ -38,98 +38,74 @@ int net::tcp_client::try_connect( const std::string_view host, const std::string
 
 	freeaddrinfo( info );
 
-	if ( sockfd < 0 ) {
-		m_log->error( "connection to {}:{} failed.", host, port );
+	if ( !sockfd ) {
 		return -1;
 	}
 
 	ret = fcntl( sockfd, F_SETFL, fcntl( sockfd, F_GETFL, 0 ) | O_NONBLOCK );
 	if ( ret != 0 ) {
-		m_log->warn( "failed to set socket to non block." );
-		sock::reset( sockfd );
+		m_log->warn( "[ TCP ] failed to set socket to non block." );
+		close( sockfd );
 		return -1;
 	}
 
-	m_ctx->targets.emplace_back( pollfd{ sockfd, POLLIN | POLLHUP | POLLOUT } );
+	auto session = std::make_shared< tcp_session >( );
+	session->set_fd( sockfd );
+	session->poll_init( &m_loop );
+	session->poll_handle( )->data = session.get( );
+	session->poll_start( cb::on_poll, UV_READABLE | UV_DISCONNECT );
+
+	m_ctx->targets[ sockfd ].swap( session );
 
 	return sockfd;
 }
 
-bool net::tcp_client::on_poll( const pollfd &it ) {
-	if ( it.revents & POLLHUP ) {
-		m_log->warn( "fd {} disconnected.", it.fd );
-		return true;
+void net::cb::on_poll( uv_poll_t *handle, int status, int flags ) {
+	auto cli = ( net::tcp_client * )handle->loop->data;
+	auto session = ( net::tcp_session * )handle->data;
+
+	auto log = cli->log( );
+	auto ctx = cli->ctx( );
+	
+	if ( status < 0 ) {
+		log->error( "poll error, {}", uv_strerror( status ) );
+		return;
 	}
 
-	/*if ( it.revents & POLLOUT ) {
-		auto &q = m_ctx->out_queue[ it.fd ];
-		while ( !q.empty( ) ) { // async me
-			std::unique_ptr<
-			q.pop( );
+	if ( flags & UV_DISCONNECT ) {
+		session->reset( );
+		session->poll_stop( );
+		return;
+	}
 
-			auto ret = sock::write( it.fd, msg->buf, msg->len );
-			m_log->debug( "write on {} returned {}", it.fd, ret );
-
-			std::string str{ msg->buf, msg->len };
-			for ( auto &c : str ) {
-				if ( c == 0x1 ) {
-					c = '|';
-				}
-			}
-
-			m_log->info( "sending {}", str );
-
-			m_ctx->bufpool.release( msg->buf );
-		}
-	}*/
-
-	if ( it.revents & POLLIN ) {
-		char *buf = m_ctx->bufpool.get( );
+	if ( flags & UV_READABLE ) {
+		char *buf = ctx->bufpool.get( );
 		if ( !buf ) {
-			m_log->warn( "no available buffers" );
-			return false;
+			log->warn( "no available buffers" );
+			return;
 		}
 
-		ssize_t nread = sock::read( it.fd, buf, m_ctx->bufpool.obj_size( ) );
+		const int fd = session->fd( );
+
+		ssize_t nread = session->read( buf, ctx->bufpool.obj_size( ) );
 		if ( nread == EWOULDBLOCK ) {
-			m_ctx->bufpool.release( buf );
-			return false;
+			ctx->bufpool.release( buf );
+			return;
 		}
 
 		if ( nread <= 0 ) {
-			m_log->warn( "read returned {} on fd: {}", nread, it.fd );
-			m_ctx->bufpool.release( buf );
-			return true;
+			log->warn( "read returned {} on fd: {}", nread, fd );
+			ctx->bufpool.release( buf );
+			session->reset( );
+			session->poll_stop( );
+			return;
 		}
 
 		auto msg = std::make_unique< message::net_msg_t >( );
 		msg->buf = buf;
 		msg->len = nread;
-		msg->fd = it.fd;
+		msg->fd = fd;
 
-		m_ctx->in_queue.push( std::move( msg ) );
-	}
-
-	return false;
-}
-
-void net::tcp_client::run( ) {
-	while ( !m_ctx->targets.empty( ) ) {
-		int nevents = poll( m_ctx->targets.data( ), m_ctx->targets.size( ), 0 );
-		if ( nevents < 0 ) {
-			m_log->error( "poll error" );
-			break;
-		}
-
-		if ( nevents == 0 ) {
-			continue;
-		}
-
-		for ( auto it = m_ctx->targets.begin( ); it < m_ctx->targets.end( ); ++it ) {
-			if ( on_poll( *it ) ) {
-				sock::reset( it->fd );
-				m_ctx->targets.erase( it );
-			}
-		}
+		ctx->in_queue.push( std::move( msg ) );
 	}
 }

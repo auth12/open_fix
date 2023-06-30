@@ -210,10 +210,6 @@ namespace fix {
 			return *this;
 		}
 
-		fix_writer &push_timestamp(  ) {
-			
-		}
-
 		fix_writer &push_trailer( ) {
 			const size_t body_len = m_cur_pos - m_body_len_pos;
 			auto len_str = fmt::format( "9={}\001", body_len );

@@ -8,9 +8,6 @@
 
 #include "message.h"
 
-#include <tbb/tbb.h>
-#include <tbb/flow_graph.h>
-
 namespace net {
 	static constexpr int server_bufpool_elements = 256;
 	static constexpr int server_buf_size = 1024;
@@ -26,7 +23,7 @@ namespace net {
 
 		details::object_pool< char, server_buf_size, server_bufpool_elements > bufpool;
 		atomic_queue::AtomicQueue2< std::unique_ptr< message::net_msg_t >, 1024 > msg_queue;
-		tbb::concurrent_unordered_map< int, std::shared_ptr< tcp_session > > sessions;
+		std::unordered_map< int, std::shared_ptr< tcp_session > > sessions;
 
 		tcp_server_context_t( ) = default;
 	};

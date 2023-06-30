@@ -10,7 +10,7 @@
 
 namespace fix {
 	enum fix_session_state : int { // extends tcp session state
-		LoggedOut = net::session_state::MaxNetstate,
+		LoggedOut = 0,
 		AwaitingLogon,
 		LoggedIn
 	};
@@ -23,9 +23,14 @@ namespace fix {
 		fix_session( const std::string_view p_target_id, const std::string_view p_sender_id,
 					 const std::string_view p_begin_string )
 			: m_state{ AwaitingLogon }, m_begin_string{ p_begin_string }, m_sender_id{ p_sender_id },
-			  m_target_id{ p_target_id } { };
+			  m_target_id{ p_target_id }, m_next_out{ 1 } { };
 
-		int next_seq( ) const { return m_next_out.load( std::memory_order_acquire ); }
+		int next_seq( ) {
+			int ret = m_next_out.load( std::memory_order_acquire );
+			m_next_out.fetch_add( 1, std::memory_order_release );
+			return ret;
+		}
+
 		int state( ) const { return m_state.load( std::memory_order_acquire ); }
 		void set_state( const int &state ) { m_state.store( state, std::memory_order_release ); }
 
@@ -39,15 +44,13 @@ namespace fix {
 
 		void set_target_id( const std::string_view id ) { m_target_id = id; }
 
-		
-
 	  private:
-		std::atomic< int > m_state, m_next_out;
+		std::atomic_int m_state, m_next_out;
 		std::string m_target_id, m_sender_id, m_begin_string;
 	};
 
 	struct fix_client_context_t {
-		tbb::concurrent_unordered_map< int, std::shared_ptr< fix_session > > active_sessions;
+		std::unordered_map< int, std::shared_ptr< fix_session > > active_sessions;
 	};
 
 	class fix_client : public net::tcp_client {
@@ -63,25 +66,25 @@ namespace fix {
 		auto &cfg( ) { return m_cfg; }
 
 		int connect( ) {
-			auto &logger = log( );
-
 			for ( auto &t : m_cfg.targets ) {
 				const auto cur = t.ip.find( ':' );
 				if ( cur == std::string::npos ) {
-					logger->warn( "invalid address specified in config file" );
+					m_log->warn( "invalid address specified in config file" );
 					continue;
 				}
 
 				auto host = t.ip.substr( 0, cur );
 				auto port = t.ip.substr( cur + 1 );
 
-				logger->info( "attempting to connect to {}:{}", host, port );
+				m_log->info( "attempting to connect to {}:{}", host, port );
 
-				int ret = try_connect( host, port );
+				int ret = net::tcp_client::connect( host, port );
 				if ( ret < 0 ) {
-					logger->error( "failed to connect to {}:{}", host, port );
+					m_log->error( "failed to connect to {}:{}", host, port );
 					continue;
 				}
+
+				m_log->info( "connected to {}:{}", host, port );
 
 				m_fix_ctx->active_sessions[ ret ] =
 					std::make_shared< fix_session >( t.target_id, t.sender_id, t.fix_ver );
