@@ -8,9 +8,10 @@
 namespace config {
     struct target_t {
         std::string target_id, sender_id, ip, fix_ver;
+        std::vector< std::string > market_subscriptions;
     };
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( target_t, target_id, sender_id, ip, fix_ver )
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( target_t, target_id, sender_id, ip, fix_ver, market_subscriptions )
 
     struct cli_fix_cfg_t {
         std::string log_name;

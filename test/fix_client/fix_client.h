@@ -51,16 +51,24 @@ namespace fix {
 
 	struct fix_client_context_t {
 		std::unordered_map< int, std::shared_ptr< fix_session > > active_sessions;
+
+		details::log_ptr_t log;
+
+		fix_client_context_t( const std::string_view log_name, bool to_file )
+			: log{ details::log::make_sync( log_name, to_file ) } {
+			log->set_level( spdlog::level::debug );
+		}
 	};
 
 	class fix_client : public net::tcp_client {
 	  public:
 		fix_client( const std::string_view log_name, bool to_file )
-			: net::tcp_client{ log_name, to_file }, m_fix_ctx{ std::make_shared< fix_client_context_t >( ) } { };
+			: net::tcp_client{ "TCP", to_file },
+			  m_fix_ctx{ std::make_shared< fix_client_context_t >( log_name, to_file ) } { };
 
 		fix_client( const config::cli_fix_cfg_t &cfg )
-			: net::tcp_client{ cfg.log_name, cfg.to_file }, m_fix_ctx{ std::make_shared< fix_client_context_t >( ) },
-			  m_cfg{ cfg } { };
+			: net::tcp_client{ "TCP", cfg.to_file },
+			  m_fix_ctx{ std::make_shared< fix_client_context_t >( cfg.log_name, cfg.to_file ) }, m_cfg{ cfg } { };
 
 		auto &fix_ctx( ) { return m_fix_ctx; }
 		auto &cfg( ) { return m_cfg; }
@@ -69,25 +77,26 @@ namespace fix {
 			for ( auto &t : m_cfg.targets ) {
 				const auto cur = t.ip.find( ':' );
 				if ( cur == std::string::npos ) {
-					m_log->warn( "invalid address specified in config file" );
+					m_fix_ctx->log->warn( "invalid address specified in config file" );
 					continue;
 				}
 
 				auto host = t.ip.substr( 0, cur );
 				auto port = t.ip.substr( cur + 1 );
 
-				m_log->info( "attempting to connect to {}:{}", host, port );
+				m_fix_ctx->log->info( "Attempting to connect to {}:{}", host, port );
 
 				int ret = net::tcp_client::connect( host, port );
-				if ( ret < 0 ) {
-					m_log->error( "failed to connect to {}:{}", host, port );
+				if ( ret < net::tcp_error::ok ) {
+					m_fix_ctx->log->error( "Failed to connect to {}:{}", host, port );
 					continue;
 				}
 
-				m_log->info( "connected to {}:{}", host, port );
+				m_fix_ctx->log->info( "Connected to {}:{}", host, port );
 
-				m_fix_ctx->active_sessions[ ret ] =
-					std::make_shared< fix_session >( t.target_id, t.sender_id, t.fix_ver );
+				auto session = std::make_shared< fix_session >( t.target_id, t.sender_id, t.fix_ver );
+
+				m_fix_ctx->active_sessions[ ret ].swap( session );
 			}
 
 			return m_fix_ctx->active_sessions.size( );

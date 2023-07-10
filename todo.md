@@ -1,0 +1,6 @@
+- Uncouple FIX session from net::tcp_session, somehow make the operations in tcp session available in the fix session
+- Add error codes
+- Orderbook
+- Update TCP server to match client design
+- Allow for custom underlying tcp client in fix client to take custom logger name
+- Finish support for market subscription from config file

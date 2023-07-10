@@ -25,7 +25,7 @@ void consumer( net::tcp_server &srv ) {
 
 		fix::fix_message_t rd{ buf };
 		for ( auto &f : rd ) {
-			log->info( "{}->{}", f.tag, f.val.as_str( ) );
+			log->info( "{}->{}", f.tag, f.val.as_string( ) );
 		}
 	}
 }

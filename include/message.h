@@ -7,7 +7,7 @@
 namespace message {
 	struct net_msg_t {
 		net_msg_t( ) : buf{ nullptr }, len{ 0 }, fd{ -1 } {}
-		net_msg_t( const int p_fd, char *p_buf, const size_t p_len ) : buf{ p_buf }, len{ p_len }, fd{ p_fd } {}
+		net_msg_t( const int &p_fd, char *p_buf, const size_t &p_len ) : buf{ p_buf }, len{ p_len }, fd{ p_fd } {}
 
 		net_msg_t( const net_msg_t & ) = delete;
 		net_msg_t &operator=( const net_msg_t & ) = delete;
@@ -20,7 +20,5 @@ namespace message {
 		size_t len;
 	};
 
-	inline static std::unique_ptr< net_msg_t > make_msg( const int fd, char *buf, const size_t len ) {
-		return std::make_unique< net_msg_t >( fd, buf, len );
-	}
+	
 }; // namespace message
