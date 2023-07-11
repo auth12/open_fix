@@ -29,6 +29,11 @@ namespace fix {
 			int ret = m_next_out.load( std::memory_order_acquire );
 			m_next_out.fetch_add( 1, std::memory_order_release );
 			return ret;
+
+			//aks:: incrementing m_next_out in two steps makes it a non atomic operation and may lead to an unexpected value for
+			// m_next_out. fetch_add returns the previous value so we can use it this way.
+			// int next_seq( ) {return m_next_out.fetch_add( 1, std::memory_order_acq_rel ); }
+			// beside, I am not sure whether fix_session is accessed by how many threads?
 		}
 
 		int state( ) const { return m_state.load( std::memory_order_acquire ); }
