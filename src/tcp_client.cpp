@@ -1,6 +1,6 @@
 #include "include.h"
 
-#include "client.h"
+#include "tcp_client.h"
 
 int net::tcp_client::connect( const std::string_view host, const std::string_view port ) {
 	struct addrinfo hints;

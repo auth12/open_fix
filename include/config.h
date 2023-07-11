@@ -33,8 +33,7 @@ namespace config {
         }
 
         nlohmann::from_json( j[ "client" ], out );
-
-
+        
         return true;
     };
 };

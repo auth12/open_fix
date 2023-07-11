@@ -11,4 +11,4 @@ add_executable(
 
 target_include_directories(bench PUBLIC ${include_dirs} "${PROJECT_SOURCE_DIR}/../../CppBenchmark/include/")
 
-target_link_libraries(bench PUBLIC cppbenchmark)
+target_link_libraries(bench PUBLIC cppbenchmark absl::base absl::algorithm absl::strings)

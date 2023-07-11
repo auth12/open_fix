@@ -1,4 +1,6 @@
-#include "server.h"
+#include "include.h"
+
+#include "tcp_server.h"
 
 net::tcp_server::tcp_server( const std::string_view log_name, const bool to_file )
 	: m_ctx{ std::make_shared< tcp_server_context_t >( ) }, m_log{ details::log::make_sync( log_name, to_file ) } {

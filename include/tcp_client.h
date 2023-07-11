@@ -1,18 +1,18 @@
 #pragma once
 
 #include "include.h"
-
 #include "details.h"
-
 #include "session.h"
-
 #include "message.h"
-
 #include "errors.h"
+
+#include <absl/container/flat_hash_set.h>
+#include <absl/container/fixed_array.h>
 
 namespace net {
 	static constexpr int cli_bufpool_elements = 512;
 	static constexpr int cli_buf_size = 1024;
+	static constexpr int max_targets = 64;
 
 	namespace cb {
 		void on_poll( uv_poll_t *handle, int status, int flags );
@@ -20,7 +20,8 @@ namespace net {
 
 	struct tcp_client_ctx_t {
 		std::mutex targets_m;
-		std::vector< tcp_session > targets;
+		absl::InlinedVector< tcp_session, max_targets > targets;
+		//std::vector< tcp_session > targets; // targets is known to be a manageable number, should change to unordered_map for larger N targets
 
 		details::object_pool< char, cli_buf_size, cli_bufpool_elements > bufpool;
 

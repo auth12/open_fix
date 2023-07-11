@@ -21,15 +21,17 @@ namespace details {
 		}
 	}; // namespace log
 
-	// unsigned atoi
-	inline int atou( const char *begin, const char *end ) {
-		int ret = 0;
-		for ( ; begin < end; ++begin ) {
-			ret *= 10;
-			ret += static_cast< int >( *begin - '0' );
+	inline int atos( const char *begin, const char *end, int *target ) {
+		if ( *begin == '-' ) {
+			return 0;
 		}
 
-		return ret;
+		for ( ; begin < end; ++begin ) {
+			*target *= 10;
+			*target += static_cast< int >( *begin - '0' );
+		}
+
+		return *target;
 	}
 
 	inline int itoa( uint num, char *buf, const size_t remaining ) {

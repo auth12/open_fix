@@ -20,5 +20,6 @@ namespace message {
 		size_t len;
 	};
 
+
 	
 }; // namespace message

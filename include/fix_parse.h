@@ -15,7 +15,7 @@ namespace fix {
 
 		field_val_t( const char *b, const char *e ) : begin{ b }, end{ e } {}
 
-		int as_int( ) const { return details::atou( begin, end ); }
+		int as_int( ) const { return std::atoi( begin ); }
 		auto as_string( ) const { return std::string_view{ begin, ( size_t )( end - begin ) }; }
 		double as_double( ) const { return atof( begin ); }
 		char as_char( ) const { return begin[ 0 ]; };
@@ -74,7 +74,7 @@ namespace fix {
 				return;
 			}
 
-			cur.tag = details::atou( cur.begin, cur.val.begin - 1 );
+			details::atos( cur.begin, cur.val.begin - 1, & cur.tag );
 
 			cur.begin = cur.val.end + 1;
 		}
