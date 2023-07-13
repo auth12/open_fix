@@ -13,10 +13,10 @@ constexpr char fix_buf[] =
 int main( ) {
 	spdlog::set_pattern( "[%t]%+" );
 
-	auto map = absl::StrSplit( fix_buf, '\001' );
+	fix::fix_message_t rd{ fix_buf };
 
-	for( auto &v : map ) {
-		spdlog::info( "{}", v );
+	for( auto &v : rd ) {
+		spdlog::info( "{}->{}", v.tag, v.val.as_string( ) );
 	}
 
 	return 0;

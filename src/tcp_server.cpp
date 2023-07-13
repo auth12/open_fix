@@ -144,8 +144,6 @@ void net::server_cb::on_read( uv_poll_t *handle, int status, int events ) {
 		msg->len = ret;
 		msg->fd = session->fd( );
 
-		if ( !ctx->msg_queue.try_push( std::move( msg ) ) ) {
-			log->critical( "failed to push msg" );
-		}
+		ctx->msg_queue.push( message::net_msg_t{ session->fd( ), buf, ret } );
 	}
 }

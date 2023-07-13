@@ -22,7 +22,7 @@ namespace net {
 		tcp_session server_session;
 
 		details::object_pool< char, server_buf_size, server_bufpool_elements > bufpool;
-		atomic_queue::AtomicQueue2< std::unique_ptr< message::net_msg_t >, 1024 > msg_queue;
+		atomic_queue::AtomicQueue2< message::net_msg_t, 1024 > msg_queue;
 		std::unordered_map< int, std::shared_ptr< tcp_session > > sessions;
 
 		tcp_server_context_t( ) = default;

@@ -6,8 +6,10 @@
 #include "message.h"
 #include "errors.h"
 
-#include <absl/container/flat_hash_set.h>
-#include <absl/container/fixed_array.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/poll.h>
 
 namespace net {
 	static constexpr int cli_bufpool_elements = 512;
@@ -19,30 +21,18 @@ namespace net {
 	}; // namespace cb
 
 	struct tcp_client_ctx_t {
-		std::mutex targets_m;
-		absl::InlinedVector< tcp_session, max_targets > targets;
-		//std::vector< tcp_session > targets; // targets is known to be a manageable number, should change to unordered_map for larger N targets
+		std::vector< pollfd > targets;
 
 		details::object_pool< char, cli_buf_size, cli_bufpool_elements > bufpool;
 
-		atomic_queue::AtomicQueue2< message::net_msg_t, 256 > in_queue;
-		atomic_queue::AtomicQueue2< message::net_msg_t, 256 > out_queue;
+		atomic_queue::AtomicQueue2< message::net_msg_t, 1024, true, true, true, true > in_queue;
+		atomic_queue::AtomicQueue2< message::net_msg_t, 1024 > out_queue;
 
 		details::log_ptr_t log;
 
 		tcp_client_ctx_t( const std::string_view log_name, bool to_file )
 			: log{ details::log::make_sync( log_name, to_file ) } {
 			log->set_level( spdlog::level::debug );
-		}
-
-		bool erase_target( const int fd ) {
-			std::scoped_lock< std::mutex > lk( targets_m );
-			auto it = std::find( targets.begin( ), targets.end( ), fd );
-			if ( it != targets.end( ) ) {
-				targets.erase( it );
-				return true;
-			}
-			return false;
 		}
 	};
 
@@ -70,7 +60,7 @@ namespace net {
 
 		int connect( const std::string_view host, const std::string_view port );
 
-		int run( ) { return uv_run( &m_loop, UV_RUN_DEFAULT ); }
+		void run( );
 	};
 
 }; // namespace net

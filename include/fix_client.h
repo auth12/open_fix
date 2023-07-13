@@ -15,35 +15,26 @@ namespace fix {
 		LoggedIn
 	};
 
-	class fix_session {
+	class fix_session : public net::socket_wrapper {
 	  public:
 		fix_session( )
 			: m_state{ LoggedOut }, m_next_out{ 1 }, m_target_id{ "" }, m_sender_id{ "" }, m_begin_string{ "" } { };
 
-		fix_session( const std::string_view p_target_id, const std::string_view p_sender_id,
+		fix_session( const int fd, const std::string_view p_target_id, const std::string_view p_sender_id,
 					 const std::string_view p_begin_string )
 			: m_state{ AwaitingLogon }, m_begin_string{ p_begin_string }, m_sender_id{ p_sender_id },
-			  m_target_id{ p_target_id }, m_next_out{ 1 } { };
+			  m_target_id{ p_target_id }, m_next_out{ 1 }, net::socket_wrapper{ fd } { };
 
-		int next_seq( ) {
-			int ret = m_next_out.load( std::memory_order_acquire );
-			m_next_out.fetch_add( 1, std::memory_order_release );
-			return ret;
-
-			//aks:: incrementing m_next_out in two steps makes it a non atomic operation and may lead to an unexpected value for
-			// m_next_out. fetch_add returns the previous value so we can use it this way.
-			// int next_seq( ) {return m_next_out.fetch_add( 1, std::memory_order_acq_rel ); }
-			// beside, I am not sure whether fix_session is accessed by how many threads?
-		}
+		int next_seq( ) { return m_next_out.fetch_add( 1, std::memory_order_release ); }
 
 		int state( ) const { return m_state.load( std::memory_order_acquire ); }
 		void set_state( const int &state ) { m_state.store( state, std::memory_order_release ); }
 
-		auto &target_id( ) const { return m_target_id; }
+		std::string_view target_id( ) const { return m_target_id; }
 
-		auto &sender_id( ) const { return m_sender_id; }
+		std::string_view sender_id( ) const { return m_sender_id; }
 
-		auto &begin_str( ) const { return m_begin_string; }
+		std::string_view begin_str( ) const { return m_begin_string; }
 
 		void set_sender_id( const std::string_view id ) { m_sender_id = id; }
 
@@ -61,7 +52,7 @@ namespace fix {
 
 		fix_client_context_t( const std::string_view log_name, bool to_file )
 			: log{ details::log::make_sync( log_name, to_file ) } {
-			log->set_level( spdlog::level::debug );
+			// log->set_level( spdlog::level::err );
 		}
 	};
 

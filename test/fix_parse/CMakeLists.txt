@@ -12,3 +12,4 @@ add_executable(
 target_include_directories(fix_parse PUBLIC ${include_dirs})
 
 target_link_libraries(fix_parse PUBLIC spdlog fix)
+enable_sanitizer(fix_parse)

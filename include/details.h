@@ -21,45 +21,65 @@ namespace details {
 		}
 	}; // namespace log
 
-	inline int atos( const char *begin, const char *end, int *target ) {
+	inline int atoi( const char *begin, const char *end, const int base = 10 ) {
+		int ret = 0;
+		bool negative = false;
+		if ( !begin or !end ) {
+			return std::numeric_limits< int >::max( );
+		}
+
 		if ( *begin == '-' ) {
-			return 0;
+			negative = true;
+			++begin;
 		}
 
 		for ( ; begin < end; ++begin ) {
-			*target *= 10;
-			*target += static_cast< int >( *begin - '0' );
+			ret *= base;
+			ret += static_cast< int >( *begin - '0' );
 		}
 
-		return *target;
+		return negative ? -ret : ret;
 	}
 
-	inline int itoa( uint num, char *buf, const size_t remaining ) {
-		int digits = log10( num ) + 1;
-		if ( remaining < digits ) {
-			return 0;
+	template < typename Num_t > int itoa( Num_t num, char *buf, const size_t len ) {
+		bool negative = false;
+		if ( num < 0 ) {
+			negative = true;
+			num = -num;
 		}
 
-		if ( num < 10 ) {
-			*buf = '0' + num;
-			return 1;
+		if ( len < sizeof( num ) + 1 ) {
+			return -1;
 		}
 
-		char *tmp = buf;
-		for ( int i = 0; i < digits; ++i, num /= 10 ) {
-			*tmp++ = '0' + num % 10;
+		int ret = 0;
+		auto ptr = buf;
+		for ( ; num; num /= 10 ) {
+			if ( ptr >= buf + len ) {
+				return -1;
+			}
+			*ptr++ = '0' + ( num % 10 );
+			++ret;
 		}
 
-		std::reverse( buf, tmp );
+		if ( negative ) {
+			if ( ptr >= buf + len ) {
+				return -1;
+			}
+			*ptr++ = '-';
+			ret++;
+		}
 
-		return digits;
+		std::reverse( buf, ptr );
+
+		return ret;
 	}
 
 	template < typename Type, size_t TypeSize, int N > class object_pool {
 	  public:
 		static constexpr size_t obj_size = TypeSize;
 
-		object_pool( ) {
+		object_pool( ) : m_pool{ N } {
 			for ( int i = 0; i < N; ++i ) {
 				m_pool.push( ( uintptr_t )m_allocator.allocate( TypeSize ) );
 			}
@@ -82,7 +102,7 @@ namespace details {
 		}
 
 	  private:
-		atomic_queue::AtomicQueue2< uintptr_t, N > m_pool;
+		atomic_queue::AtomicQueueB< uintptr_t, std::allocator< uintptr_t >, uintptr_t{ 0 } > m_pool;
 		std::allocator< Type > m_allocator;
 	};
 

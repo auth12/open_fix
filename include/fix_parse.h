@@ -32,8 +32,7 @@ namespace fix {
 		bool operator==( const int &t_ ) const { return tag == t_; }
 	};
 
-	template< char Delim >
-	struct fix_field_iterator_t {
+	template < char Delim > struct fix_field_iterator_t {
 		using iterator_category = std::forward_iterator_tag;
 		using difference_type = std::ptrdiff_t;
 		using value_type = fix_field_t;
@@ -74,7 +73,7 @@ namespace fix {
 				return;
 			}
 
-			details::atos( cur.begin, cur.val.begin - 1, & cur.tag );
+			cur.tag = details::atoi( cur.begin, cur.val.begin - 1 );
 
 			cur.begin = cur.val.end + 1;
 		}
@@ -86,8 +85,7 @@ namespace fix {
 	};
 
 	// single FIX msg
-	template< char Delim = '\001' >
-	struct fix_message_t {
+	template < char Delim = '\001' > struct fix_message_t {
 		using iterator = fix_field_iterator_t< Delim >;
 		const char *begin_, *end_ = nullptr;
 
@@ -103,8 +101,6 @@ namespace fix {
 			if ( begin_[ 0 ] != '8' or begin_[ 1 ] != '=' or begin_[ len - 1 ] != '\001' ) {
 				return false;
 			}
-
-
 
 			iterator b{ begin_ };
 			if ( b->tag != 8 ) { // BeginString
@@ -129,7 +125,7 @@ namespace fix {
 		iterator end( ) const { return iterator{ end_ }; }
 		iterator find( const int &tag ) const { return std::find( begin( ), end( ), tag ); }
 	};
-	
+
 	class fix_writer {
 	  public:
 		fix_writer( char *begin, const size_t len )
