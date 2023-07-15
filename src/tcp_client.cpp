@@ -13,13 +13,13 @@ int net::tcp_client::connect( const std::string_view host, const std::string_vie
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
-	int sockfd = -1;
-
 	int ret = getaddrinfo( host.data( ), port.data( ), &hints, &info );
 	if ( ret != 0 ) {
 		m_ctx->log->error( "getaddrinfo failed, code {}", ret );
 		return tcp_error::getaddrinfo_err;
 	}
+
+	int sockfd = -1;
 
 	struct addrinfo *cur;
 	for ( cur = info; cur != nullptr; cur = info->ai_next ) {
@@ -58,14 +58,14 @@ int net::tcp_client::connect( const std::string_view host, const std::string_vie
 
 	m_ctx->log->debug( "Set socket {} to non block.", sockfd );
 
-	m_ctx->targets.emplace_back( pollfd{ sockfd, POLLIN | POLLHUP } );
+	m_ctx->targets.emplace_back( poll_t{ sockfd, POLLIN | POLLHUP } );
 
 	return sockfd;
 }
 
 void net::tcp_client::run( ) {
 	while ( !m_ctx->targets.empty( ) ) {
-		int nevents = poll( m_ctx->targets.data( ), m_ctx->targets.size( ), 0 );
+		int nevents = poll( ( pollfd * )m_ctx->targets.data( ), m_ctx->targets.size( ), 0 );
 		if ( nevents < 0 ) {
 			m_ctx->log->error( "Poll error, {}", nevents );
 			break;
@@ -77,22 +77,21 @@ void net::tcp_client::run( ) {
 
 		m_ctx->log->debug( "Captured {} events.", nevents );
 
-		for ( auto it = m_ctx->targets.cbegin( ); it != m_ctx->targets.cend( ); ++it ) {
-			if ( nevents <= 0 ) {
+		for ( auto it = m_ctx->targets.begin( ); it != m_ctx->targets.end( ); ++it ) {
+			if ( !nevents ) {
 				break;
 			}
 
-			if ( it->revents == 0 ) {
+			if ( !it->revents ) {
 				continue;
 			}
 
 			if ( it->revents & POLLHUP ) {
 				--nevents;
-				m_ctx->log->warn( "Connection reset by peer, fd: {}", it->fd );
-
-				::close( it->fd );
-
+				m_ctx->log->warn( "Connection on fd: {} reset by peer", it->session );
+				it->session.reset( );
 				m_ctx->targets.erase( it );
+
 				continue;
 			}
 
@@ -100,28 +99,29 @@ void net::tcp_client::run( ) {
 				--nevents;
 				auto buf = m_ctx->bufpool.get( );
 				if ( !buf ) {
-					m_ctx->log->warn( "No available buffers in pool, postponing fd: {}", it->fd );
+					m_ctx->log->warn( "No available buffers in pool, postponing fd: {}", it->session );
 					continue;
 				}
 
-				int nread = net::read( it->fd, buf, m_ctx->bufpool.obj_size );
+				int nread = it->session.read( buf, m_ctx->bufpool.obj_size );
 				if ( nread <= 0 ) {
-					m_ctx->log->warn( "Read returned {} on fd: {}, dropping...", nread, it->fd );
-
-					::close( it->fd );
-
+					m_ctx->log->error( "Read returned {} on fd: {}, dropping...", nread, it->session );
+					it->session.reset( );
 					m_ctx->targets.erase( it );
 					m_ctx->bufpool.release( buf );
+
 					continue;
 				}
 
 				if ( nread == EWOULDBLOCK ) {
-					m_ctx->log->debug( "Socket fd: {} would block, discarding...", it->fd );
+					m_ctx->log->warn( "Socket fd: {} would block, discarding...", it->session );
 					m_ctx->bufpool.release( buf );
 					continue;
 				}
 
-				m_ctx->in_queue.push( message::net_msg_t{ it->fd, buf, nread } );
+				m_ctx->log->info( "Read {} bytes from fd: {}", nread, it->session );
+
+				m_ctx->in_queue.push( message::net_msg_t{ it->session, buf, nread } );
 			}
 		}
 	}

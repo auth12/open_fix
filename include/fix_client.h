@@ -15,7 +15,7 @@ namespace fix {
 		LoggedIn
 	};
 
-	class fix_session : public net::socket_wrapper {
+	class fix_session : public net::tcp_session {
 	  public:
 		fix_session( )
 			: m_state{ LoggedOut }, m_next_out{ 1 }, m_target_id{ "" }, m_sender_id{ "" }, m_begin_string{ "" } { };
@@ -23,7 +23,7 @@ namespace fix {
 		fix_session( const int fd, const std::string_view p_target_id, const std::string_view p_sender_id,
 					 const std::string_view p_begin_string )
 			: m_state{ AwaitingLogon }, m_begin_string{ p_begin_string }, m_sender_id{ p_sender_id },
-			  m_target_id{ p_target_id }, m_next_out{ 1 }, net::socket_wrapper{ fd } { };
+			  m_target_id{ p_target_id }, m_next_out{ 1 }, net::tcp_session{ fd } { };
 
 		int next_seq( ) { return m_next_out.fetch_add( 1, std::memory_order_release ); }
 
@@ -46,12 +46,13 @@ namespace fix {
 	};
 
 	struct fix_client_context_t {
-		std::unordered_map< int, std::shared_ptr< fix_session > > active_sessions;
+		std::unordered_map< int, std::unique_ptr< fix_session > > active_sessions;
 
 		details::log_ptr_t log;
 
 		fix_client_context_t( const std::string_view log_name, bool to_file )
 			: log{ details::log::make_sync( log_name, to_file ) } {
+			log->set_level( spdlog::level::debug );
 			// log->set_level( spdlog::level::err );
 		}
 	};

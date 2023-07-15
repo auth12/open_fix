@@ -2,16 +2,6 @@
 
 #include "tcp_server.h"
 
-net::tcp_server::tcp_server( const std::string_view log_name, const bool to_file )
-	: m_ctx{ std::make_shared< tcp_server_context_t >( ) }, m_log{ details::log::make_sync( log_name, to_file ) } {
-	m_log->flush_on( spdlog::level::n_levels );
-	m_log->set_level( spdlog::level::debug );
-	m_log->set_pattern( "[%t]%+" );
-
-	uv_loop_init( &m_loop );
-	m_loop.data = this;
-}
-
 int net::tcp_server::bind( const std::string_view host, const std::string_view port ) {
 	addrinfo hints, *res;
 
@@ -22,24 +12,24 @@ int net::tcp_server::bind( const std::string_view host, const std::string_view p
 
 	int ret = getaddrinfo( host.data( ), port.data( ), &hints, &res );
 	if ( ret != 0 ) {
-		m_log->error( "failed to get address info, ret {}", ret );
+		m_ctx->log->error( "Failed to get address info, ret {}", ret );
 		return ret;
 	}
 
-	auto &session = m_ctx->server_session;
-
-	int fd = ::socket( res->ai_family, res->ai_socktype, res->ai_protocol );
+	int fd = socket( res->ai_family, res->ai_socktype, res->ai_protocol );
 	if ( fd < 0 ) {
-		m_log->error( "failed to create socket" );
+		m_ctx->log->error( "Failed to create socket" );
 
 		freeaddrinfo( res );
 		return -1;
 	}
 
+	m_ctx->log->debug( "Created socket {}", fd );
+
 	ret = ::bind( fd, res->ai_addr, res->ai_addrlen );
 	if ( ret != 0 ) {
-		m_log->error( "failed to bind." );
-		session.reset( );
+		m_ctx->log->error( "Failed to bind." );
+		close( fd );
 
 		freeaddrinfo( res );
 		return ret;
@@ -47,103 +37,109 @@ int net::tcp_server::bind( const std::string_view host, const std::string_view p
 
 	freeaddrinfo( res );
 
-	ret = ::listen( fd, 128 );
+	m_ctx->log->debug( "Bound socket {}", fd );
+
+	int on = 1;
+	ret = ioctl( fd, FIONBIO, &on );
 	if ( ret != 0 ) {
-		m_log->error( "failed to listen" );
-		session.reset( );
+		m_ctx->log->error( "Failed to set listen socket to non-block" );
 		return ret;
 	}
 
-	session.set_fd( fd );
+	m_ctx->log->debug( "Set socket {} to non-block" );
 
-	ret = m_ctx->server_session.poll_init( &m_loop );
+	ret = listen( fd, 128 );
 	if ( ret != 0 ) {
+		m_ctx->log->error( "failed to listen" );
+		close( fd );
 		return ret;
 	}
 
-	return m_ctx->server_session.poll_start( server_cb::on_connect, UV_READABLE );
+	m_ctx->log->debug( "Socket {} listening", fd );
+
+	m_ctx->targets.emplace_back( net::poll_t{ fd, POLLIN } );
+	m_listen_session.set_fd( fd );
+
+	return fd;
 }
 
-void net::server_cb::on_connect( uv_poll_t *server_handle, int status, int events ) {
-	auto server = ( tcp_server * )server_handle->loop->data;
-	auto &log = server->log( );
-	auto &ctx = server->ctx( );
+void net::tcp_server::run( ) {
+	while ( !m_ctx->targets.empty( ) ) {
+		int nevents = poll( ( pollfd * )m_ctx->targets.data( ), m_ctx->targets.size( ), 0 );
 
-	if ( status < 0 ) {
-		log->warn( "on connect error, {}", uv_strerror( status ) );
-		return;
-	}
-
-	auto session = std::make_shared< tcp_session >( );
-
-	sockaddr_storage in_addr;
-	socklen_t addr_len = sizeof( sockaddr_storage );
-	int fd = accept( ctx->server_session.fd( ), ( sockaddr * )&in_addr, &addr_len );
-	if ( fd == -1 ) {
-		log->error( "failed to accept new session" );
-		return;
-	}
-
-	log->info( "new session, fd: {}", fd );
-
-	session->set_fd( fd );
-
-	if ( session->poll_init( server_handle->loop ) != 0 ) {
-		log->error( "failed to initialize session poll handle." );
-		session->reset( );
-		return;
-	}
-
-	session->poll_handle( )->data = session.get( );
-
-	if ( session->poll_start( on_read, UV_READABLE | UV_DISCONNECT ) != 0 ) {
-		log->error( "failed to initialize session poll handle." );
-		session->reset( );
-		return;
-	}
-
-	ctx->sessions[ session->fd( ) ].swap( session );
-}
-
-void net::server_cb::on_read( uv_poll_t *handle, int status, int events ) {
-	auto srv = ( tcp_server * )handle->loop->data;
-	auto &ctx = srv->ctx( );
-	auto &log = srv->log( );
-
-	auto session = ( tcp_session * )handle->data;
-
-	if ( events & UV_DISCONNECT ) {
-		log->warn( "session {} disconnected", session->fd( ) );
-		session->reset( );
-		session->poll_stop( );
-		return;
-	}
-
-	if ( events & UV_READABLE ) {
-		auto buf = ctx->bufpool.get( );
-		if ( !buf ) {
-			log->warn( "no available buffers in pool" );
-			return;
+		if ( nevents < 0 ) {
+			m_ctx->log->error( "Poll error, {}", nevents );
+			break;
 		}
 
-		int ret = recv( session->fd( ), buf, server_buf_size, 0 );
-		if ( ret <= 0 ) {
-			log->warn( "failed to read from socket, {}", ret );
-
-			session->reset( );
-			session->poll_stop( );
-
-			ctx->bufpool.release( buf );
-			return;
+		if ( nevents == 0 ) {
+			continue;
 		}
 
-		log->debug( "read {} bytes from fd {}", ret, session->fd( ) );
+		m_ctx->log->debug( "Captured {} events.", nevents );
 
-		auto msg = std::make_unique< message::net_msg_t >( );
-		msg->buf = buf;
-		msg->len = ret;
-		msg->fd = session->fd( );
+		for ( auto it = m_ctx->targets.begin( ); it != m_ctx->targets.end( ); ++it ) {
+			if ( !nevents ) {
+				break;
+			}
 
-		ctx->msg_queue.push( message::net_msg_t{ session->fd( ), buf, ret } );
+			if ( !it->revents ) {
+				continue;
+			}
+
+			if ( it->revents & POLLHUP ) {
+				--nevents;
+				m_ctx->log->warn( "Session fd: {} disconnected.", it->session );
+				it->session.reset( );
+
+				m_ctx->targets.erase( it );
+				continue;
+			}
+
+			if ( it->revents & POLLIN ) {
+				--nevents;
+
+				if ( it->session == m_listen_session ) {
+					int fd = accept( m_listen_session, nullptr, nullptr );
+					if ( fd < 0 ) {
+						m_ctx->log->error( "Accept failed on new session." );
+						continue;
+					}
+
+					m_ctx->log->info( "New session established fd: {}", fd );
+
+					m_ctx->targets.emplace_back( poll_t{ fd, POLLIN | POLLHUP } );
+
+					continue;
+				}
+
+				auto buf = m_ctx->bufpool.get( );
+				if ( !buf ) {
+					m_ctx->log->warn( "No available buffers in pool, postponing fd: {}", it->session );
+					continue;
+				}
+
+				int nread = it->session.read( buf, m_ctx->bufpool.obj_size );
+				if ( nread <= 0 ) {
+					m_ctx->log->error( "Read returned {} on fd: {}, dropping...", nread, it->session );
+
+					it->session.reset( );
+
+					m_ctx->targets.erase( it );
+					m_ctx->bufpool.release( buf );
+					continue;
+				}
+
+				if ( nread == EWOULDBLOCK ) {
+					m_ctx->log->warn( "Socket fd: {} would block, discarding...", it->session );
+					m_ctx->bufpool.release( buf );
+					continue;
+				}
+
+				m_ctx->log->debug( "Read {} bytes from fd: {}", nread, it->session );
+
+				m_ctx->in_queue.push( message::net_msg_t{ it->session, buf, nread } );
+			}
+		}
 	}
 }

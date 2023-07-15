@@ -16,14 +16,9 @@ namespace net {
 	static constexpr int cli_buf_size = 1024;
 	static constexpr int max_targets = 64;
 
-	namespace cb {
-		void on_poll( uv_poll_t *handle, int status, int flags );
-	}; // namespace cb
-
 	struct tcp_client_ctx_t {
-		std::vector< pollfd > targets;
-
 		details::object_pool< char, cli_buf_size, cli_bufpool_elements > bufpool;
+		std::vector< poll_t > targets;
 
 		atomic_queue::AtomicQueue2< message::net_msg_t, 1024, true, true, true, true > in_queue;
 		atomic_queue::AtomicQueue2< message::net_msg_t, 1024 > out_queue;
@@ -38,17 +33,11 @@ namespace net {
 
 	class tcp_client {
 	  private:
-		std::shared_ptr< tcp_client_ctx_t > m_ctx;
-
-	  protected:
-		uv_loop_t m_loop;
+		std::unique_ptr< tcp_client_ctx_t > m_ctx;
 
 	  public:
 		tcp_client( const std::string_view log_name, bool to_file )
-			: m_ctx{ std::make_shared< tcp_client_ctx_t >( log_name, to_file ) } {
-			uv_loop_init( &m_loop );
-			m_loop.data = m_ctx.get( );
-		}
+			: m_ctx{ std::make_unique< tcp_client_ctx_t >( log_name, to_file ) } {}
 
 		tcp_client( const tcp_client & ) = delete;
 		tcp_client &operator=( const tcp_client & ) = delete;
@@ -56,7 +45,7 @@ namespace net {
 		tcp_client( tcp_client && ) = delete;
 		tcp_client &operator=( tcp_client && ) = delete;
 
-		auto ctx( ) { return m_ctx; }
+		auto &ctx( ) { return m_ctx; }
 
 		int connect( const std::string_view host, const std::string_view port );
 

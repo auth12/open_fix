@@ -23,9 +23,7 @@ int fix::fix_client::connect( ) {
 
 		m_fix_ctx->log->info( "Connected to {}:{}", host, port );
 
-		auto session = std::make_shared< fix_session >( ret, t.target_id, t.sender_id, t.fix_ver );
-
-		m_fix_ctx->active_sessions[ ret ].swap( session );
+		m_fix_ctx->active_sessions[ ret ] = std::make_unique< fix_session >( ret, t.target_id, t.sender_id, t.fix_ver );
 	}
 
 	return m_fix_ctx->active_sessions.size( );

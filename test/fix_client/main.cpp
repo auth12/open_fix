@@ -7,10 +7,14 @@
 #include <sched.h>
 #include <pthread.h>
 
+#include "order.h"
+
 void in_queue_consume( fix::fix_client &cli ) {
 	auto &cfg = cli.cfg( );
-	auto ctx = cli.ctx( );
+	auto &ctx = cli.ctx( );
 	auto fix_ctx = cli.fix_ctx( );
+
+	market::orderbook_t book;
 
 	while ( !ctx->targets.empty( ) ) {
 		auto msg = ctx->in_queue.pop( );
@@ -20,14 +24,14 @@ void in_queue_consume( fix::fix_client &cli ) {
 		}
 
 		const std::string_view buf{ msg.buf, msg.len };
-		auto session = fix_ctx->active_sessions[ msg.fd ];
+		auto &session = fix_ctx->active_sessions[ msg.fd ];
 		if ( !session ) {
 			fix_ctx->log->critical( "Received message from inactive FIX session, fd: {}", msg.fd );
 			continue;
 		}
 
 		const int state = session->state( );
-		const auto &target_id = session->target_id( );
+		const auto target_id = session->target_id( );
 
 		fix_ctx->log->debug( "IN:{} -> {}", target_id, buf );
 
@@ -67,6 +71,7 @@ void in_queue_consume( fix::fix_client &cli ) {
 			if ( msg_type == 'W' ) {
 				double buy, sell = 0;
 				double buy_vol, sell_vol = 0;
+				std::string_view time;
 
 				char side = 0;
 				for ( auto it = rd.begin( ); it < rd.end( ); ++it ) {
@@ -92,16 +97,20 @@ void in_queue_consume( fix::fix_client &cli ) {
 								sell_vol = it->val.as_double( );
 							}
 						} break;
+						case fix_spec::MDEntryTime: {
+							time = it->val.as_string( );
 
+						} break;
 						default:
 							break;
 					}
 				}
 
-				fix_ctx->log->info( "{}: BUY: {}, Volume: {}, SELL: {}, Volume: {}", target_id, buy, buy_vol, sell,
+				fix_ctx->log->info( "{}: BUY: {}, Volume: {}, SELL: {}, Volume: {}", time, buy, buy_vol, sell,
 									sell_vol );
 
 				ctx->bufpool.release( msg.buf );
+				
 				continue;
 			}
 
@@ -154,20 +163,20 @@ void in_queue_consume( fix::fix_client &cli ) {
 }
 
 void out_queue_consume( fix::fix_client &cli ) {
-	auto ctx = cli.ctx( );
+	auto &ctx = cli.ctx( );
 	auto fix_ctx = cli.fix_ctx( );
 
 	while ( !ctx->targets.empty( ) ) {
 		auto msg = ctx->out_queue.pop( );
 
-		auto session = fix_ctx->active_sessions[ msg.fd ];
+		auto &session = fix_ctx->active_sessions[ msg.fd ];
 		std::string_view buf{ msg.buf, msg.len };
 
 		fix_ctx->log->info( "Sending {} to {} session", buf, session->target_id( ) );
 
 		fix_ctx->log->debug( "OUT:{} -> {}", session->target_id( ), buf );
 
-		ssize_t nwrite = session->write( buf );
+		int nwrite = session->write( buf );
 		if ( nwrite <= 0 ) {
 			session->reset( );
 
@@ -189,7 +198,7 @@ int main( ) {
 	}
 
 	fix::fix_client cli( cfg );
-	auto ctx = cli.ctx( );
+	auto &ctx = cli.ctx( );
 	auto fix_ctx = cli.fix_ctx( );
 
 	int ret = cli.connect( );
@@ -197,7 +206,10 @@ int main( ) {
 		return 0;
 	}
 
-	for ( auto &[ fd, session ] : cli.fix_ctx( )->active_sessions ) {
+	std::thread( out_queue_consume, std::ref( cli ) ).detach( );
+	std::thread( in_queue_consume, std::ref( cli ) ).detach( );
+
+	for ( auto &[ fd, session ] : fix_ctx->active_sessions ) {
 		fix_ctx->log->info( "Sending Logon to {}...", session->target_id( ) );
 
 		auto buf = ctx->bufpool.get( );
@@ -221,9 +233,6 @@ int main( ) {
 
 		ctx->out_queue.push( message::net_msg_t{ fd, buf, wr.size( ) } );
 	}
-
-	std::thread( out_queue_consume, std::ref( cli ) ).detach( );
-	std::thread( in_queue_consume, std::ref( cli ) ).detach( );
 
 	cli.run( );
 
