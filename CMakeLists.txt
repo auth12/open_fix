@@ -47,3 +47,9 @@ target_precompile_headers(fix PUBLIC "${PROJECT_SOURCE_DIR}/modules/hffix/includ
 target_link_libraries(fix PUBLIC uv_a spdlog cppbenchmark absl::base absl::algorithm absl::strings)
 
 add_subdirectory(test)
+
+
+##copy configs
+set(SOURCE_CONFIG_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/configs)
+set(TARGET_CONFIG_FOLDER ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${SOURCE_CONFIG_FOLDER} DESTINATION ${TARGET_CONFIG_FOLDER})

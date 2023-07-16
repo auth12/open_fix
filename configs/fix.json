@@ -1,0 +1,15 @@
+{
+    "client": {
+        "log_name": "FIX",
+        "to_file": false,
+        "targets": [
+            {
+                "ip": "127.0.0.1:1516",
+                "fix_ver": "FIX.4.4",
+                "target_id": "LMXBLM",
+                "sender_id": "AshishDigUAT1",
+                "market_subscriptions": [ "5002" ]
+            }
+        ]
+    }
+}
