@@ -4,6 +4,8 @@
 
 #include <atomic_queue/atomic_queue.h>
 
+#define LOG_PATTERN "[%t][%X.%e] [%n] [%^%l%$] %v"
+
 namespace details {
 	using log_ptr_t = std::shared_ptr< spdlog::logger >;
 
@@ -74,34 +76,33 @@ namespace details {
 		return ret;
 	}
 
-	template < typename Type, size_t TypeSize, int N > class object_pool {
+	template < typename Type, size_t Size, int N > class object_pool {
 	  public:
-		static constexpr size_t obj_size = TypeSize;
+		static constexpr size_t obj_size = Size;
 
-		object_pool( ) : m_pool{ N } {
+		object_pool( ) {
+			m_ptr = std::make_unique< char[] >( Size * N );
 			for ( int i = 0; i < N; ++i ) {
-				m_pool.push( ( uintptr_t )m_allocator.allocate( TypeSize ) );
+				m_pool.push( ( uintptr_t )m_ptr.get( ) + ( Size * i ) );
 			}
 		}
 
 		// m_pool.pop busy waits but is faster than try_pop when queue isnt empty
 		// make sure consumption is fast enough
 		Type *get( ) {
-			/*uintptr_t ret = 0;
+			uintptr_t ret = 0;
 			if ( !m_pool.try_pop( ret ) ) {
 				return ( Type * )ret;
-			}*/
+			}
 
-			return ( Type * )m_pool.pop( );
+			return ( Type * )ret;
 		}
 
-		void release( Type *obj ) {
-			m_pool.push( uintptr_t( obj ) );
-			obj = nullptr;
-		}
+		void release( Type *obj ) { m_pool.push( uintptr_t( obj ) ); }
+		size_t pool_size( ) { return m_pool.was_size( ); }
 
 	  private:
-		atomic_queue::AtomicQueueB< uintptr_t, std::allocator< uintptr_t >, uintptr_t{ 0 } > m_pool;
-		std::allocator< Type > m_allocator;
+		atomic_queue::AtomicQueue< uintptr_t, N > m_pool;
+		std::unique_ptr< char[] > m_ptr;
 	};
 }; // namespace details

@@ -4,3 +4,4 @@ CppBenchmark modules/CppBenchmark https://github.com/chronoxor/CppBenchmark.git 
 hffix modules/hffix https://github.com/jamesdbrock/hffix.git master
 atomic_queue modules/atomic_queue https://github.com/max0x7ba/atomic_queue.git v1.4
 abseil modules/abseil https://github.com/abseil/abseil-cpp.git 20230125.3
+nameof modules/nameof https://github.com/Neargye/nameof.git master

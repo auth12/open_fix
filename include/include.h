@@ -26,7 +26,12 @@
 #include <chrono>
 #include <map>
 
-#include <uv.h>
+#include <sys/socket.h>
+#include <sys/poll.h>
+#include <sys/fcntl.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <netdb.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/async_logger.h>
@@ -34,5 +39,3 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/details/thread_pool.h>
-
-#include <benchmark/cppbenchmark.h>
