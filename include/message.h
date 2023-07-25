@@ -6,12 +6,6 @@
 
 namespace net {
 	struct tcp_msg_t {
-		tcp_msg_t( const tcp_msg_t & ) = delete;
-		tcp_msg_t &operator=( const tcp_msg_t & ) = delete;
-
-		tcp_msg_t( tcp_msg_t && ) = default;
-		tcp_msg_t &operator=( tcp_msg_t && ) = default;
-
 		tcp_msg_t( ) {}
 		tcp_msg_t( char *ptr, const size_t len ) : buf{ ptr, len } {}
 

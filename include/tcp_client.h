@@ -6,13 +6,20 @@
 #include "message.h"
 #include "errors.h"
 
+#include "tscns.h"
+
 namespace net {
 	constexpr int in_queue_size = 256;
 	constexpr int out_queue_size = 128;
 	constexpr int buffer_size = 512;
 	constexpr int bufpool_size = 128;
 
-	template < int InSize, int OutSize, int BufSize, int BufPoolSize > class tcp_client_impl : public tcp_session {
+	struct tcp_metrics_t {
+		int64_t pre_read_ts, post_read_ts, push_ts, pop_ts;
+	};
+
+	template < int InSize, int OutSize, int BufSize, int BufPoolSize, bool Serial >
+	class tcp_client_impl : public tcp_session {
 	  private:
 		atomic_queue::AtomicQueue2< tcp_msg_t, InSize, true, true, true, true > m_in_queue;
 		atomic_queue::AtomicQueue2< tcp_msg_t, OutSize > m_out_queue;
@@ -20,35 +27,96 @@ namespace net {
 		details::object_pool< char, BufSize, BufPoolSize > m_bufpool;
 		details::log_ptr_t m_log;
 
+		std::function< bool( tcp_msg_t ) > m_on_read;
+
+		TSCNS m_clock;
+
+		tcp_metrics_t m_metrics;
+
 	  public:
 		tcp_client_impl( const std::string_view log_name, bool to_file = false )
 			: m_log{ details::log::make_sync( log_name, to_file ) } {
 			m_log->set_level( spdlog::level::debug );
 			m_log->set_pattern( LOG_PATTERN );
+
+			m_clock.init( );
 		}
 
 		// returns an incoming message, busy waits
-		bool consume_in( tcp_msg_t &msg ) { return m_in_queue.try_pop( msg ); }
+		bool consume_in( tcp_msg_t &msg )
+			requires( !Serial )
+		{
+			return m_in_queue.try_pop( msg );
+		}
+
+		// sets the read callback in main thread
+		template < typename Fn >
+		void set_read_cb( Fn &&fn )
+			requires( Serial )
+		{
+			m_on_read = std::move( fn );
+		}
 
 		// spawns consumer thread
-		template < typename Fn = std::function< bool( tcp_msg_t ) > > void spawn_consumer( Fn &&fn ) {
+		template < typename Fn >
+		void spawn_in_consumer( Fn &&fn )
+			requires( !Serial )
+		{
 			std::thread(
-				[ this ]( Fn &consume ) {
+				[ this ]( Fn &&consumer ) {
 					while ( m_fd > 0 ) {
 						tcp_msg_t msg{ };
 						if ( consume_in( msg ) ) {
-							if ( consume( msg ) ) {
+							m_metrics.pop_ts = m_clock.rdtsc( );
+							if ( consumer( msg ) ) {
 								release_buf( msg.buf.data( ) );
 							}
 						}
 					}
 				},
-				std::ref( fn ) )
+				std::move( fn ) )
 				.detach( );
 		}
 
+		void spawn_out_consume( )
+			requires( !Serial )
+		{
+			std::thread( [ this ]( ) {
+				while ( m_fd > 0 ) {
+					tcp_msg_t msg{ };
+					if ( m_out_queue.try_pop( msg ) ) {
+						std::string_view buf{ msg.buf.data( ), msg.buf.size( ) };
+
+						int nwrite = write( buf );
+						if ( nwrite <= 0 ) {
+							m_log->error( "Write returned {}, resetting...", nwrite );
+							close( );
+						}
+
+						m_log->debug( "OUT -> {}", buf );
+
+						release_buf( msg.buf.data( ) );
+					}
+				}
+			} ).detach( );
+		}
+
+		auto &clock( ) { return m_clock; }
+		tcp_metrics_t get_metrics( ) { return m_metrics; }
+
 		// pushes a message to the outgoing queue, busy waits
-		void post( char *buf, size_t len ) { m_out_queue.push( tcp_msg_t{ buf, len } ); }
+		void post( char *buf, size_t len )
+			requires( !Serial )
+		{
+			m_out_queue.push( tcp_msg_t{ buf, len } );
+		}
+
+		// Serial Post
+		int post( char *buf, size_t len )
+			requires( Serial )
+		{
+			return write( buf, len );
+		}
 
 		// release a buffer back into the pool, busy waits
 		void release_buf( char *buf ) { m_bufpool.release( buf ); }
@@ -100,7 +168,7 @@ namespace net {
 			m_log->debug( "Setting socket {} to nonblock...", m_fd );
 
 			ret = fcntl( m_fd, F_SETFL, O_NONBLOCK );
-			if ( ret < 0 ) {
+			if ( ret != 0 ) {
 				m_log->error( "Failed to set socket to non block." );
 				close( );
 				return tcp_error::sock_err;
@@ -123,32 +191,15 @@ namespace net {
 
 		// start polling the file descriptor
 		void poll( ) {
-			pollfd pfd{ m_fd, POLLIN | POLLOUT | POLLHUP };
+			pollfd pfd{ m_fd, POLLIN | POLLHUP };
 			while ( m_fd > 0 ) {
 				pfd.revents = 0;
 
-				int nevents = ::poll( &pfd, 1, 0 );
+				int nevents = ::poll( &pfd, 1, 1 );
 				if ( nevents < 0 ) {
 					m_log->error( "Poll error, {}", nevents );
 					close( );
 					break;
-				}
-
-				if ( pfd.revents & POLLOUT ) {
-					tcp_msg_t msg{ };
-					if ( m_out_queue.try_pop( msg ) ) {
-						m_log->debug( "OUT -> {}", msg.buf.data( ) );
-						int nwrite = write( msg.buf.data( ), msg.buf.size( ) );
-						if ( nwrite <= 0 ) {
-							m_log->error( "Write returned {}, resetting...", nwrite );
-							close( );
-						}
-
-						release_buf( msg.buf.data( ) );
-					}
-
-					if ( m_fd < 0 )
-						break;
 				}
 
 				if ( pfd.revents & POLLHUP ) {
@@ -159,6 +210,7 @@ namespace net {
 				}
 
 				if ( pfd.revents & POLLIN ) {
+					m_metrics.pre_read_ts = m_clock.rdtsc( );
 					auto buf = get_buf( );
 					if ( !buf ) {
 						m_log->warn( "No available buffers in pool." );
@@ -167,19 +219,40 @@ namespace net {
 
 					int nread = read( buf, m_bufpool.obj_size );
 					if ( nread <= 0 ) {
+						if ( errno == EWOULDBLOCK ) {
+							m_log->error( "Socket would block, discarding buf..." );
+							release_buf( buf );
+							continue;
+						}
+
 						m_log->error( "Read returned {} on fd: {}, resetting...", nread, m_fd );
 						release_buf( buf );
 						close( );
 						break;
 					}
 
+					m_metrics.post_read_ts = m_clock.rdtsc( );
+
 					m_log->debug( "IN -> fd: {}, buf: {:x}, size: {} bytes", m_fd, uintptr_t( buf ), nread );
 
-					m_in_queue.push( tcp_msg_t{ buf, ( size_t )nread } );
+					if constexpr ( Serial ) {
+						if ( !m_on_read ) {
+							m_log->critical( "Missing read callback, client is in serial mode" );
+							break;
+						}
+
+						if ( m_on_read( tcp_msg_t{ buf, ( size_t )nread } ) )
+							release_buf( buf );
+
+					} else {
+						m_metrics.push_ts = m_clock.rdtsc( );
+						m_in_queue.push( tcp_msg_t{ buf, ( size_t )nread } );
+					}
 				}
 			}
 		}
 	};
 
-	using tcp_client = tcp_client_impl< in_queue_size, out_queue_size, buffer_size, bufpool_size >;
+	using tcp_client = tcp_client_impl< in_queue_size, out_queue_size, buffer_size, bufpool_size, false >;
+	using tcp_client_serial = tcp_client_impl< in_queue_size, out_queue_size, buffer_size, bufpool_size, true >;
 }; // namespace net

@@ -37,5 +37,26 @@ namespace fix {
 		void set_sender_id( const std::string_view id ) { m_sender_id = id; }
 		void set_target_id( const std::string_view id ) { m_target_id = id; }
 		void set_begin_str( const std::string_view version ) { m_begin_string = fmt::format( "FIX.{}", version ); }
+
+		// set buf and len to 0 to grab a new buffer from the pool
+		// the parameters are here to allow for buffer reuse
+		void post_heartbeat( char *buf, size_t len ) {
+			if ( !buf and len == 0 ) {
+				return;
+			}
+
+			fix::fix_writer wr{ buf, len };
+			wr.push_header( m_begin_string );
+			wr.push_field( fix_spec::MsgType, '0' );
+
+			wr.push_field( fix_spec::TargetCompID, m_target_id );
+			wr.push_field( fix_spec::SenderCompID, m_sender_id );
+
+			wr.push_timestamp( fix_spec::SendingTime, std::chrono::system_clock::now( ) );
+			wr.push_field( fix_spec::MsgSeqNum, next_seq( ) );
+			wr.push_trailer( );
+
+			post( buf, wr.size( ) );
+		}
 	};
 }; // namespace fix

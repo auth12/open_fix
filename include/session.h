@@ -14,7 +14,7 @@ namespace net {
 		tcp_session( const int fd ) : m_fd{ fd } {}
 
 		// write data to file descriptor
-		int write( const void *data, const size_t &len ) const { return send( m_fd, data, len, 0 ); }
+		int write( const void *data, const size_t len ) const { return send( m_fd, data, len, 0 ); }
 		int write( const std::string_view buf ) const { return write( buf.data( ), buf.size( ) ); }
 
 		// read data from file descriptor

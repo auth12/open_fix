@@ -42,21 +42,7 @@ void in_queue_consume( std::unique_ptr< fix::fix_client > &cli ) {
 			if ( msg_type == '1' || msg_type == '0' ) { // TestRequest
 				log->info( "Got heartbeat on {} session", target_id );
 
-				std::memset( msg.buf.data( ), 0, net::buffer_size );
-				fix::fix_writer wr{ msg.buf.data( ), net::buffer_size };
-
-				wr.push_header( cli->begin_str( ) );
-				wr.push_field( fix_spec::MsgType, '0' );
-
-				wr.push_field( fix_spec::TargetCompID, target_id );
-				wr.push_field( fix_spec::SenderCompID, cli->sender_id( ) );
-
-				wr.push_timestamp( fix_spec::SendingTime, std::chrono::system_clock::now( ) );
-				wr.push_field( fix_spec::MsgSeqNum, cli->next_seq( ) );
-				wr.push_trailer( );
-
-				cli->post( msg.buf.data( ), wr.size( ) );
-
+				cli->post_heartbeat( msg.buf.data( ), net::buffer_size );
 				continue;
 			}
 
@@ -156,6 +142,84 @@ void in_queue_consume( std::unique_ptr< fix::fix_client > &cli ) {
 	log->info( "In queue thread done" );
 }
 
+bool consume_in( std::unique_ptr< fix::fix_client > &cli, net::tcp_msg_t msg ) {
+	const std::string_view buf{ msg.buf.data( ), msg.buf.size( ) };
+
+	const int state = cli->state( );
+	const auto target_id = cli->target_id( );
+
+	cli->m_log->debug( "IN:{} -> {}", target_id, buf );
+
+	fix::fix_message_t rd{ buf };
+
+	if ( !rd.validate( ) ) {
+		cli->m_log->error( "Invalid FIX message received on {} session", target_id );
+		return true;
+	}
+
+	char msg_type = rd.msg_type;
+
+	if ( state == fix::fix_session_state::AwaitingLogon ) {
+		if ( msg_type == 'A' ) {
+			cli->m_log->info( "Got logon confirmation on session {}", target_id );
+
+			cli->set_state( fix::LoggedIn );
+
+			cli->m_log->info( "Sending subscriptions..." );
+
+			std::memset( msg.buf.data( ), 0, net::buffer_size );
+			fix::fix_writer wr{ msg.buf.data( ), net::buffer_size };
+
+			wr.push_header( cli->begin_str( ) );
+			wr.push_field( fix_spec::MsgType, 'V' );
+
+			wr.push_field( fix_spec::TargetCompID, target_id );
+			wr.push_field( fix_spec::SenderCompID, cli->sender_id( ) );
+
+			wr.push_timestamp( fix_spec::SendingTime, std::chrono::system_clock::now( ) );
+			wr.push_field( fix_spec::MsgSeqNum, cli->next_seq( ) );
+
+			wr.push_field( fix_spec::MDReqID, "eth" );
+			wr.push_field( fix_spec::SubscriptionRequestType, '1' );
+			wr.push_field( fix_spec::MarketDepth, 0 );
+
+			wr.push_field( fix_spec::NoMDEntryTypes, 2 );
+			wr.push_field( fix_spec::MDEntryType, '0' );
+			wr.push_field( fix_spec::MDEntryType, '1' );
+
+			wr.push_field( fix_spec::NoRelatedSym, 1 );
+			wr.push_field( fix_spec::SecurityID, "5002" );
+			wr.push_field( fix_spec::SecurityIDSource, '8' );
+
+			wr.push_trailer( );
+
+			cli->post( msg.buf.data( ), wr.size( ) );
+
+			return false;
+		}
+
+		return true;
+	}
+
+	if ( state == fix::fix_session_state::LoggedIn ) {
+		if ( msg_type == '0' or msg_type == '1' ) {
+			cli->m_log->info( "Posting heartbeat..." );
+			cli->post_heartbeat( msg.buf.data( ), net::buffer_size );
+			return false;
+		}
+
+		if ( msg_type == 'W' ) {
+			cli->m_log->info( "Got market update." );
+			return true;
+		}
+	}
+
+	cli->m_log->warn( "Unhandled message type received on session {}", target_id );
+	cli->m_log->debug( "State: {}, type: {}, buf: {}", state, msg_type, buf );
+
+	return true;
+}
+
 int main( ) {
 	config::client_fix_cfg_t cfg{ };
 
@@ -172,6 +236,23 @@ int main( ) {
 
 	auto log = cli->m_log;
 
+	// metrics
+	/*std::thread(
+		[]( std::unique_ptr< fix::fix_client > &cli ) {
+			auto &clock = cli->clock( );
+			while ( 1 ) {
+				auto m = cli->get_metrics( );
+
+				auto roundtrip = clock.tsc2ns( m.pop_ts ) - clock.tsc2ns( m.push_ts );
+
+				cli->m_log->info( "Queue latency: {}ns", roundtrip );
+
+				std::this_thread::sleep_for( std::chrono::seconds{ 1 } );
+			}
+		},
+		std::ref( cli ) )
+		.detach( );*/
+
 	const auto host = cfg.host, port = fmt::to_string( cfg.port );
 
 	if ( cli->connect( host, port ) != 0 ) {
@@ -180,8 +261,13 @@ int main( ) {
 		return 0;
 	}
 
-	std::thread( in_queue_consume, std::ref( cli ) ).detach( );
+	auto consume_fn = std::bind( consume_in, std::ref( cli ), std::placeholders::_1 );
 
+	// cli->set_read_cb( consume_fn );
+	
+	//cli->spawn_in_consumer( std::move( consume_fn ) );
+	std::thread( in_queue_consume, std::ref( cli ) ).detach( );
+	cli->spawn_out_consume( );
 	cli->set_state( fix::AwaitingLogon );
 
 	log->info( "Sending Logon to {}...", cli->target_id( ) );
@@ -199,7 +285,7 @@ int main( ) {
 	wr.push_field( fix_spec::MsgSeqNum, cli->next_seq( ) );
 	wr.push_field( fix_spec::ResetSeqNumFlag, 'Y' );
 	wr.push_field( fix_spec::EncryptMethod, 0 );
-	wr.push_field( fix_spec::HeartBtInt, 30 );
+	wr.push_field( fix_spec::HeartBtInt, 10 );
 
 	wr.push_field( fix_spec::Username, cli->sender_id( ) );
 	wr.push_field( fix_spec::Password, cli->sender_id( ) );
