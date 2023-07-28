@@ -11,121 +11,138 @@
 
 #include "ipc.h"
 
-bool in_queue_consume( std::unique_ptr< fix::fix_client > &cli, net::tcp_msg_t msg ) {
+void in_queue_consume( std::unique_ptr< fix::fix_client > &cli ) {
 	auto log = cli->m_log;
 
-	const std::string_view buf{ msg.buf.data( ), msg.buf.size( ) };
+	while ( cli->fd( ) > 0 ) {
+		net::tcp_msg_t msg{ };
 
-	const int state = cli->state( );
-	const auto target_id = cli->target_id( );
+		if ( !cli->consume_in( msg ) )
+			continue;
 
-	log->debug( "IN:{} -> {}", target_id, buf );
+		const auto delta = cli->clock( )->rdns( ) - cli->clock( )->tsc2ns( msg.timestamp );
 
-	fix::fix_message_t rd{ buf };
+		const std::string_view buf{ msg.buf.data( ), msg.buf.size( ) };
 
-	if ( !rd.validate( ) ) {
-		log->error( "Invalid FIX message received on {} session", target_id );
-		return true;
-	}
+		const int state = cli->state( );
+		const auto target_id = cli->target_id( );
 
-	char msg_type = rd.msg_type;
+		log->debug( "IN:{} -> size: {}, queue latency: {}ns", target_id, buf.size( ), delta );
 
-	log->info( "Got message type {} on {} session", msg_type, target_id );
+		fix::fix_message_t rd{ buf };
 
-	if ( state == fix::LoggedIn ) {
-		if ( msg_type == '1' || msg_type == '0' ) { // TestRequest
-			log->info( "Got heartbeat on {} session", target_id );
-
-			cli->post_heartbeat( msg.buf.data( ), net::buffer_size );
-			return false;
+		if ( !rd.validate( ) ) {
+			log->error( "Invalid FIX message received on {} session", target_id );
+			cli->release_buf( msg.buf.data( ) );
+			continue;
 		}
 
-		if ( msg_type == 'W' ) {
-			double buy, sell = 0;
-			double buy_vol, sell_vol = 0;
-			std::string_view time;
+		char msg_type = rd.msg_type;
 
-			char side = 0;
-			for ( auto it = rd.begin( ); it < rd.end( ); ++it ) {
-				switch ( it->tag ) {
-					case fix_spec::MDEntryType: {
-						side = it->val.as_char( );
+		log->info( "Got message type {} on {} session", msg_type, target_id );
 
-					} break;
-					case fix_spec::MDEntryPx: {
-						if ( side == '0' ) {
-							buy = it->val.as_double( );
-						}
+		if ( state == fix::LoggedIn ) {
+			if ( msg_type == '1' || msg_type == '0' ) { // TestRequest
+				log->info( "Got heartbeat on {} session", target_id );
 
-						if ( side == '1' ) {
-							sell = it->val.as_double( );
-						}
-					} break;
-					case fix_spec::MDEntrySize: {
-						if ( side == '0' ) {
-							buy_vol = it->val.as_double( );
-						}
-
-						if ( side == '1' ) {
-							sell_vol = it->val.as_double( );
-						}
-					} break;
-					case fix_spec::MDEntryTime: {
-						time = it->val.as_string( );
-
-					} break;
-					default:
-						break;
-				}
+				cli->post_heartbeat( msg.buf.data( ), net::buffer_size );
+				continue;
 			}
 
-			log->info( "{}: BUY: {}, Volume: {}, SELL: {}, Volume: {}", time, buy, buy_vol, sell, sell_vol );
+			if ( msg_type == 'W' ) {
+				double buy, sell = 0;
+				double buy_vol, sell_vol = 0;
+				std::string_view time;
 
-			return true;
+				char side = 0;
+				for ( auto it = rd.begin( ); it < rd.end( ); ++it ) {
+					switch ( it->tag ) {
+						case fix_spec::MDEntryType: {
+							side = it->val.as_char( );
+
+						} break;
+						case fix_spec::MDEntryPx: {
+							if ( side == '0' ) {
+								buy = it->val.as_double( );
+							}
+
+							if ( side == '1' ) {
+								sell = it->val.as_double( );
+							}
+						} break;
+						case fix_spec::MDEntrySize: {
+							if ( side == '0' ) {
+								buy_vol = it->val.as_double( );
+							}
+
+							if ( side == '1' ) {
+								sell_vol = it->val.as_double( );
+							}
+						} break;
+						case fix_spec::MDEntryTime: {
+							time = it->val.as_string( );
+
+						} break;
+						default:
+							break;
+					}
+				}
+
+				log->info( "{}: BUY: {}, Volume: {}, SELL: {}, Volume: {}", time, buy, buy_vol, sell, sell_vol );
+
+				cli->release_buf( msg.buf.data( ) );
+
+				continue;
+			}
+
+			log->warn( "Received unhandled message type: {}, on session: {}", msg_type, target_id );
+			cli->release_buf( msg.buf.data( ) );
+
+		} else if ( state == fix::AwaitingLogon ) { // expect only login confirmation
+			if ( msg_type == 'A' ) {
+				log->info( "Got logon confirmation on session {}", target_id );
+
+				cli->set_state( fix::LoggedIn );
+
+				log->info( "Sending subscriptions..." );
+
+				std::memset( msg.buf.data( ), 0, net::buffer_size );
+				fix::fix_writer wr{ msg.buf.data( ), net::buffer_size };
+
+				wr.push_header( cli->begin_str( ) );
+				wr.push_field( fix_spec::MsgType, 'V' );
+
+				wr.push_field( fix_spec::TargetCompID, target_id );
+				wr.push_field( fix_spec::SenderCompID, cli->sender_id( ) );
+
+				wr.push_timestamp( fix_spec::SendingTime, std::chrono::system_clock::now( ) );
+				wr.push_field( fix_spec::MsgSeqNum, cli->next_seq( ) );
+
+				wr.push_field( fix_spec::MDReqID, "eth" );
+				wr.push_field( fix_spec::SubscriptionRequestType, '1' );
+				wr.push_field( fix_spec::MarketDepth, 0 );
+
+				wr.push_field( fix_spec::NoMDEntryTypes, 2 );
+				wr.push_field( fix_spec::MDEntryType, '0' );
+				wr.push_field( fix_spec::MDEntryType, '1' );
+
+				wr.push_field( fix_spec::NoRelatedSym, 1 );
+				wr.push_field( fix_spec::SecurityID, "5002" );
+				wr.push_field( fix_spec::SecurityIDSource, '8' );
+
+				wr.push_trailer( );
+
+				cli->post( msg.buf.data( ), wr.size( ) );
+				continue;
+			}
+
+			log->warn( "Session {} awaiting logon did not get confirmation.", target_id );
+			log->debug( "Session state {}, Message type: {}, Buffer: {}", state, msg_type, buf );
+			cli->release_buf( msg.buf.data( ) );
 		}
-
-		log->warn( "Received unhandled message type: {}, on session: {}", msg_type, target_id );
-	} else if ( state == fix::AwaitingLogon ) { // expect only login confirmation
-		if ( msg_type == 'A' ) {
-			log->info( "Got logon confirmation on session {}", target_id );
-
-			cli->set_state( fix::LoggedIn );
-
-			log->info( "Sending subscriptions..." );
-			fix::fix_writer wr{ msg.buf.data( ), net::buffer_size };
-
-			wr.push_header( cli->begin_str( ) );
-			wr.push_field( fix_spec::MsgType, 'V' );
-
-			wr.push_field( fix_spec::TargetCompID, target_id );
-			wr.push_field( fix_spec::SenderCompID, cli->sender_id( ) );
-
-			wr.push_timestamp( fix_spec::SendingTime, std::chrono::system_clock::now( ) );
-			wr.push_field( fix_spec::MsgSeqNum, cli->next_seq( ) );
-
-			wr.push_field( fix_spec::MDReqID, "eth" );
-			wr.push_field( fix_spec::SubscriptionRequestType, '1' );
-			wr.push_field( fix_spec::MarketDepth, 0 );
-
-			wr.push_field( fix_spec::NoMDEntryTypes, 2 );
-			wr.push_field( fix_spec::MDEntryType, '0' );
-			wr.push_field( fix_spec::MDEntryType, '1' );
-
-			wr.push_field( fix_spec::NoRelatedSym, 1 );
-			wr.push_field( fix_spec::SecurityID, "5002" );
-			wr.push_field( fix_spec::SecurityIDSource, '8' );
-
-			wr.push_trailer( );
-
-			cli->post( msg.buf.data( ), wr.size( ) );
-			return false;
-		}
-
-		log->warn( "Session {} awaiting logon did not get confirmation.", target_id );
-		log->debug( "Session state {}, Message type: {}, Buffer: {}", state, msg_type, buf );
 	}
 
-	return true;
+	log->info( "In queue thread done" );
 }
 
 int main( ) {
@@ -152,7 +169,7 @@ int main( ) {
 		return 0;
 	}
 
-	cli->spawn_in_consumer( std::bind( in_queue_consume, std::ref( cli ), std::placeholders::_1 ) );
+	std::thread( in_queue_consume, std::ref( cli ) ).detach( );
 
 	cli->set_state( fix::AwaitingLogon );
 

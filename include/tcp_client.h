@@ -45,6 +45,21 @@ namespace net {
 			m_clock.calibrate( );
 		}
 
+		TSCNS *clock( ) { return &m_clock; }
+		tcp_metrics_t get_metrics( ) { return m_metrics; }
+
+		// pushes a message to the outgoing queue, busy waits
+		void post( char *buf, size_t len ) { m_out_queue.push( tcp_msg_t{ buf, len } ); }
+
+		// release a buffer back into the pool, busy waits
+		void release_buf( char *buf ) {
+			m_log->debug( "Releasing buffer {:x}", uintptr_t( buf ) );
+			m_bufpool.release( buf );
+		}
+
+		// returns a buffer from the buffer pool
+		char *get_buf( ) { return m_bufpool.get( ); }
+
 		// returns false if queue is empty
 		bool consume_in( tcp_msg_t &msg ) { return m_in_queue.try_pop( msg ); }
 
@@ -55,37 +70,6 @@ namespace net {
 		{
 			m_on_read = std::move( fn );
 		}
-
-		// spawns consumer thread
-		template < typename Fn >
-		void spawn_in_consumer( Fn &&fn )
-			requires( !Serial )
-		{
-			std::thread(
-				[ this ]( Fn &&consumer ) {
-					while ( m_fd > 0 ) {
-						tcp_msg_t msg{ };
-						if ( consume_in( msg ) ) {
-							if ( consumer( msg ) )
-								release_buf( msg.buf.data( ) );
-						}
-					}
-				},
-				std::move( fn ) )
-				.detach( );
-		}
-
-		auto &clock( ) { return m_clock; }
-		tcp_metrics_t get_metrics( ) { return m_metrics; }
-
-		// pushes a message to the outgoing queue, busy waits
-		void post( char *buf, size_t len ) { m_out_queue.push( tcp_msg_t{ buf, len } ); }
-
-		// release a buffer back into the pool, busy waits
-		void release_buf( char *buf ) { m_bufpool.release( buf ); }
-
-		// returns a buffer from the buffer pool
-		char *get_buf( ) { return m_bufpool.get( ); }
 
 		int connect( const std::string_view host, const std::string_view port ) {
 			struct addrinfo hints;
@@ -215,17 +199,19 @@ namespace net {
 
 					m_log->debug( "IN -> fd: {}, buf: {:x}, size: {} bytes", m_fd, uintptr_t( buf ), nread );
 
+					const auto ts = m_clock.rdtsc( );
+
 					if constexpr ( Serial ) {
 						if ( !m_on_read ) {
 							m_log->critical( "Missing read callback, client is in serial mode" );
 							break;
 						}
 
-						if ( m_on_read( tcp_msg_t{ buf, ( size_t )nread } ) )
+						if ( m_on_read( tcp_msg_t{ buf, ( size_t )nread, ts } ) )
 							release_buf( buf );
 
 					} else {
-						m_in_queue.push( tcp_msg_t{ buf, ( size_t )nread } );
+						m_in_queue.push( tcp_msg_t{ buf, ( size_t )nread, ts } );
 					}
 				}
 			}
