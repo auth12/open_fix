@@ -19,10 +19,11 @@ namespace fix {
 	  public:
 		details::log_ptr_t m_log;
 
-		fix_client( const std::string_view log_name, bool to_file )
-			: net::tcp_client{ "TCP", to_file }, m_log{ details::log::make_sync( log_name, to_file ) },
+		fix_client( const std::string_view log_name, bool to_file,
+					spdlog::level::level_enum log_lvl = spdlog::level::debug )
+			: net::tcp_client{ "TCP", to_file, log_lvl }, m_log{ details::log::make_sync( log_name, to_file ) },
 			  m_state{ Offline }, m_next_out{ 1 }, m_target_id{ "" }, m_sender_id{ "" }, m_begin_string{ "" } {
-			m_log->set_level( spdlog::level::debug );
+			m_log->set_level( log_lvl );
 			m_log->set_pattern( LOG_PATTERN );
 		};
 

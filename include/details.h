@@ -99,10 +99,10 @@ namespace details {
 		}
 
 		void release( Type *obj ) {
-			memset( obj, 0, Size );
+			// memset( obj, 0, Size );
 			m_pool.push( uintptr_t( obj ) );
 		}
-		
+
 		size_t pool_size( ) { return m_pool.was_size( ); }
 
 	  private:
