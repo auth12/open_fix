@@ -22,7 +22,7 @@ namespace net {
 	template < int InSize, int OutSize, int BufSize, int BufPoolSize, bool Serial >
 	class tcp_client_impl : public tcp_session {
 	  private:
-		atomic_queue::AtomicQueue2< tcp_msg_t, InSize, true, true, true, true > m_in_queue;
+		atomic_queue::AtomicQueue2< tcp_msg_t, InSize, true, true, false, true > m_in_queue; // can be empty
 		atomic_queue::AtomicQueue2< tcp_msg_t, OutSize > m_out_queue;
 
 		details::object_pool< char, BufSize, BufPoolSize > m_bufpool;

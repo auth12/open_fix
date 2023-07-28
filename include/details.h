@@ -90,12 +90,12 @@ namespace details {
 		// m_pool.pop busy waits but is faster than try_pop when queue isnt empty
 		// make sure consumption is fast enough
 		Type *get( ) {
-			uintptr_t ret = 0;
+			/*uintptr_t ret = 0;
 			if ( !m_pool.try_pop( ret ) ) {
 				return ( Type * )ret;
-			}
+			}*/
 
-			return ( Type * )ret;
+			return ( Type * )m_pool.pop( );
 		}
 
 		void release( Type *obj ) {
