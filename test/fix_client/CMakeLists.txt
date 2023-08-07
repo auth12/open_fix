@@ -10,4 +10,4 @@ add_executable(
 )
 
 target_include_directories(fix_cli PUBLIC ${include_dirs} ${PROJECT_SOURCE_DIR})
-target_link_libraries(fix_cli PUBLIC fix)
+target_link_libraries(fix_cli PUBLIC fix prometheus-cpp::pull)

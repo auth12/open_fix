@@ -101,12 +101,12 @@ namespace net {
 
 			m_log->debug( "Setting O_NONBLOCK..." );
 
-			ret = fcntl( m_fd, F_SETFL, O_NONBLOCK );
+			/*ret = fcntl( m_fd, F_SETFL, O_NONBLOCK );
 			if ( ret < 0 ) {
 				m_log->error( "Failed to set socket to non block." );
 				close( );
 				return ret;
-			}
+			}*/
 
 			m_log->debug( "Setting TCP_NODELAY..." );
 
@@ -164,8 +164,8 @@ namespace net {
 							auto msg = m_out_queue.pop( );
 
 							if ( msg.fd == 0 ) {
-								if ( msg.buf.size( ) == 0 ) {
-									release_buf( msg.buf.data( ) );
+								if ( msg.len == 0 ) {
+									release_buf( msg.buf );
 									break;
 								}
 
@@ -173,7 +173,7 @@ namespace net {
 									if ( c.fd == m_fd )
 										continue;
 
-									int nwrite = net::write( c.fd, msg.buf.data( ), msg.buf.size( ) );
+									int nwrite = net::write( c.fd, msg.buf, msg.len );
 									if ( nwrite <= 0 ) {
 										m_log->error( "Failed to write to fd: {}, dropping...", c.fd );
 										::close( c.fd );
@@ -181,10 +181,10 @@ namespace net {
 									}
 								}
 
-								release_buf( msg.buf.data( ) );
+								release_buf( msg.buf );
 								break;
 							} else {
-								int nwrite = net::write( msg.fd, msg.buf.data( ), msg.buf.size( ) );
+								int nwrite = net::write( msg.fd, msg.buf, msg.len );
 								if ( nwrite <= 0 ) {
 									m_log->error( "Failed to write to fd: {}, dropping...", msg.fd );
 									::close( msg.fd );

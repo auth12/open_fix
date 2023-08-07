@@ -11,41 +11,60 @@
 
 #include "ipc.h"
 
-void in_queue_consume( std::unique_ptr< fix::fix_client > &cli ) {
-	auto log = cli->m_log;
+#include "prometheus/client_metric.h"
+#include "prometheus/counter.h"
+#include "prometheus/exposer.h"
+#include "prometheus/family.h"
+#include "prometheus/gauge.h"
+#include "prometheus/info.h"
+#include "prometheus/registry.h"
 
-	while ( cli->fd( ) > 0 ) {
+std::unique_ptr< fix::fix_client > g_fix_cli;
+std::atomic_int g_msg_count = 0, g_dropped_msg_count = 0, g_cur_latency = 0;
+
+void in_queue_consume( ) {
+	while ( g_fix_cli->fd( ) > 0 ) {
 		net::tcp_msg_t msg{ };
+		// g_fix_cli->clock( )->calibrate( );
 
-		if ( !cli->consume_in( msg ) )
+		if ( !g_fix_cli->consume_in( msg ) )
 			continue;
 
-		const auto delta = cli->clock( )->rdns( ) - cli->clock( )->tsc2ns( msg.timestamp );
+		g_cur_latency = g_fix_cli->clock( )->rdns( ) - g_fix_cli->clock( )->tsc2ns( msg.timestamp );
 
-		const std::string_view buf{ msg.buf.data( ), msg.buf.size( ) };
+		++g_msg_count;
 
-		const int state = cli->state( );
-		const auto target_id = cli->target_id( );
+		const std::string_view buf{ msg.buf, msg.len };
 
-		log->debug( "IN:{} -> size: {}, queue latency: {}ns", target_id, buf.size( ), delta );
+		const int state = g_fix_cli->state( );
+		const auto target_id = g_fix_cli->target_id( );
+
+		SPDLOG_LOGGER_DEBUG( g_fix_cli->m_log, "IN:{} -> size: {}, msg latency: {}ns", target_id, buf.size( ),
+							 g_cur_latency );
 
 		fix::fix_message_t rd{ buf };
-
-		if ( !rd.validate( ) ) {
-			log->error( "Invalid FIX message received on {} session", target_id );
-			cli->release_buf( msg.buf.data( ) );
+		rd.init( );
+		if ( !rd.valid ) {
+			SPDLOG_LOGGER_ERROR( g_fix_cli->m_log, "Invalid FIX message received on {} session", target_id );
+			g_fix_cli->release_buf( msg.buf );
+			++g_dropped_msg_count;
 			continue;
 		}
 
-		char msg_type = rd.msg_type;
+		char msg_type = rd.type;
 
-		log->info( "Got message type {} on {} session", msg_type, target_id );
+		SPDLOG_LOGGER_INFO( g_fix_cli->m_log, "IN:{} -> Message Type: {}, Checksum: {}, Loss: {}\n\t{}", target_id,
+							msg_type, rd.checksum, rd.loss, buf );
+
+		if ( rd.loss > 0 ) {
+			SPDLOG_LOGGER_WARN( g_fix_cli->m_log, "Malformed single FIX message, lost {} bytes", rd.loss );
+		}
 
 		if ( state == fix::LoggedIn ) {
 			if ( msg_type == '1' || msg_type == '0' ) { // TestRequest
-				log->info( "Got heartbeat on {} session", target_id );
+				SPDLOG_LOGGER_INFO( g_fix_cli->m_log, "Got heartbeat on {} session", target_id );
 
-				cli->post_heartbeat( msg.buf.data( ), net::buffer_size );
+				g_fix_cli->post_heartbeat( msg.buf );
 				continue;
 			}
 
@@ -55,7 +74,7 @@ void in_queue_consume( std::unique_ptr< fix::fix_client > &cli ) {
 				std::string_view time;
 
 				char side = 0;
-				for ( auto it = rd.begin( ); it < rd.end( ); ++it ) {
+				for ( auto it = rd.begin( ); it != rd.end( ); ++it ) {
 					switch ( it->tag ) {
 						case fix_spec::MDEntryType: {
 							side = it->val.as_char( );
@@ -88,61 +107,54 @@ void in_queue_consume( std::unique_ptr< fix::fix_client > &cli ) {
 					}
 				}
 
-				log->info( "{}: BUY: {}, Volume: {}, SELL: {}, Volume: {}", time, buy, buy_vol, sell, sell_vol );
+				SPDLOG_LOGGER_INFO( g_fix_cli->m_log, "{}: BUY: {}, Volume: {}, SELL: {}, Volume: {}", time, buy,
+									buy_vol, sell, sell_vol );
 
-				cli->release_buf( msg.buf.data( ) );
+				g_fix_cli->release_buf( msg.buf );
 
 				continue;
 			}
 
-			log->warn( "Received unhandled message type: {}, on session: {}", msg_type, target_id );
-			cli->release_buf( msg.buf.data( ) );
+			SPDLOG_LOGGER_WARN( g_fix_cli->m_log, "Received unhandled message type: {}, on session: {}", msg_type,
+								target_id );
+			g_fix_cli->release_buf( msg.buf );
 
 		} else if ( state == fix::AwaitingLogon ) { // expect only login confirmation
 			if ( msg_type == 'A' ) {
-				log->info( "Got logon confirmation on session {}", target_id );
+				SPDLOG_LOGGER_INFO( g_fix_cli->m_log, "Got logon confirmation on session {}", target_id );
 
-				cli->set_state( fix::LoggedIn );
+				g_fix_cli->set_state( fix::LoggedIn );
 
-				log->info( "Sending subscriptions..." );
-
-				std::memset( msg.buf.data( ), 0, net::buffer_size );
-				fix::fix_writer wr{ msg.buf.data( ), net::buffer_size };
-
-				wr.push_header( cli->begin_str( ) );
-				wr.push_field( fix_spec::MsgType, 'V' );
-
-				wr.push_field( fix_spec::TargetCompID, target_id );
-				wr.push_field( fix_spec::SenderCompID, cli->sender_id( ) );
-
-				wr.push_timestamp( fix_spec::SendingTime, std::chrono::system_clock::now( ) );
-				wr.push_field( fix_spec::MsgSeqNum, cli->next_seq( ) );
-
-				wr.push_field( fix_spec::MDReqID, "eth" );
-				wr.push_field( fix_spec::SubscriptionRequestType, '1' );
-				wr.push_field( fix_spec::MarketDepth, 0 );
-
-				wr.push_field( fix_spec::NoMDEntryTypes, 2 );
-				wr.push_field( fix_spec::MDEntryType, '0' );
-				wr.push_field( fix_spec::MDEntryType, '1' );
-
-				wr.push_field( fix_spec::NoRelatedSym, 1 );
-				wr.push_field( fix_spec::SecurityID, "5002" );
-				wr.push_field( fix_spec::SecurityIDSource, '8' );
-
-				wr.push_trailer( );
-
-				cli->post( msg.buf.data( ), wr.size( ) );
+				SPDLOG_LOGGER_INFO( g_fix_cli->m_log, "Sending subscriptions..." );
+				g_fix_cli->post_market_sub( msg.buf, { { 5002, 8 } }, "test" );
 				continue;
 			}
 
-			log->warn( "Session {} awaiting logon did not get confirmation.", target_id );
-			log->debug( "Session state {}, Message type: {}, Buffer: {}", state, msg_type, buf );
-			cli->release_buf( msg.buf.data( ) );
+			SPDLOG_LOGGER_WARN( g_fix_cli->m_log, "Session {} awaiting logon did not get confirmation.", target_id );
+			SPDLOG_LOGGER_DEBUG( g_fix_cli->m_log, "Session state {}, Message type: {}, Buffer: {}", state, msg_type,
+								 buf );
+			g_fix_cli->release_buf( msg.buf );
 		}
 	}
 
-	log->info( "In queue thread done" );
+	SPDLOG_LOGGER_INFO( g_fix_cli->m_log, "In queue thread done" );
+}
+
+void tcp_metrics_server( ) {
+	prometheus::Exposer exp{ "localhost:9015" };
+
+	auto registry = std::make_shared< prometheus::Registry >( );
+	auto &gauge_family = prometheus::BuildGauge( ).Name( "tcp_states" ).Register( *registry );
+
+	auto &push_time = gauge_family.Add( { { "time", "queue_latency" } } );
+
+	exp.RegisterCollectable( registry );
+
+	for ( ;; ) {
+		push_time.Set( g_cur_latency );
+
+		std::this_thread::sleep_for( std::chrono::seconds{ 1 } ); // update the counters every 1s
+	}
 }
 
 int main( ) {
@@ -153,50 +165,51 @@ int main( ) {
 		return 0;
 	}
 
-	auto cli = std::make_unique< fix::fix_client >( cfg.log_name, cfg.to_file, spdlog::level::debug );
+	g_fix_cli = std::make_unique< fix::fix_client >( cfg.log_name, cfg.to_file );
 
-	cli->set_sender_id( cfg.sender_id );
-	cli->set_target_id( cfg.target_id );
-	cli->set_begin_str( cfg.fix_ver );
+	g_fix_cli->set_sender_id( cfg.sender_id );
+	g_fix_cli->set_target_id( cfg.target_id );
+	g_fix_cli->set_begin_str( cfg.fix_ver );
 
-	auto log = cli->m_log;
+	auto log = g_fix_cli->m_log;
 
 	const auto host = cfg.host, port = fmt::to_string( cfg.port );
 
-	if ( cli->connect( host, port ) != 0 ) {
-		log->error( "Failed to connect to {}:{}", host, port );
+	if ( g_fix_cli->connect( host, port ) != 0 ) {
+		SPDLOG_LOGGER_ERROR( g_fix_cli->m_log, "Failed to connect to {}:{}", host, port );
 
 		return 0;
 	}
 
-	std::thread( in_queue_consume, std::ref( cli ) ).detach( );
+	std::thread( in_queue_consume ).detach( );
+	std::thread( tcp_metrics_server ).detach( );
 
-	cli->set_state( fix::AwaitingLogon );
+	g_fix_cli->set_state( fix::AwaitingLogon );
 
-	log->info( "Sending Logon to {}...", cli->target_id( ) );
+	SPDLOG_LOGGER_INFO( g_fix_cli->m_log, "Sending Logon to {}...", g_fix_cli->target_id( ) );
 
-	auto buf = cli->get_buf( );
+	auto buf = g_fix_cli->get_buf( );
 
 	fix::fix_writer wr{ buf, net::buffer_size };
 
-	wr.push_header( cli->begin_str( ) );
+	wr.push_header( g_fix_cli->begin_str( ) );
 	wr.push_field( fix_spec::MsgType, 'A' );
 
-	wr.push_field( fix_spec::TargetCompID, cli->target_id( ) );
-	wr.push_field( fix_spec::SenderCompID, cli->sender_id( ) );
+	wr.push_field( fix_spec::TargetCompID, g_fix_cli->target_id( ) );
+	wr.push_field( fix_spec::SenderCompID, g_fix_cli->sender_id( ) );
 	wr.push_timestamp( fix_spec::SendingTime, std::chrono::system_clock::now( ) );
-	wr.push_field( fix_spec::MsgSeqNum, cli->next_seq( ) );
+	wr.push_field( fix_spec::MsgSeqNum, g_fix_cli->next_seq( ) );
 	wr.push_field( fix_spec::ResetSeqNumFlag, 'Y' );
 	wr.push_field( fix_spec::EncryptMethod, 0 );
 	wr.push_field( fix_spec::HeartBtInt, 60 );
 
-	wr.push_field( fix_spec::Username, cli->sender_id( ) );
-	wr.push_field( fix_spec::Password, cli->sender_id( ) );
+	wr.push_field( fix_spec::Username, g_fix_cli->sender_id( ) );
+	wr.push_field( fix_spec::Password, g_fix_cli->sender_id( ) );
 	wr.push_trailer( );
 
-	cli->post( buf, wr.size( ) );
+	g_fix_cli->post( net::tcp_msg_t{ buf, wr.size( ) } );
 
-	cli->poll( );
+	g_fix_cli->poll( );
 
 	return 0;
 }

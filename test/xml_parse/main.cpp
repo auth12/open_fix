@@ -100,11 +100,6 @@ int main( ) {
 	}
 	auto field_dic = dic.field_dict( );
 
-	// create logon
-	char buf[ 1024 ];
-	hffix::message_writer wr{ buf };
-	wr.push_back_header( dic.begin_str( ).c_str( ) );
-
 	
 
 	return 0;

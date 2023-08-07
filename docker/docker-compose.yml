@@ -10,7 +10,7 @@ volumes:
 services:
   grafana:
       container_name: "grafana"
-      image: grafana/grafana:8.3.3
+      image: grafana/grafana
       environment:
         - 'GF_AUTH_ANONYMOUS_ENABLED=true'
         - 'GF_AUTH_ANONYMOUS_ORG_ROLE=Admin'
@@ -24,7 +24,7 @@ services:
         - ./grafana.yml:/etc/grafana/provisioning/datasources/datasources.yml
   prom:
     container_name: "prometheus"
-    image: prom/prometheus:v2.31.1
+    image: prom/prometheus
     hostname: localhost
     user: "0:0"
     ports:

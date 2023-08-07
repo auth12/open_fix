@@ -1,7 +1,6 @@
 libuv modules/libuv https://github.com/libuv/libuv.git v1.45.0
 spdlog modules/spdlog https://github.com/gabime/spdlog.git v1.x
 CppBenchmark modules/CppBenchmark https://github.com/chronoxor/CppBenchmark.git master
-hffix modules/hffix https://github.com/jamesdbrock/hffix.git master
 atomic_queue modules/atomic_queue https://github.com/max0x7ba/atomic_queue.git v1.4
 abseil modules/abseil https://github.com/abseil/abseil-cpp.git 20230125.3
 nameof modules/nameof https://github.com/Neargye/nameof.git master

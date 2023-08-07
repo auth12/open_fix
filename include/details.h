@@ -4,7 +4,7 @@
 
 #include <atomic_queue/atomic_queue.h>
 
-#define LOG_PATTERN "[%t][%X.%e] [%n] [%^%l%$] %v"
+#define LOG_PATTERN "[%t][%X.%e][%n][%^%l%$] %v"
 
 namespace details {
 	using log_ptr_t = std::shared_ptr< spdlog::logger >;
@@ -90,23 +90,26 @@ namespace details {
 		// m_pool.pop busy waits but is faster than try_pop when queue isnt empty
 		// make sure consumption is fast enough
 		Type *get( ) {
-			/*uintptr_t ret = 0;
+			uintptr_t ret = 0;
 			if ( !m_pool.try_pop( ret ) ) {
 				return ( Type * )ret;
-			}*/
+			}
 
-			return ( Type * )m_pool.pop( );
+			return ( Type * )ret;
 		}
 
 		void release( Type *obj ) {
 			// memset( obj, 0, Size );
-			m_pool.push( uintptr_t( obj ) );
+			if ( !m_pool.try_push( uintptr_t( obj ) ) ) {
+				spdlog::critical( "Failed to release object {:x}", uintptr_t( obj ) );
+			}
 		}
 
 		size_t pool_size( ) { return m_pool.was_size( ); }
 
 	  private:
-		atomic_queue::AtomicQueue< uintptr_t, N > m_pool;
+		atomic_queue::AtomicQueue2< uintptr_t, N > m_pool;
+		atomic_queue::AtomicQueue2< uintptr_t, N > m_backup_pool;
 		std::unique_ptr< char[] > m_ptr;
 	};
 }; // namespace details

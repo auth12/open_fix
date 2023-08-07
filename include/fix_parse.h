@@ -89,40 +89,57 @@ namespace fix {
 		using iterator = fix_field_iterator_t< Delim >;
 		const char *begin_, *end_ = nullptr;
 
-		char msg_type = 0;
+		iterator begin_it, end_it;
 
-		fix_message_t( const std::string_view &buf ) : begin_{ buf.data( ) }, end_{ buf.data( ) + buf.size( ) } { };
-		template < size_t N > fix_message_t( const char ( &buf )[ N ] ) : begin_{ buf }, end_{ buf + N - 1 } { };
+		uint8_t checksum = 0, type = 0;
+		size_t loss = 0;
+		bool valid = false;
+
+		fix_message_t( const std::string_view buf ) : begin_{ buf.data( ) }, end_{ buf.data( ) + buf.size( ) } { };
 		fix_message_t( const char *b_, const char *e_ ) : begin_{ b_ }, end_{ e_ } { };
 		fix_message_t( const char *b_, const size_t len ) : begin_{ b_ }, end_{ b_ + len } { };
 
-		bool validate( ) {
-			const ptrdiff_t len = end_ - begin_;
-			if ( begin_[ 0 ] != '8' or begin_[ 1 ] != '=' or begin_[ len - 1 ] != '\001' ) {
-				return false;
+		void init( ) {
+			begin_it.cur.begin = begin_;
+			++begin_it;
+
+			if ( begin_it.cur.tag != 8 ) {
+				return;
 			}
 
-			iterator b{ begin_ };
-			if ( b->tag != 8 ) { // BeginString
-				return false;
-			}
-			++b;
-			if ( b->tag != 9 ) { // bodylen
-				return false;
-			}
-			++b;
-			if ( b->tag != 35 ) { // msgtype
-				return false;
+			++begin_it;
+			if ( begin_it.cur.tag != 9 ) {
+				return;
 			}
 
-			msg_type = b->val.as_char( );
-			begin_ = b->val.end + 1;
+			auto b_len = begin_it.cur.val.as_int( );
+			if ( !b_len ) {
+				return;
+			}
 
-			return true;
+			end_it.cur.begin = begin_it.cur.val.end + b_len + 1;
+			end_it.next( );
+
+			if ( end_it.cur.tag != 10 ) {
+				return;
+			}
+
+			loss = end_ - ( end_it.cur.val.end + 1 );
+			checksum = end_it.cur.val.as_int( );
+
+			++begin_it;
+			if ( begin_it.cur.tag != 35 ) {
+				return;
+			}
+
+			type = begin_it.cur.val.as_char( );
+			++begin_it;
+
+			valid = true;
 		}
 
-		iterator begin( ) const { return iterator{ begin_ }; }
-		iterator end( ) const { return iterator{ end_ }; }
+		iterator begin( ) const { return begin_it; }
+		iterator end( ) const { return end_it; }
 		iterator find( const int &tag ) const { return std::find( begin( ), end( ), tag ); }
 	};
 

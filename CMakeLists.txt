@@ -30,7 +30,6 @@ set(include_dirs "${PROJECT_SOURCE_DIR}/modules/spdlog/include/"
 "${PROJECT_SOURCE_DIR}/modules/prometheus/pull/include"
 "${PROJECT_SOURCE_DIR}/include/")
 
-
 file(GLOB_RECURSE hdr "${PROJECT_SOURCE_DIR}/include/*.h")
 
 add_library(
@@ -40,8 +39,8 @@ add_library(
 
 target_include_directories(fix INTERFACE ${include_dirs})
 
-target_precompile_headers(fix INTERFACE "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix.hpp" "${PROJECT_SOURCE_DIR}/modules/hffix/include/hffix_fields.hpp" "${PROJECT_SOURCE_DIR}/include/fix_spec.h" )
-
+target_precompile_headers(fix INTERFACE "${PROJECT_SOURCE_DIR}/include/fix_spec.h")
+target_compile_definitions(fix INTERFACE SPDLOG_ACTIVE_LEVEL=1)
 target_link_libraries(fix INTERFACE spdlog)
 
 add_subdirectory(test)
