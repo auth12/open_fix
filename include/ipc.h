@@ -3,69 +3,32 @@
 #include "tcp_server.h"
 
 namespace ipc {
-	struct subscriber_t {
-		bool subscribed = false;
-	};
+	struct ipc_handler_t;
+	using ipc_server = net::tcp_server_impl< 16, 16, 128, 64, ipc_handler_t >;
 
-	class ipc_server : public net::tcp_server {
-	  private:
-		std::unordered_map< int, subscriber_t > m_subs;
-		details::log_ptr_t m_log;
+	struct ipc_handler_t {
+		ipc_server *server;
+		std::vector< int > m_subs;
 
-		static void on_read_cb( ipc_server *ipc, const int fd, char *data, size_t len ) {
-			std::string_view buf{ data, len };
+		ipc_handler_t( ipc_server *ptr ) : server{ ptr } {}
 
-			if ( buf.find( "/sub" ) != std::string::npos ) {
-				ipc->register_subscriber( fd );
-			}
-		}
+		void on_connect( int fd ) {}
 
-		static void on_disconnect_cb( ipc_server *ipc, const int fd, char *data, size_t len ) {
-			ipc->remove_subscriber( fd );
-		}
+		bool on_read( int fd, char *buf, size_t len ) {
+			std::string_view str{ buf, len };
 
-	  public:
-		ipc_server( ) : m_log{ details::log::make_sync( "IPC" ) }, net::tcp_server{ "SRV" } {
-			m_log->set_level( spdlog::level::debug );
-			m_log->debug( "Registering server callbacks..." );
-			m_log->set_pattern( LOG_PATTERN );
-			register_callback( net::CB_ON_READ, std::bind( ipc_server::on_read_cb, this, std::placeholders::_1,
-														   std::placeholders::_2, std::placeholders::_3 ) );
-			register_callback( net::CB_ON_DISCONNECT,
-							   std::bind( ipc_server::on_disconnect_cb, this, std::placeholders::_1,
-										  std::placeholders::_2, std::placeholders::_3 ) );
-		}
-
-		void register_subscriber( const int fd ) {
-			m_log->info( "FD: {} subscribed to stream", fd );
-			m_subs[ fd ].subscribed = true;
-		}
-
-		void remove_subscriber( const int fd ) { m_subs.erase( fd ); }
-
-		void post_sub_msg( std::string_view str ) {
-			m_log->info( "Sent {}", str );
-			post_sub_msg( str.data( ), str.size( ) );
-		}
-
-		void post_sub_msg( const char *data, size_t len ) {
-			if ( m_subs.empty( ) ) {
-				return;
+			if ( str.find( "/sub" ) != std::string::npos ) {
+				m_subs.emplace_back( fd );
 			}
 
-			auto sendbuf = get_buf( );
-			if ( !sendbuf ) {
-				return;
+			return true;
+		}
+
+		void on_disconnect( int fd ) {
+			auto it = std::ranges::find( m_subs, fd );
+			if ( it != m_subs.end( ) ) {
+				m_subs.erase( it );
 			}
-
-			memcpy( sendbuf, data, len );
-
-			for ( auto &[ fd, s ] : m_subs ) {
-				post( sendbuf, len, fd );
-			}
-
-			// release buffer
-			post( sendbuf, 0, 0 );
 		}
 	};
 }; // namespace ipc

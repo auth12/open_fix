@@ -9,10 +9,7 @@
 #include "tscns.h"
 
 namespace net {
-	constexpr int in_queue_size = 256;
-	constexpr int out_queue_size = 128;
 	constexpr int buffer_size = 512;
-	constexpr int bufpool_size = 128;
 
 	template < int InSize, int OutSize, int BufSize, int BufPoolSize, typename MsgType, bool Serial, class ReadHandler >
 	class tcp_client_impl : public tcp_session {
@@ -44,14 +41,14 @@ namespace net {
 
 		// release a buffer back into the pool, busy waits
 		void release_buf( char *buf ) {
-			SPDLOG_LOGGER_DEBUG( m_log, "Releasing buffer {:x}", uintptr_t( buf ) );
+			m_log->debug( "Releasing buffer {:x}", uintptr_t( buf ) );
 			m_bufpool.release( buf );
 		}
 
 		// returns a buffer from the buffer pool
 		char *get_buf( ) {
 			auto ret = m_bufpool.get( );
-			SPDLOG_LOGGER_DEBUG( m_log, "Got buffer {:x}", uintptr_t( ret ) );
+			m_log->debug( "Got buffer {:x}", uintptr_t( ret ) );
 			return ret;
 		}
 
@@ -59,7 +56,7 @@ namespace net {
 			struct addrinfo hints;
 			struct addrinfo *info;
 
-			SPDLOG_LOGGER_INFO( m_log, "Connecting to {}:{}", host, port );
+			m_log->info( "Connecting to {}:{}", host, port );
 
 			memset( &hints, 0, sizeof( hints ) );
 			hints.ai_family = AF_INET;
@@ -68,7 +65,7 @@ namespace net {
 
 			int ret = getaddrinfo( host.data( ), port.data( ), &hints, &info );
 			if ( ret != 0 ) {
-				SPDLOG_LOGGER_ERROR( m_log, "getaddrinfo failed, {}", ret );
+				m_log->error( "getaddrinfo failed, {}", ret );
 				return tcp_error::getaddrinfo_err;
 			}
 
@@ -84,7 +81,7 @@ namespace net {
 					continue;
 				}
 
-				SPDLOG_LOGGER_DEBUG( m_log, "Socket {} established connection", m_fd );
+				m_log->debug( "Socket {} established connection", m_fd );
 
 				break;
 			}
@@ -92,30 +89,30 @@ namespace net {
 			freeaddrinfo( info );
 
 			if ( m_fd < 0 ) {
-				SPDLOG_LOGGER_ERROR( m_log, "Failed to connect to {}:{}", host, port );
+				m_log->error( "Failed to connect to {}:{}", host, port );
 				return tcp_error::connect_err;
 			}
 
-			SPDLOG_LOGGER_DEBUG( m_log, "Setting socket {} to nonblock...", m_fd );
+			m_log->debug( "Setting socket {} to nonblock...", m_fd );
 
 			ret = fcntl( m_fd, F_SETFL, O_NONBLOCK );
 			if ( ret != 0 ) {
-				SPDLOG_LOGGER_ERROR( m_log, "Failed to set socket to non block." );
+				m_log->error( "Failed to set socket to non block." );
 				close( );
 				return tcp_error::sock_err;
 			}
 
-			SPDLOG_LOGGER_DEBUG( m_log, "Setting TCP_NODELAY..." );
+			m_log->debug( "Setting TCP_NODELAY..." );
 
 			int yes = 1;
 			ret = setsockopt( m_fd, IPPROTO_TCP, TCP_NODELAY, ( char * )&yes, sizeof( int ) );
 			if ( ret != 0 ) {
-				SPDLOG_LOGGER_ERROR( m_log, "Failed to set TCP_NODELAY, {}", ret );
+				m_log->error( "Failed to set TCP_NODELAY, {}", ret );
 				close( );
 				return tcp_error::sock_err;
 			}
 
-			SPDLOG_LOGGER_INFO( m_log, "Connected to {}:{}", host, port );
+			m_log->info( "Connected to {}:{}", host, port );
 
 			return tcp_error::ok;
 		}
@@ -128,13 +125,13 @@ namespace net {
 
 				int nevents = ::poll( &pfd, 1, 1 );
 				if ( nevents < 0 ) {
-					SPDLOG_LOGGER_ERROR( m_log, "Poll error, {}", nevents );
+					m_log->error( "Poll error, {}", nevents );
 					close( );
 					break;
 				}
 
 				if ( pfd.revents & POLLHUP ) {
-					SPDLOG_LOGGER_WARN( m_log, "Connection reset." );
+					m_log->warn( "Connection reset." );
 					close( );
 
 					break;
@@ -149,21 +146,14 @@ namespace net {
 
 					int nread = read( buf, m_bufpool.obj_size );
 					if ( nread <= 0 ) {
-						if ( errno == EWOULDBLOCK ) {
-							SPDLOG_LOGGER_ERROR( m_log, "Socket would block, discarding buf..." );
-							release_buf( buf );
-							continue;
-						}
-
-						SPDLOG_LOGGER_ERROR( m_log, "Read returned {} on fd: {}, resetting...", nread, m_fd );
+						m_log->error( "Read returned {} on fd: {}, resetting...", nread, m_fd );
 						release_buf( buf );
 						close( );
 						break;
 					}
 
-					SPDLOG_LOGGER_DEBUG( m_log, "IN -> fd: {}, buf: {:x}, size: {} bytes", m_fd, uintptr_t( buf ),
-										 nread );
-					SPDLOG_LOGGER_INFO( m_log, "IN -> Read {} bytes", nread );
+					m_log->debug( "IN -> fd: {}, buf: {:x}, size: {} bytes", m_fd, uintptr_t( buf ), nread );
+					m_log->info( "IN -> Read {} bytes", nread );
 					const auto ts = m_clock.rdtsc( );
 					if constexpr ( Serial ) {
 						if ( ReadHandler( )( MsgType{ buf, ( size_t )nread, ts } ) )
@@ -180,12 +170,12 @@ namespace net {
 
 						int nwrite = write( buf );
 						if ( nwrite <= 0 ) {
-							SPDLOG_LOGGER_ERROR( m_log, "Write returned {}, resetting...", nwrite );
+							m_log->error( "Write returned {}, resetting...", nwrite );
 							close( );
 						}
 
-						SPDLOG_LOGGER_DEBUG( m_log, "OUT -> {}", buf );
-						SPDLOG_LOGGER_INFO( m_log, "OUT -> Sent {} bytes\n\t{}", nwrite, buf );
+						m_log->debug( "OUT -> {}", buf );
+						m_log->info( "OUT -> Sent {} bytes\n\t{}", nwrite, buf );
 						release_buf( msg.buf );
 					}
 				}
@@ -193,6 +183,5 @@ namespace net {
 		}
 	};
 
-	using tcp_client =
-		tcp_client_impl< in_queue_size, out_queue_size, buffer_size, bufpool_size, tcp_msg_t, false, std::void_t<> >;
+	using tcp_client = tcp_client_impl< 128, 128, buffer_size, 128, tcp_msg_t, false, std::void_t<> >;
 }; // namespace net
