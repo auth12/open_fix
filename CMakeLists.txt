@@ -24,8 +24,6 @@ add_subdirectory(modules/prometheus)
 
 set(include_dirs "${PROJECT_SOURCE_DIR}/modules/spdlog/include/"
 "${PROJECT_SOURCE_DIR}/modules/atomic_queue/include/"
-"${PROJECT_SOURCE_DIR}/modules/abseil/"
-"${PROJECT_SOURCE_DIR}/modules/nameof/include/"
 "${PROJECT_SOURCE_DIR}/modules/prometheus/core/include"
 "${PROJECT_SOURCE_DIR}/modules/prometheus/pull/include"
 "${PROJECT_SOURCE_DIR}/include/")
@@ -40,7 +38,6 @@ add_library(
 target_include_directories(fix INTERFACE ${include_dirs})
 
 target_precompile_headers(fix INTERFACE "${PROJECT_SOURCE_DIR}/include/fix_spec.h")
-target_compile_definitions(fix INTERFACE SPDLOG_ACTIVE_LEVEL=1)
 target_link_libraries(fix INTERFACE spdlog)
 
 add_subdirectory(test)

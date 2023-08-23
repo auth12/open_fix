@@ -2,7 +2,7 @@
 
 #include "include.h"
 
-#include <atomic_queue/atomic_queue.h>
+#include "../modules/atomic_queue/include/atomic_queue/atomic_queue.h"
 
 #define LOG_PATTERN "[%t][%X.%e][%n][%^%l%$] %v"
 

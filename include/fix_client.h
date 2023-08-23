@@ -9,80 +9,125 @@
 #include "config.h"
 
 namespace fix {
-	enum fix_session_state : int { Offline = 0, Connected, AwaitingLogon, LoggedIn };
+	enum fix_session_state : int { Offline = 0, Connected, LoggedIn };
 
-	class fix_client : public net::tcp_client {
-	  private:
-		std::atomic_int m_state, m_next_out;
-		std::string m_target_id, m_sender_id, m_begin_string;
+	struct fix_msg_t {
+		int64_t timestamp;
+		uint8_t type, checksum;
+		bool valid;
+		char *buf;
+		size_t len, loss;
+	};
 
-	  public:
-		details::log_ptr_t m_log;
+	template < size_t InSize > struct fix_handler {
+		atomic_queue::AtomicQueue2< fix_msg_t, InSize, true, true, false, true > in_queue;
+		TSCNS clock;
 
-		fix_client( const std::string_view log_name, bool to_file )
-			: net::tcp_client{ "TCP", to_file }, m_log{ details::log::make_sync( log_name, to_file ) },
-			  m_state{ Offline }, m_next_out{ 1 }, m_target_id{ "" }, m_sender_id{ "" }, m_begin_string{ "" } {
-			m_log->set_pattern( LOG_PATTERN );
-			m_log->set_level( spdlog::level::debug );
-		};
-
-		int next_seq( ) { return m_next_out.fetch_add( 1, std::memory_order_release ); }
-		int state( ) const { return m_state.load( std::memory_order_acquire ); }
-
-		std::string_view target_id( ) const { return m_target_id; }
-		std::string_view sender_id( ) const { return m_sender_id; }
-		std::string_view begin_str( ) const { return m_begin_string; }
-
-		void set_state( const int &state ) { m_state.store( state, std::memory_order_release ); }
-		void set_sender_id( const std::string_view id ) { m_sender_id = id; }
-		void set_target_id( const std::string_view id ) { m_target_id = id; }
-		void set_begin_str( const std::string_view version ) { m_begin_string = fmt::format( "FIX.{}", version ); }
-
-		void post_heartbeat( char *buf ) {
-			fix::fix_writer wr{ buf, net::buffer_size };
-			wr.push_header( m_begin_string );
-			wr.push_field( fix_spec::MsgType, '0' );
-
-			wr.push_field( fix_spec::TargetCompID, m_target_id );
-			wr.push_field( fix_spec::SenderCompID, m_sender_id );
-
-			wr.push_timestamp( fix_spec::SendingTime, std::chrono::system_clock::now( ) );
-			wr.push_field( fix_spec::MsgSeqNum, next_seq( ) );
-			wr.push_trailer( );
-
-			post( net::tcp_msg_t{ buf, wr.size( ) } );
+		fix_handler( ) {
+			clock.init( );
+			clock.calibrate( );
 		}
 
-		void post_market_sub( char *buf, const std::vector< std::pair< int, int > > inst_ids,
-							  const std::string_view req_id ) {
-			fix::fix_writer wr{ buf, net::buffer_size };
+		bool operator( )( net::tcp_session *session, char *buf, size_t len ) {
+			fix::fix_message_t msg{ buf, len };
 
-			wr.push_header( begin_str( ) );
-			wr.push_field( fix_spec::MsgType, 'V' );
+			msg.init( );
 
-			wr.push_field( fix_spec::TargetCompID, target_id( ) );
-			wr.push_field( fix_spec::SenderCompID, sender_id( ) );
+			in_queue.push( fix_msg_t{ clock.rdtsc( ), msg.type, msg.checksum, msg.valid, buf, len, msg.loss } );
 
-			wr.push_timestamp( fix_spec::SendingTime, std::chrono::system_clock::now( ) );
-			wr.push_field( fix_spec::MsgSeqNum, next_seq( ) );
+			return false;
+		}
+	};
 
-			wr.push_field( fix_spec::MDReqID, req_id );
-			wr.push_field( fix_spec::SubscriptionRequestType, '1' );
-			wr.push_field( fix_spec::MarketDepth, 0 );
+	constexpr size_t buffer_size = 512;
 
-			wr.push_field( fix_spec::NoMDEntryTypes, 2 );
-			wr.push_field( fix_spec::MDEntryType, '0' );
-			wr.push_field( fix_spec::MDEntryType, '1' );
+	using fix_tcp_client = net::tcp_client_impl< buffer_size, 64, 64, fix_handler< 64 > >;
 
-			wr.push_field( fix_spec::NoRelatedSym, inst_ids.size( ) );
-			for ( auto &[ sec_id, sec_src ] : inst_ids ) {
-				wr.push_field( fix_spec::SecurityID, sec_id );
-				wr.push_field( fix_spec::SecurityIDSource, sec_src );
+	template < class Broker > class fix_client : public fix_tcp_client {
+	  private:
+		Broker m_broker;
+		details::log_ptr_t m_log;
+
+	  public:
+		fix_client( ) : m_log{ details::log::make_sync( "FIX" ) }, fix_tcp_client{ "TCP" }, m_broker{ } {
+			m_log->set_pattern( LOG_PATTERN );
+			m_log->set_level( spdlog::level::debug );
+
+			m_broker.state = Offline;
+		}
+
+		bool consume_fix_msg( fix_msg_t &msg ) {
+			if ( !m_handler.in_queue.try_pop( msg ) ) {
+				return false;
 			}
 
-			wr.push_trailer( );
+			if ( !msg.valid ) {
+				m_log->error( "Invalid fix message received on {} session.", m_broker.target_id );
+				return false;
+			}
 
-			post( net::tcp_msg_t{ buf, wr.size( ) } );
+			const auto latency = m_handler.clock.rdns( ) - m_handler.clock.tsc2ns( msg.timestamp );
+
+			m_log->debug( "IN:{} -> buf: {:x}, len: {}, latency: {}ns", m_broker.target_id, uintptr_t( msg.buf ),
+						  msg.len, latency );
+			m_log->info( "IN:{} -> type: {}, checksum: {}, loss: {}\n\t{}", m_broker.target_id, ( char )msg.type,
+						 msg.checksum, msg.loss, std::string_view{ msg.buf, msg.len } );
+
+			if ( msg.type == '0' or msg.type == '1' ) {
+				m_log->info( "Posting heartbeat on {} session", m_broker.target_id );
+				post_heartbeat( msg.buf );
+				return false;
+			}
+
+			if ( msg.type == 'A' ) {
+				m_broker.state = LoggedIn;
+				m_log->info( "Logged in to {}.", m_broker.target_id );
+			}
+
+			return true;
+		}
+
+		auto *clock( ) { return &m_handler.clock; }
+		auto *broker( ) { return &m_broker; }
+
+		void post_logon( ) {
+			auto buf = get_buf( );
+			if ( !buf ) {
+				m_log->error( "Failed to get buffer for logon message." );
+				return;
+			}
+
+			size_t len = m_broker.create_logon( buf, buffer_size );
+
+			post( net::tcp_msg_t{ buf, len } );
+		}
+
+		void post_heartbeat( char *buf = nullptr ) {
+			if ( !buf )
+				buf = get_buf( );
+
+			if ( !buf ) {
+				m_log->error( "Failed to get buffer for heartbeat message." );
+				return;
+			}
+
+			size_t len = m_broker.create_heartbeat( buf, buffer_size );
+
+			post( net::tcp_msg_t{ buf, len } );
+		}
+
+		void post_market_request( char *buf = nullptr ) {
+			if ( !buf )
+				buf = get_buf( );
+
+			if ( !buf ) {
+				m_log->error( "Failed to get buffer for heartbeat message." );
+				return;
+			}
+
+			size_t len = m_broker.create_market_request( buf, buffer_size );
+
+			post( net::tcp_msg_t{ buf, len } );
 		}
 	};
 }; // namespace fix
