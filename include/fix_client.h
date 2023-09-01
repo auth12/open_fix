@@ -12,11 +12,13 @@ namespace fix {
 	enum fix_session_state : int { Offline = 0, Connected, LoggedIn };
 
 	struct fix_msg_t {
+		// fix specific
+		uint8_t type, checksum = 0;
+
 		int64_t timestamp;
-		uint8_t type, checksum;
-		bool valid;
-		char *buf;
-		size_t len, loss;
+
+		char *ptr;
+		bool is_final;
 	};
 
 	template < size_t InSize > struct fix_handler {
@@ -29,17 +31,42 @@ namespace fix {
 		}
 
 		bool operator( )( net::tcp_session *session, char *buf, size_t len ) {
-			fix::fix_message_t msg{ buf, len };
+			fix::fix_message_t msg{ buf };
 
 			msg.init( );
+			if ( !msg.valid ) {
+				spdlog::error( "Invalid FIX message received." );
+				return true;
+			}
 
-			in_queue.push( fix_msg_t{ clock.rdtsc( ), msg.type, msg.checksum, msg.valid, buf, len, msg.loss } );
+			ptrdiff_t loss = ( buf + len ) - msg.end_;
+
+			in_queue.push( fix_msg_t{ msg.type, msg.checksum, clock.rdtsc( ), buf, loss == 0 } );
+
+			if ( loss > 0 ) {
+				spdlog::warn( "TCP buffer does not contain single FIX message, parsing..." );
+
+				for ( auto i = msg.end_; i < buf + len; i = msg.end_ ) {
+					msg.begin_ = i;
+					msg.init( );
+					if ( !msg.valid ) {
+						spdlog::error( "Invalid message appended, increase buffer size." );
+						return true;
+					}
+
+					loss = ( buf + len ) - msg.end_;
+
+					spdlog::debug( "{:x} -> {:x}, loss: {}", uintptr_t( msg.begin_ ), uintptr_t( msg.end_ ), loss );
+
+					in_queue.push( fix_msg_t{ msg.type, msg.checksum, clock.rdtsc( ), buf, loss == 0 } );
+				}
+			}
 
 			return false;
 		}
 	};
 
-	constexpr size_t buffer_size = 512;
+	constexpr size_t buffer_size = 2048;
 
 	using fix_tcp_client = net::tcp_client_impl< buffer_size, 64, 64, fix_handler< 64 > >;
 
@@ -61,22 +88,16 @@ namespace fix {
 				return false;
 			}
 
-			if ( !msg.valid ) {
-				m_log->error( "Invalid fix message received on {} session.", m_broker.target_id );
-				return false;
-			}
-
 			const auto latency = m_handler.clock.rdns( ) - m_handler.clock.tsc2ns( msg.timestamp );
 
-			m_log->debug( "IN:{} -> buf: {:x}, len: {}, latency: {}ns", m_broker.target_id, uintptr_t( msg.buf ),
-						  msg.len, latency );
-			m_log->info( "IN:{} -> type: {}, checksum: {}, loss: {}\n\t{}", m_broker.target_id, ( char )msg.type,
-						 msg.checksum, msg.loss, std::string_view{ msg.buf, msg.len } );
+			m_log->debug( "IN:{} -> buf: {:x}, latency: {}ns", m_broker.target_id, uintptr_t( msg.ptr ),
+						  latency );
+			m_log->info( "IN:{} -> type: {}, checksum: {}", m_broker.target_id, ( char )msg.type, msg.checksum );
 
 			if ( msg.type == '0' or msg.type == '1' ) {
 				m_log->info( "Posting heartbeat on {} session", m_broker.target_id );
-				post_heartbeat( msg.buf );
-				return false;
+				post_heartbeat( );
+				return true;
 			}
 
 			if ( msg.type == 'A' ) {
@@ -96,8 +117,11 @@ namespace fix {
 				m_log->error( "Failed to get buffer for logon message." );
 				return;
 			}
-
+			auto ts1 = m_handler.clock.rdtsc( );
 			size_t len = m_broker.create_logon( buf, buffer_size );
+			auto ts2 = m_handler.clock.rdtsc( );
+
+			m_log->debug( "Logon creation time: {}ns", m_handler.clock.tsc2ns( ts2 ) - m_handler.clock.tsc2ns( ts1 ) );
 
 			post( net::tcp_msg_t{ buf, len } );
 		}
@@ -111,7 +135,11 @@ namespace fix {
 				return;
 			}
 
+			auto ts1 = m_handler.clock.rdtsc( );
 			size_t len = m_broker.create_heartbeat( buf, buffer_size );
+			auto ts2 = m_handler.clock.rdtsc( );
+
+			m_log->debug( "HB creation time: {}ns", m_handler.clock.tsc2ns( ts2 ) - m_handler.clock.tsc2ns( ts1 ) );
 
 			post( net::tcp_msg_t{ buf, len } );
 		}

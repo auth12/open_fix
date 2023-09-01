@@ -92,12 +92,11 @@ namespace fix {
 		iterator begin_it, end_it;
 
 		uint8_t checksum = 0, type = 0;
-		size_t loss = 0;
 		bool valid = false;
 
-		fix_message_t( const std::string_view buf ) : begin_{ buf.data( ) }, end_{ buf.data( ) + buf.size( ) } { };
-		fix_message_t( const char *b_, const char *e_ ) : begin_{ b_ }, end_{ e_ } { };
-		fix_message_t( const char *b_, const size_t len ) : begin_{ b_ }, end_{ b_ + len } { };
+		fix_message_t( ) = default;
+		fix_message_t( const std::string_view buf ) : begin_{ buf.data( ) } { };
+		fix_message_t( const char *b_ ) : begin_{ b_ } { };
 
 		void init( ) {
 			begin_it.cur.begin = begin_;
@@ -124,7 +123,8 @@ namespace fix {
 				return;
 			}
 
-			loss = end_ - ( end_it.cur.val.end + 1 );
+			end_ = end_it.cur.val.end + 1;
+
 			checksum = end_it.cur.val.as_int( );
 
 			++begin_it;

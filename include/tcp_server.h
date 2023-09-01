@@ -7,19 +7,6 @@
 #include "message.h"
 
 namespace net {
-	static constexpr int server_bufpool_elements = 256;
-	static constexpr int server_buf_size = 1024;
-	static constexpr int max_clients = 64;
-
-	enum msg_type : int { broadcast = 0, single };
-
-	struct outgoing_tcp_msg_t {
-		msg_type type;
-		char *buf;
-		size_t len;
-		int fd;
-	};
-
 	template < int MaxClients, int OutSize, int BufSize, int BufPoolSize, class Handler >
 	class tcp_server_impl : public tcp_session {
 	  private:
@@ -28,7 +15,7 @@ namespace net {
 		std::vector< pollfd > m_pollfds;
 
 		details::object_pool< char, BufSize, BufPoolSize > m_bufpool;
-		atomic_queue::AtomicQueue2< outgoing_tcp_msg_t, OutSize, true, true, true, false > m_out_queue;
+		atomic_queue::AtomicQueue2< tagged_tcp_msg_t, OutSize > m_out_queue;
 
 		Handler m_handler;
 
@@ -44,7 +31,7 @@ namespace net {
 		// get a buffer from the buffer pool
 		char *get_buf( ) { return m_bufpool.get( ); }
 
-		void post( const outgoing_tcp_msg_t &msg ) { m_out_queue.push( msg ); }
+		void post( const tagged_tcp_msg_t &msg ) { m_out_queue.push( msg ); }
 
 		// releases a buffer back to buffer pool
 		void release_buf( char *buf ) {
@@ -91,12 +78,12 @@ namespace net {
 
 			m_log->debug( "Setting O_NONBLOCK..." );
 
-			/*ret = fcntl( m_fd, F_SETFL, O_NONBLOCK );
+			ret = fcntl( m_fd, F_SETFL, O_NONBLOCK );
 			if ( ret < 0 ) {
 				m_log->error( "Failed to set socket to non block." );
 				close( );
 				return ret;
-			}*/
+			}
 
 			m_log->debug( "Setting TCP_NODELAY..." );
 
@@ -181,21 +168,29 @@ namespace net {
 						}
 
 						m_log->debug( "IN -> fd: {}, buf: {:x}, len: {}", it->fd, uintptr_t( buf ), nread );
-						m_log->info( "Read {} bytes from fd: {}", nread, it->fd );
+						m_log->info( "IN:{} -> {}", it->fd, std::string_view{ buf, ( size_t )nread } );
 
 						if ( m_handler.on_read( it->fd, buf, nread ) )
 							release_buf( buf );
 					}
 
 					if ( it->revents & POLLOUT ) {
-						outgoing_tcp_msg_t msg{ };
+						tagged_tcp_msg_t msg{ };
 						if ( !m_out_queue.try_pop( msg ) )
 							continue;
 
-						if ( msg.type == broadcast ) {
+						if ( msg.fd == 0 ) {
+							m_log->info( "OUT -> Broadcasting {} bytes to {} clients.", msg.len, m_pollfds.size( ) - 1 );
 							for ( auto &c : m_pollfds ) {
 								if ( c.fd == m_fd )
 									continue;
+
+								msg.fd = c.fd;
+
+								if ( !m_handler.on_out( msg ) ) {
+									m_log->info( "Filtering outgoing message to fd: {}", msg.fd );
+									continue;
+								}
 
 								int nwrite = net::write( c.fd, msg.buf, msg.len );
 								if ( nwrite <= 0 ) {
@@ -205,17 +200,21 @@ namespace net {
 								}
 							}
 
-							release_buf( msg.buf );
 						} else {
+							if ( !m_handler.on_out( msg ) ) {
+								m_log->info( "Filtering outgoing message to fd: {}", msg.fd );
+								continue;
+							}
+
 							int nwrite = net::write( msg.fd, msg.buf, msg.len );
 							if ( nwrite <= 0 ) {
 								m_log->error( "Failed to write to fd: {}, dropping...", msg.fd );
 								::close( msg.fd );
 								m_pollfds.erase( it );
 							}
-
-							release_buf( msg.buf );
 						}
+
+						release_buf( msg.buf );
 					}
 				}
 			}

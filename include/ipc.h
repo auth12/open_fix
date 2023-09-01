@@ -3,14 +3,10 @@
 #include "tcp_server.h"
 
 namespace ipc {
-	struct ipc_handler_t;
-	using ipc_server = net::tcp_server_impl< 16, 16, 128, 64, ipc_handler_t >;
-
 	struct ipc_handler_t {
-		ipc_server *server;
 		std::vector< int > m_subs;
 
-		ipc_handler_t( ipc_server *ptr ) : server{ ptr } {}
+		ipc_handler_t( ) {}
 
 		void on_connect( int fd ) {}
 
@@ -24,6 +20,10 @@ namespace ipc {
 			return true;
 		}
 
+		bool on_out( const net::tagged_tcp_msg_t &msg ) {
+			return false;
+		}
+
 		void on_disconnect( int fd ) {
 			auto it = std::ranges::find( m_subs, fd );
 			if ( it != m_subs.end( ) ) {
@@ -31,4 +31,8 @@ namespace ipc {
 			}
 		}
 	};
+
+
+	using ipc_server = net::tcp_server_impl< 16, 16, 128, 64, ipc_handler_t >;
+
 }; // namespace ipc

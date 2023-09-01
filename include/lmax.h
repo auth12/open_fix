@@ -69,9 +69,18 @@ namespace fix {
 			wr.push_field( fix_spec::MDEntryType, 0 );
 			wr.push_field( fix_spec::MDEntryType, 1 );
 
-			wr.push_field( fix_spec::NoRelatedSym, 1 );
+			wr.push_field( fix_spec::NoRelatedSym, 4 );
 
 			wr.push_field( fix_spec::SecurityID, 5002 );
+			wr.push_field( fix_spec::SecurityIDSource, 8 );
+
+			wr.push_field( fix_spec::SecurityID, 5003 );
+			wr.push_field( fix_spec::SecurityIDSource, 8 );
+
+			wr.push_field( fix_spec::SecurityID, 5004 );
+			wr.push_field( fix_spec::SecurityIDSource, 8 );
+
+			wr.push_field( fix_spec::SecurityID, 5005 );
 			wr.push_field( fix_spec::SecurityIDSource, 8 );
 
 			wr.push_trailer( );

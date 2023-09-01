@@ -4,9 +4,6 @@
 
 #include <config.h>
 
-#include <sched.h>
-#include <pthread.h>
-
 std::unique_ptr< fix::lmax_fix_client > g_cli;
 
 std::once_flag g_once;
@@ -26,7 +23,8 @@ void consume_in( ) {
 			}
 		} );
 
-		g_cli->release_buf( msg.buf );
+		if ( msg.is_final )
+			g_cli->release_buf( msg.ptr );
 	}
 }
 

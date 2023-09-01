@@ -23,7 +23,7 @@ namespace net {
 		tcp_client_impl( const std::string_view log_name, bool to_file = false )
 			: m_log{ details::log::make_sync( log_name, to_file ) }, m_handler{ } {
 			m_log->set_pattern( LOG_PATTERN );
-			m_log->set_level( spdlog::level::info );
+			m_log->set_level( spdlog::level::debug );
 		}
 
 		// release a buffer back into the pool, busy waits
@@ -126,6 +126,7 @@ namespace net {
 				}
 
 				if ( pfd.revents & POLLIN ) {
+					m_log->debug( "Buffer pool available elements: {}", m_bufpool.pool_size( ) );
 					auto buf = get_buf( );
 					if ( !buf ) {
 						m_log->warn( "No available buffers in pool." );
