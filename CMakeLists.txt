@@ -20,7 +20,7 @@ add_subdirectory(modules/spdlog)
 set(ENABLE_TESTING OFF)
 set(ENABLE_PUSH OFF)
 set(GENERATE_PKGCONFIG OFF)
-add_subdirectory(modules/prometheus)
+add_subdirectory(modules/prometheuslib)
 
 set(include_dirs "${PROJECT_SOURCE_DIR}/modules/spdlog/include/"
 "${PROJECT_SOURCE_DIR}/modules/atomic_queue/include/"

@@ -2,6 +2,5 @@ build/*
 bin/*
 .cache/*
 .DS_Store
-modules/*
 .idea/*
 cmake-build-*

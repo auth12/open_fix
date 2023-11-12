@@ -1,4 +1,0 @@
-spdlog modules/spdlog https://github.com/gabime/spdlog.git v1.x
-CppBenchmark modules/CppBenchmark https://github.com/chronoxor/CppBenchmark.git master
-atomic_queue modules/atomic_queue https://github.com/max0x7ba/atomic_queue.git v1.4
-prometheus modules/prometheus https://github.com/jupp0r/prometheus-cpp.git v1.1.0

@@ -1,0 +1,9 @@
+[submodule "modules/spdlog"]
+	path = modules/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "modules/atomic_queue"]
+	path = modules/atomic_queue
+	url = https://github.com/max0x7ba/atomic_queue.git
+[submodule "modules/prometheuslib"]
+	path = modules/prometheuslib
+	url = https://github.com/jupp0r/prometheus-cpp.git
